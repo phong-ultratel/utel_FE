@@ -1,0 +1,51 @@
+<section class="data-packages">
+  <div class="packages-container">
+    <div class="section-header">
+      <h2 class="section-title">Chọn Gói Data Phù Hợp</h2>
+      <p class="section-subtitle">Nhiều lựa chọn với giá cả hợp lý, đáp ứng mọi nhu cầu sử dụng</p>
+    </div>
+
+    <div class="packages-grid">
+      <div 
+        *ngFor="let pkg of packages" 
+        class="package-card"
+        [class.popular]="pkg.popular"
+        [style.border-top-color]="pkg.color">
+        
+        <div *ngIf="pkg.popular" class="popular-badge">
+          <span>Phổ biến</span>
+        </div>
+
+        <div class="package-header">
+          <h3 class="package-name">{{ pkg.name }}</h3>
+          <div class="package-data" [style.color]="pkg.color">
+            <span class="data-amount">{{ pkg.data }}</span>
+            <span class="data-label">Data</span>
+          </div>
+        </div>
+
+        <div class="package-price">
+          <span class="price-amount">{{ formatPrice(pkg.price) }}</span>
+          <span class="price-unit">đ</span>
+          <span class="price-duration">/ {{ pkg.duration }}</span>
+        </div>
+
+        <div class="package-features">
+          <ul class="features-list">
+            <li *ngFor="let feature of pkg.features" class="feature-item">
+              <span class="check-icon">✓</span>
+              <span>{{ feature }}</span>
+            </li>
+          </ul>
+        </div>
+
+        <button 
+          class="btn-select"
+          [style.background]="pkg.color"
+          (click)="selectPackage(pkg)">
+          Đăng ký ngay
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

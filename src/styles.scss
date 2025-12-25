@@ -1,1 +1,74 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  color: #333;
+  background: #fff;
+  line-height: 1.6;
+}
+
+// Scrollbar styling
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E60012;
+  border-radius: 4px;
+
+  &:hover {
+    background: #C5000F;
+  }
+}
+
+// Common button styles
+button {
+  font-family: inherit;
+}
+
+// Link styles
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+// Responsive images
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+// Utility classes
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: 10px; }
+.mt-2 { margin-top: 20px; }
+.mt-3 { margin-top: 30px; }
+.mb-1 { margin-bottom: 10px; }
+.mb-2 { margin-bottom: 20px; }
+.mb-3 { margin-bottom: 30px; }

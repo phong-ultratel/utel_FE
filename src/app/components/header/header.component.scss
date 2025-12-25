@@ -1,0 +1,184 @@
+.header {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+}
+
+.logo-section {
+  flex-shrink: 0;
+}
+
+.logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.logo-text {
+  font-size: 28px;
+  font-weight: 700;
+  color: #E60012;
+  letter-spacing: 1px;
+}
+
+.nav-menu {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 30px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #333;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 8px 0;
+  position: relative;
+  transition: color 0.3s;
+
+  &:hover {
+    color: #E60012;
+  }
+
+  &.active {
+    color: #E60012;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: #E60012;
+    }
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.btn-login {
+  background: #E60012;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #C5000F;
+  }
+}
+
+.btn-menu-toggle {
+  display: none;
+  flex-direction: column;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  gap: 5px;
+
+  span {
+    width: 25px;
+    height: 3px;
+    background: #333;
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .header-container {
+    height: 60px;
+    padding: 0 15px;
+  }
+
+  .logo-text {
+    font-size: 24px;
+  }
+
+  .nav-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+
+    &.menu-open {
+      max-height: 400px;
+    }
+  }
+
+  .nav-list {
+    flex-direction: column;
+    padding: 20px;
+    gap: 0;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &.active::after {
+      display: none;
+    }
+
+    &.active {
+      font-weight: 700;
+    }
+  }
+
+  .btn-menu-toggle {
+    display: flex;
+  }
+
+  .btn-login {
+    padding: 8px 15px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-text {
+    font-size: 20px;
+  }
+
+  .btn-login {
+    display: none;
+  }
+}
+

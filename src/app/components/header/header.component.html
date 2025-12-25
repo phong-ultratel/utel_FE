@@ -1,0 +1,28 @@
+<header class="header">
+  <div class="header-container">
+    <div class="logo-section">
+      <a href="/" class="logo">
+        <span class="logo-text">VIETTEL</span>
+      </a>
+    </div>
+    
+    <nav class="nav-menu" [class.menu-open]="isMenuOpen">
+      <ul class="nav-list">
+        <li><a href="#" class="nav-link active">Di động</a></li>
+        <li><a href="#" class="nav-link">Internet</a></li>
+        <li><a href="#" class="nav-link">Truyền hình</a></li>
+        <li><a href="#" class="nav-link">Dịch vụ</a></li>
+        <li><a href="#" class="nav-link">Hỗ trợ</a></li>
+      </ul>
+    </nav>
+    
+    <div class="header-actions">
+      <button class="btn-login">Đăng nhập</button>
+      <button class="btn-menu-toggle" (click)="toggleMenu()" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+</header>
