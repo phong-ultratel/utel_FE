@@ -5,9 +5,55 @@
       <p class="section-subtitle">Nhiều lựa chọn với giá cả hợp lý, đáp ứng mọi nhu cầu sử dụng</p>
     </div>
 
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <!-- Package Type Navigation -->
+      <div class="package-type-nav-wrapper">
+        <div class="package-type-nav">
+          <button 
+            *ngFor="let type of packageTypes" 
+            class="nav-item"
+            [class.active]="selectedPackageType === type.id"
+            (click)="selectPackageType(type.id)">
+            {{ type.label }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Filters -->
+      <div class="quick-filters">
+        <button 
+          class="filter-btn"
+          [class.active]="selectedPriceSort !== null"
+          (click)="togglePriceSort()">
+          <span>Giá</span>
+          <span class="sort-icon" *ngIf="selectedPriceSort === 'asc'">▲</span>
+          <span class="sort-icon" *ngIf="selectedPriceSort === 'desc'">▼</span>
+        </button>
+        <button 
+          class="filter-btn"
+          [class.active]="selectedDuration === 'all'"
+          (click)="selectDuration('all')">
+          Tất cả
+        </button>
+        <button 
+          class="filter-btn"
+          [class.active]="selectedDuration === '30'"
+          (click)="selectDuration('30')">
+          30 ngày
+        </button>
+        <button 
+          class="filter-btn"
+          [class.active]="selectedDuration === 'long'"
+          (click)="selectDuration('long')">
+          Dài ngày
+        </button>
+      </div>
+    </div>
+
     <div class="packages-grid">
       <div 
-        *ngFor="let pkg of packages" 
+        *ngFor="let pkg of filteredPackages" 
         class="package-card"
         [class.popular]="pkg.popular"
         [style.border-top-color]="pkg.color">
