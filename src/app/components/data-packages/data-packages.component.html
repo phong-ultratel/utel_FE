@@ -55,42 +55,67 @@
       <div 
         *ngFor="let pkg of filteredPackages" 
         class="package-card"
-        [class.popular]="pkg.popular"
-        [style.border-top-color]="pkg.color">
+        [class.popular]="pkg.popular">
         
-        <div *ngIf="pkg.popular" class="popular-badge">
-          <span>Phổ biến</span>
-        </div>
-
-        <div class="package-header">
-          <h3 class="package-name">{{ pkg.name }}</h3>
-          <div class="package-data" [style.color]="pkg.color">
-            <span class="data-amount">{{ pkg.data }}</span>
-            <span class="data-label">Data</span>
+        <!-- Phần đầu: Tên gói cước - Thời hạn -->
+        <div class="package-header-section">
+          <div class="package-header-content">
+            <span class="package-name-duration">{{ pkg.name }} - {{ pkg.duration }}</span>
           </div>
         </div>
 
-        <div class="package-price">
-          <span class="price-amount">{{ formatPrice(pkg.price) }}</span>
-          <span class="price-unit">đ</span>
-          <span class="price-duration">/ {{ pkg.duration }}</span>
+        <!-- Phần giữa: Thông tin và tiện ích (có scroll) -->
+        <div class="package-content-section">
+          <div class="package-info-list">
+            <!-- Data -->
+            <div class="info-item" *ngIf="pkg.dailyData">
+              <span class="info-icon wifi-icon">📶</span>
+              <span class="info-label">Data:</span>
+              <span class="info-value">{{ pkg.dailyData }}</span>
+            </div>
+            
+            <!-- Ưu đãi -->
+            <div class="info-item" *ngIf="pkg.promotion">
+              <span class="info-icon gift-icon">🎁</span>
+              <span class="info-label">Ưu đãi:</span>
+              <span class="info-value">{{ pkg.promotion }}</span>
+            </div>
+            
+            <!-- Tiện ích -->
+            <div class="info-item" *ngIf="pkg.utility">
+              <span class="info-icon play-icon">▶</span>
+              <span class="info-label">Tiện ích:</span>
+              <span class="info-value">{{ pkg.utility }}</span>
+            </div>
+
+            <!-- Features -->
+            <div class="info-item" *ngFor="let feature of pkg.features">
+              <span class="info-icon check-icon">✓</span>
+              <span class="info-value">{{ feature }}</span>
+            </div>
+          </div>
         </div>
 
-        <div class="package-features">
-          <ul class="features-list">
-            <li *ngFor="let feature of pkg.features" class="feature-item">
-              <span class="check-icon">✓</span>
-              <span>{{ feature }}</span>
-            </li>
-          </ul>
+        <!-- Phần cuối: Giá, nút Đăng ký và Xem chi tiết -->
+        <div class="package-footer-section">
+          <div class="package-price">
+            <span class="price-amount">{{ formatPrice(pkg.price) }}</span>
+            <span class="price-unit">₫</span>
+          </div>
+          
+          <div class="package-actions">
+            <button 
+              class="btn-register"
+              (click)="selectPackage(pkg)">
+              Đăng ký
+            </button>
+            <a 
+              class="btn-details"
+              (click)="viewDetails(pkg)">
+              Xem chi tiết >
+            </a>
+          </div>
         </div>
-
-        <button 
-          class="btn-select"
-          [style.background]="pkg.color"
-          (click)="selectPackage(pkg)">
-          Đăng ký ngay
-        </button>
       </div>
     </div>
   </div>

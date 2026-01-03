@@ -4,9 +4,12 @@ interface DataPackage {
   id: number;
   name: string;
   data: string;
+  dailyData?: string; // Data hàng ngày (ví dụ: "7GB/ngày")
   price: number;
   duration: string;
   features: string[];
+  promotion?: string; // Ưu đãi (ví dụ: "Liên Quân Mobile")
+  utility?: string; // Tiện ích (ví dụ: "TV360")
   popular?: boolean;
   color: string;
   packageType?: string; // '4g5g', '5g', 'hot', 'dcom', 'roaming'
@@ -38,8 +41,9 @@ export class DataPackagesComponent implements OnInit {
   packages: DataPackage[] = [
     {
       id: 1,
-      name: 'Gói Data 1GB',
+      name: '3T5GLQ190N',
       data: '1GB',
+      dailyData: '1GB/ngày',
       price: 20000,
       duration: '1 ngày',
       features: ['Tốc độ 4G/5G', 'Không giới hạn tốc độ', 'Hết data tự động tắt'],
@@ -48,8 +52,9 @@ export class DataPackagesComponent implements OnInit {
     },
     {
       id: 2,
-      name: 'Gói Data 3GB',
+      name: '3T5GLQ390N',
       data: '3GB',
+      dailyData: '1GB/ngày',
       price: 50000,
       duration: '3 ngày',
       features: ['Tốc độ 4G/5G', 'Không giới hạn tốc độ', 'Hết data tự động tắt'],
@@ -58,19 +63,23 @@ export class DataPackagesComponent implements OnInit {
     },
     {
       id: 3,
-      name: 'Gói Data 7GB',
+      name: '3T5GLQ190N',
       data: '7GB',
-      price: 100000,
-      duration: '7 ngày',
+      dailyData: '7GB/ngày',
+      price: 570000,
+      duration: '90 ngày',
       features: ['Tốc độ 4G/5G', 'Không giới hạn tốc độ', 'Hết data tự động tắt', 'Ưu tiên tốc độ'],
+      promotion: 'Liên Quân Mobile',
+      utility: 'TV360',
       popular: true,
       color: '#E60012',
       packageType: '4g5g'
     },
     {
       id: 4,
-      name: 'Gói Data 15GB',
+      name: '3T5GLQ1530N',
       data: '15GB',
+      dailyData: '500MB/ngày',
       price: 200000,
       duration: '30 ngày',
       features: ['Tốc độ 4G/5G', 'Không giới hạn tốc độ', 'Hết data tự động tắt', 'Ưu tiên tốc độ', 'Miễn phí 100 phút gọi'],
@@ -79,21 +88,26 @@ export class DataPackagesComponent implements OnInit {
     },
     {
       id: 5,
-      name: 'Gói Data 30GB',
+      name: '3T5GLQ3030N',
       data: '30GB',
+      dailyData: '1GB/ngày',
       price: 350000,
       duration: '30 ngày',
       features: ['Tốc độ 4G/5G', 'Không giới hạn tốc độ', 'Hết data tự động tắt', 'Ưu tiên tốc độ', 'Miễn phí 200 phút gọi'],
+      utility: 'TV360',
       color: '#0066CC',
       packageType: '4g5g'
     },
     {
       id: 6,
-      name: 'Gói Data 50GB',
+      name: '3T5GLQ5030N',
       data: '50GB',
+      dailyData: '1.67GB/ngày',
       price: 500000,
       duration: '30 ngày',
       features: ['Tốc độ 4G/5G', 'Không giới hạn tốc độ', 'Hết data tự động tắt', 'Ưu tiên tốc độ', 'Miễn phí 300 phút gọi', 'Tặng 5GB data'],
+      promotion: 'Liên Quân Mobile',
+      utility: 'TV360',
       popular: true,
       color: '#E60012',
       packageType: '4g5g'
@@ -170,5 +184,10 @@ export class DataPackagesComponent implements OnInit {
   selectPackage(pkg: DataPackage): void {
     console.log('Selected package:', pkg);
     // Xử lý đăng ký gói ở đây
+  }
+
+  viewDetails(pkg: DataPackage): void {
+    console.log('View details for package:', pkg);
+    // Xử lý xem chi tiết gói ở đây
   }
 }
