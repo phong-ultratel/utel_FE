@@ -207,6 +207,8 @@
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease;
+    justify-content: flex-start;
+    align-items: flex-start;
 
     &.menu-open {
       max-height: 400px;
@@ -215,14 +217,21 @@
 
   .nav-list {
     flex-direction: column;
-    padding: 20px;
+    padding: 20px 15px;
     gap: 0;
+    text-align: left;
+    align-items: flex-start;
+    width: 100%;
+    margin: 0;
+    justify-content: flex-start;
   }
 
   .nav-link {
     display: block;
     padding: 12px 0;
     border-bottom: 1px solid #f0f0f0;
+    text-align: left;
+    width: 100%;
 
     &.active::after {
       display: none;
