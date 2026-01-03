@@ -2,10 +2,10 @@
   <div class="header-container">
     <div class="logo-section">
       <a href="/" class="logo">
-        <span class="logo-text">VIETTEL</span>
+        <span class="logo-text">ULTRATEL</span>
       </a>
     </div>
-    
+
     <nav class="nav-menu" [class.menu-open]="isMenuOpen">
       <ul class="nav-list">
         <li><a href="#" class="nav-link active">Di động</a></li>
@@ -15,7 +15,26 @@
         <li><a href="#" class="nav-link">Hỗ trợ</a></li>
       </ul>
     </nav>
-    
+
+    <div class="search-section">
+      <div class="search-box">
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Tìm kiếm..." 
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          (focus)="onSearchFocus()"
+          (blur)="onSearchBlur()"
+        />
+        <button class="search-btn" (click)="onSearch()" aria-label="Tìm kiếm">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
     <div class="header-actions">
       <button class="btn-login">Đăng nhập</button>
       <button class="btn-menu-toggle" (click)="toggleMenu()" aria-label="Toggle menu">

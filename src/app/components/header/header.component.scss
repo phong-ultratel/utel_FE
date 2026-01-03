@@ -75,6 +75,70 @@
   }
 }
 
+.search-section {
+  display: flex;
+  align-items: center;
+  margin: 0 20px;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  border-radius: 25px;
+  padding: 0;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+
+  &:focus-within {
+    background: #fff;
+    border-color: #E60012;
+    box-shadow: 0 2px 8px rgba(230, 0, 18, 0.15);
+  }
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 8px 15px;
+  font-size: 14px;
+  color: #333;
+  width: 200px;
+  transition: width 0.3s ease;
+
+  &::placeholder {
+    color: #999;
+  }
+
+  &:focus {
+    width: 250px;
+  }
+}
+
+.search-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: color 0.3s;
+  border-radius: 0 25px 25px 0;
+
+  &:hover {
+    color: #E60012;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -162,6 +226,38 @@
     }
   }
 
+  .search-section {
+    margin: 0 10px;
+    order: 3;
+  }
+
+  .search-box {
+    &:focus-within {
+      .search-input {
+        width: 150px;
+      }
+    }
+  }
+
+  .search-input {
+    width: 120px;
+    padding: 6px 12px;
+    font-size: 13px;
+
+    &:focus {
+      width: 150px;
+    }
+  }
+
+  .search-btn {
+    padding: 6px 10px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
   .btn-menu-toggle {
     display: flex;
   }
@@ -175,6 +271,33 @@
 @media (max-width: 480px) {
   .logo-text {
     font-size: 20px;
+  }
+
+  .search-section {
+    margin: 0 5px;
+  }
+
+  .search-input {
+    width: 100px;
+    padding: 6px 10px;
+    font-size: 12px;
+
+    &::placeholder {
+      font-size: 11px;
+    }
+
+    &:focus {
+      width: 120px;
+    }
+  }
+
+  .search-btn {
+    padding: 6px 8px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
   }
 
   .btn-login {
