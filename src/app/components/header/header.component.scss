@@ -190,6 +190,13 @@
     font-size: 24px;
   }
 
+  .logo-section {
+    order: 2;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+
   .nav-menu {
     position: absolute;
     top: 100%;
@@ -258,13 +265,21 @@
     }
   }
 
+  .header-actions {
+    order: 1;
+    gap: 10px;
+  }
+
   .btn-menu-toggle {
     display: flex;
+    order: 1;
+    margin-right: 0;
   }
 
   .btn-login {
     padding: 8px 15px;
     font-size: 13px;
+    order: 2;
   }
 }
 
