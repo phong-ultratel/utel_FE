@@ -71,7 +71,6 @@ export class DataPackagesComponent implements OnInit {
       features: ['Tốc độ 4G/5G', 'Không giới hạn tốc độ', 'Hết data tự động tắt', 'Ưu tiên tốc độ'],
       promotion: 'Liên Quân Mobile',
       utility: 'TV360',
-      popular: true,
       color: '#E60012',
       packageType: '4g5g'
     },
@@ -108,7 +107,6 @@ export class DataPackagesComponent implements OnInit {
       features: ['Tốc độ 4G/5G', 'Không giới hạn tốc độ', 'Hết data tự động tắt', 'Ưu tiên tốc độ', 'Miễn phí 300 phút gọi', 'Tặng 5GB data'],
       promotion: 'Liên Quân Mobile',
       utility: 'TV360',
-      popular: true,
       color: '#E60012',
       packageType: '4g5g'
     }

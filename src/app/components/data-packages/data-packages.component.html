@@ -38,6 +38,24 @@
         </button>
         <button 
           class="filter-btn"
+          [class.active]="selectedDuration === '1'"
+          (click)="selectDuration('1')">
+          1 ngày
+        </button>
+        <button 
+          class="filter-btn"
+          [class.active]="selectedDuration === '5'"
+          (click)="selectDuration('5')">
+          5 ngày
+        </button>
+        <button 
+          class="filter-btn"
+          [class.active]="selectedDuration === '7'"
+          (click)="selectDuration('7')">
+          7 ngày
+        </button>
+        <button 
+          class="filter-btn"
           [class.active]="selectedDuration === '30'"
           (click)="selectDuration('30')">
           30 ngày
