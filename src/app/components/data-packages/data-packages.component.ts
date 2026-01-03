@@ -103,7 +103,7 @@ export class DataPackagesComponent implements OnInit {
       data: '50GB',
       dailyData: '1.67GB/ngày',
       price: 500000,
-      duration: '30 ngày',
+      duration: '7 ngày',
       features: ['Tốc độ 4G/5G', 'Không giới hạn tốc độ', 'Hết data tự động tắt', 'Ưu tiên tốc độ', 'Miễn phí 300 phút gọi', 'Tặng 5GB data'],
       promotion: 'Liên Quân Mobile',
       utility: 'TV360',
@@ -113,6 +113,7 @@ export class DataPackagesComponent implements OnInit {
   ];
 
   filteredPackages: DataPackage[] = [];
+  packageCount: number = 0;
 
   constructor() { }
 
@@ -173,6 +174,7 @@ export class DataPackagesComponent implements OnInit {
     }
 
     this.filteredPackages = filtered;
+    this.packageCount = filtered.length;
   }
 
   formatPrice(price: number): string {

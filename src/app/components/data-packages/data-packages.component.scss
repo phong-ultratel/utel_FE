@@ -129,6 +129,20 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 30px;
+  justify-content: center;
+
+  // Khi có 1 item, giới hạn width của grid container
+  &.has-1-item {
+    max-width: calc((100% - 60px) / 3);
+    margin: 0 auto;
+  }
+
+  // Khi có 2 items, giới hạn width của grid container
+  // Với 2 items: 2 * width mỗi item + 1 gap = 2 * ((100% - 60px) / 3) + 30px
+  &.has-2-items {
+    max-width: calc(2 * ((100% - 60px) / 3) + 30px);
+    margin: 0 auto;
+  }
 }
 
 .package-card {
@@ -142,6 +156,12 @@
   flex-direction: column;
   min-height: 400px;
   max-height: 500px;
+  width: 100%;
+
+  // Khi chỉ có 1 item, center nó
+  &:only-child {
+    margin: 0 auto;
+  }
 
   &:hover {
     transform: translateY(-5px);
@@ -450,6 +470,20 @@
   .packages-grid {
     grid-template-columns: 1fr;
     gap: 25px;
+
+    // Trên mobile, bỏ giới hạn max-width
+    &.has-1-item,
+    &.has-2-items {
+      max-width: 100%;
+    }
+  }
+
+  .package-card {
+    // Trên mobile, khi chỉ có 1 item, vẫn chiếm toàn bộ width
+    &:only-child {
+      max-width: 100%;
+      margin: 0;
+    }
   }
 
   .package-header-section {

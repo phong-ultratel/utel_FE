@@ -69,7 +69,9 @@
       </div>
     </div>
 
-    <div class="packages-grid">
+    <div class="packages-grid" 
+         [class.has-1-item]="packageCount === 1"
+         [class.has-2-items]="packageCount === 2">
       <div 
         *ngFor="let pkg of filteredPackages" 
         class="package-card"
