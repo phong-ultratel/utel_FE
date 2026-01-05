@@ -28,6 +28,83 @@
   margin: 0 auto;
 }
 
+// Login Form Section
+.login-form-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.login-form-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 600px;
+  width: 100%;
+}
+
+.subscriber-input {
+  flex: 1;
+  padding: 16px 24px;
+  border: 2px solid #e0e0e0;
+  border-radius: 50px;
+  background-color: #ffffff;
+  font-size: 16px;
+  color: #333;
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  &::placeholder {
+    color: #999;
+  }
+
+  &:hover:not(:focus) {
+    border-color: #ccc;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+  }
+
+  &:focus {
+    border-color: #E60012 !important;
+    border-width: 2px;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(230, 0, 18, 0.2);
+  }
+
+  &:focus-visible {
+    border-color: #E60012 !important;
+    outline: none;
+  }
+
+  &:focus:hover {
+    border-color: #E60012 !important;
+    box-shadow: 0 4px 12px rgba(230, 0, 18, 0.2);
+  }
+}
+
+.login-btn {
+  padding: 16px 40px;
+  border: none;
+  border-radius: 50px;
+  background-color: #E60012;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: #cc0010;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
 // Filter Section
 .filter-section {
   margin-bottom: 40px;
@@ -221,7 +298,7 @@
   .package-name-duration {
     color: #fff;
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     white-space: nowrap;
     letter-spacing: 0.5px;
   }
@@ -409,6 +486,28 @@
     display: none; // Ẩn subtitle để tiết kiệm không gian
   }
 
+  .login-form-section {
+    margin-bottom: 20px;
+  }
+
+  .login-form-container {
+    flex-direction: row;
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .subscriber-input {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .login-btn {
+    padding: 12px 20px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
   .filter-section {
     margin-bottom: 12px;
   }
@@ -463,7 +562,7 @@
     scrollbar-gutter: stable;
 
     .nav-item {
-      font-size: 13px;
+      font-size: 15px;
       white-space: nowrap;
       flex-shrink: 0;
       padding-bottom: 8px;
@@ -625,7 +724,7 @@
     padding-bottom: 6px;
 
     .nav-item {
-      font-size: 11px;
+      font-size: 13px;
       padding-bottom: 4px;
     }
   }
@@ -659,6 +758,7 @@
 
     .package-name-duration {
       font-size: 13px;
+      font-weight: 700;
     }
   }
 
@@ -710,20 +810,20 @@
   }
 
   .package-actions {
-    flex-direction: column;
+    flex-direction: row;
     gap: 6px;
   }
 
   .btn-register {
-    width: 100%;
+    flex: 1;
     padding: 6px 8px;
     font-size: 11px;
   }
 
   .btn-details {
-    width: 100%;
-    text-align: center;
+    flex-shrink: 0;
     font-size: 11px;
+    white-space: nowrap;
   }
 }
 

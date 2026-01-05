@@ -114,6 +114,7 @@ export class DataPackagesComponent implements OnInit {
 
   filteredPackages: DataPackage[] = [];
   packageCount: number = 0;
+  subscriberNumber: string = '';
 
   constructor() { }
 
@@ -189,5 +190,12 @@ export class DataPackagesComponent implements OnInit {
   viewDetails(pkg: DataPackage): void {
     console.log('View details for package:', pkg);
     // Xử lý xem chi tiết gói ở đây
+  }
+
+  handleLogin(): void {
+    if (this.subscriberNumber.trim()) {
+      console.log('Login with subscriber number:', this.subscriberNumber);
+      // Xử lý đăng nhập ở đây
+    }
   }
 }

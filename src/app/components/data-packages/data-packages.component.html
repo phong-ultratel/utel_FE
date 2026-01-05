@@ -5,6 +5,18 @@
       <p class="section-subtitle">Nhiều lựa chọn với giá cả hợp lý, đáp ứng mọi nhu cầu sử dụng</p>
     </div>
 
+    <!-- Login Form Section -->
+    <div class="login-form-section">
+      <div class="login-form-container">
+        <input 
+          type="text" 
+          class="subscriber-input" 
+          placeholder="Nhập số thuê bao"
+          [(ngModel)]="subscriberNumber">
+        <button class="login-btn" (click)="handleLogin()">ĐĂNG NHẬP</button>
+      </div>
+    </div>
+
     <!-- Filter Section -->
     <div class="filter-section">
       <!-- Package Type Navigation -->
