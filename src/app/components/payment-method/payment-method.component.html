@@ -86,7 +86,8 @@
         <input
           type="checkbox"
           id="request-invoice"
-          [(ngModel)]="requestInvoice">
+          [(ngModel)]="requestInvoice"
+          (change)="onInvoiceCheckboxChange($event)">
         <label for="request-invoice">Yêu cầu xuất hóa đơn</label>
       </div>
       <div class="terms-text">
@@ -96,6 +97,203 @@
       <div class="action-buttons">
         <button class="btn-back" (click)="goBack()">Quay lại</button>
         <button class="btn-continue" (click)="continue()">Tiếp tục</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Request Modal -->
+<div class="invoice-modal-overlay" *ngIf="showInvoiceModal" (click)="closeInvoiceModal()">
+  <div class="invoice-modal" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="closeInvoiceModal()">×</button>
+    
+    <div class="modal-header">
+      <h2 class="modal-title">Yêu cầu xuất hóa đơn</h2>
+      <p class="modal-instruction">
+        Quý khách vui lòng nhập chính xác các thông tin bên dưới để Ultratel thực hiện xuất hóa đơn.
+      </p>
+      <p class="modal-note">
+        Lưu ý: Hóa đơn chỉ xuất trong ngày. Nhà cung cấp chỉ hỗ trợ xuất hóa đơn một lần duy nhất và Quý khách không thể thay đổi sau khi đăng ký, mua dịch vụ thành công
+      </p>
+    </div>
+
+    <div class="modal-content">
+      <div class="invoice-type-tabs">
+        <button 
+          class="tab-button" 
+          [class.active]="invoiceType === 'individual'"
+          (click)="setInvoiceType('individual')">
+          Cá nhân
+        </button>
+        <button 
+          class="tab-button" 
+          [class.active]="invoiceType === 'company'"
+          (click)="setInvoiceType('company')">
+          Công ty
+        </button>
+      </div>
+
+      <div class="invoice-form-container">
+        <div class="form-section">
+          <!-- Individual Form -->
+          <form *ngIf="invoiceType === 'individual'" class="invoice-form">
+            <div class="form-group">
+              <label class="form-label">Người mua hàng <span class="required">*</span></label>
+              <input 
+                type="text" 
+                class="form-input" 
+                [class.error]="errors.individual.buyerName"
+                placeholder="Họ tên người mua"
+                [(ngModel)]="invoiceData.individual.buyerName"
+                (blur)="onFieldBlur('individual', 'buyerName')"
+                name="individualBuyerName">
+              <span class="error-message" *ngIf="errors.individual.buyerName">
+                {{ errors.individual.buyerName }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Số Căn cước <span class="required">*</span></label>
+              <input 
+                type="text" 
+                class="form-input" 
+                [class.error]="errors.individual.idCard"
+                placeholder="Nhập căn cước công dân"
+                [(ngModel)]="invoiceData.individual.idCard"
+                (blur)="onFieldBlur('individual', 'idCard')"
+                name="individualIdCard">
+              <span class="error-message" *ngIf="errors.individual.idCard">
+                {{ errors.individual.idCard }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Địa chỉ <span class="required">*</span></label>
+              <input 
+                type="text" 
+                class="form-input" 
+                [class.error]="errors.individual.address"
+                placeholder="Nhập địa chỉ"
+                [(ngModel)]="invoiceData.individual.address"
+                (blur)="onFieldBlur('individual', 'address')"
+                name="individualAddress">
+              <span class="error-message" *ngIf="errors.individual.address">
+                {{ errors.individual.address }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Email nhận hóa đơn <span class="required">*</span></label>
+              <input 
+                type="email" 
+                class="form-input" 
+                [class.error]="errors.individual.email"
+                placeholder="Nhập email"
+                [(ngModel)]="invoiceData.individual.email"
+                (blur)="onFieldBlur('individual', 'email')"
+                name="individualEmail">
+              <span class="error-message" *ngIf="errors.individual.email">
+                {{ errors.individual.email }}
+              </span>
+            </div>
+          </form>
+
+          <!-- Company Form -->
+          <form *ngIf="invoiceType === 'company'" class="invoice-form">
+            <div class="form-group">
+              <label class="form-label">Mã số thuế <span class="required">*</span></label>
+              <input 
+                type="text" 
+                class="form-input" 
+                [class.error]="errors.company.taxId"
+                placeholder="Nhập mã số thuế"
+                [(ngModel)]="invoiceData.company.taxId"
+                (blur)="onFieldBlur('company', 'taxId')"
+                name="companyTaxId">
+              <span class="error-message" *ngIf="errors.company.taxId">
+                {{ errors.company.taxId }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Tên công ty <span class="required">*</span></label>
+              <input 
+                type="text" 
+                class="form-input" 
+                [class.error]="errors.company.companyName"
+                placeholder="Nhập tên công ty"
+                [(ngModel)]="invoiceData.company.companyName"
+                (blur)="onFieldBlur('company', 'companyName')"
+                name="companyName">
+              <span class="error-message" *ngIf="errors.company.companyName">
+                {{ errors.company.companyName }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Địa chỉ công ty <span class="required">*</span></label>
+              <input 
+                type="text" 
+                class="form-input" 
+                [class.error]="errors.company.address"
+                placeholder="Nhập địa chỉ"
+                [(ngModel)]="invoiceData.company.address"
+                (blur)="onFieldBlur('company', 'address')"
+                name="companyAddress">
+              <span class="error-message" *ngIf="errors.company.address">
+                {{ errors.company.address }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Người mua hàng</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                placeholder="Họ tên người mua"
+                [(ngModel)]="invoiceData.company.buyerName"
+                name="companyBuyerName">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Email nhận hóa đơn <span class="required">*</span></label>
+              <input 
+                type="email" 
+                class="form-input" 
+                [class.error]="errors.company.email"
+                placeholder="Nhập email"
+                [(ngModel)]="invoiceData.company.email"
+                (blur)="onFieldBlur('company', 'email')"
+                name="companyEmail">
+              <span class="error-message" *ngIf="errors.company.email">
+                {{ errors.company.email }}
+              </span>
+            </div>
+          </form>
+        </div>
+
+        <div class="illustration-section">
+          <div class="invoice-illustration">
+            <div class="phone-container">
+              <div class="phone-screen">
+                <div class="invoice-document">
+                  <div class="invoice-title">Hóa đơn</div>
+                  <div class="invoice-lines">
+                    <div class="invoice-line"></div>
+                    <div class="invoice-line"></div>
+                    <div class="invoice-line"></div>
+                  </div>
+                </div>
+                <div class="dollar-sign">$</div>
+              </div>
+            </div>
+            <div class="circle-background"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-complete" (click)="submitInvoiceForm()">Hoàn tất</button>
       </div>
     </div>
   </div>

@@ -19,6 +19,41 @@ export class PaymentMethodComponent implements OnInit {
 
   selectedPaymentMethod: string = '';
   requestInvoice: boolean = false;
+  showInvoiceModal: boolean = false;
+  invoiceType: 'individual' | 'company' = 'individual';
+  invoiceSubmitted: boolean = false;
+  
+  invoiceData = {
+    individual: {
+      buyerName: '',
+      idCard: '',
+      address: '',
+      email: ''
+    },
+    company: {
+      taxId: '',
+      companyName: '',
+      address: '',
+      buyerName: '',
+      email: ''
+    }
+  };
+
+  errors = {
+    individual: {
+      buyerName: '',
+      idCard: '',
+      address: '',
+      email: ''
+    },
+    company: {
+      taxId: '',
+      companyName: '',
+      address: '',
+      buyerName: '',
+      email: ''
+    }
+  };
 
   paymentOptions: PaymentOption[] = [
     {
@@ -90,6 +125,159 @@ export class PaymentMethodComponent implements OnInit {
     console.log('Total amount:', this.calculateTotal());
 
     // Xử lý tiếp tục thanh toán ở đây
+  }
+
+  onInvoiceCheckboxChange(event: any): void {
+    if (event.target.checked) {
+      this.showInvoiceModal = true;
+    } else {
+      // Nếu uncheck trực tiếp, đóng modal và reset data
+      this.showInvoiceModal = false;
+      this.resetInvoiceData();
+      this.invoiceSubmitted = false;
+    }
+  }
+
+  closeInvoiceModal(): void {
+    this.showInvoiceModal = false;
+    // Nếu đóng modal mà chưa submit, uncheck checkbox và reset data
+    if (!this.invoiceSubmitted) {
+      this.requestInvoice = false;
+      this.resetInvoiceData();
+    }
+  }
+
+  resetInvoiceData(): void {
+    this.invoiceData = {
+      individual: {
+        buyerName: '',
+        idCard: '',
+        address: '',
+        email: ''
+      },
+      company: {
+        taxId: '',
+        companyName: '',
+        address: '',
+        buyerName: '',
+        email: ''
+      }
+    };
+    this.invoiceType = 'individual';
+    this.clearErrors();
+  }
+
+  setInvoiceType(type: 'individual' | 'company'): void {
+    this.invoiceType = type;
+    // Reset errors when switching type
+    this.clearErrors();
+  }
+
+  validateField(fieldType: 'individual' | 'company', fieldName: string, value: string): string {
+    if (!value || value.trim() === '') {
+      switch (fieldName) {
+        case 'buyerName':
+          return 'Vui lòng nhập họ tên người mua.';
+        case 'idCard':
+          return 'Vui lòng nhập số căn cước.';
+        case 'address':
+          return 'Vui lòng nhập địa chỉ.';
+        case 'email':
+          return 'Vui lòng nhập email.';
+        case 'taxId':
+          return 'Vui lòng nhập mã số thuế.';
+        case 'companyName':
+          return 'Vui lòng nhập tên công ty.';
+        default:
+          return 'Trường này là bắt buộc.';
+      }
+    }
+    
+    // Validate email format
+    if (fieldName === 'email' && value) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        return 'Vui lòng nhập email hợp lệ.';
+      }
+    }
+    
+    return '';
+  }
+
+  onFieldBlur(fieldType: 'individual' | 'company', fieldName: string): void {
+    let value = '';
+    if (fieldType === 'individual') {
+      value = (this.invoiceData.individual as any)[fieldName] || '';
+    } else {
+      value = (this.invoiceData.company as any)[fieldName] || '';
+    }
+    const error = this.validateField(fieldType, fieldName, value);
+    if (fieldType === 'individual') {
+      (this.errors.individual as any)[fieldName] = error;
+    } else {
+      (this.errors.company as any)[fieldName] = error;
+    }
+  }
+
+  clearErrors(): void {
+    this.errors = {
+      individual: {
+        buyerName: '',
+        idCard: '',
+        address: '',
+        email: ''
+      },
+      company: {
+        taxId: '',
+        companyName: '',
+        address: '',
+        buyerName: '',
+        email: ''
+      }
+    };
+  }
+
+  validateAllFields(): boolean {
+    this.clearErrors();
+    let isValid = true;
+
+    if (this.invoiceType === 'individual') {
+      const fields = ['buyerName', 'idCard', 'address', 'email'] as const;
+      fields.forEach(field => {
+        const error = this.validateField('individual', field, this.invoiceData.individual[field]);
+        this.errors.individual[field] = error;
+        if (error) isValid = false;
+      });
+    } else {
+      const fields = ['taxId', 'companyName', 'address', 'email'] as const;
+      fields.forEach(field => {
+        const error = this.validateField('company', field, this.invoiceData.company[field]);
+        this.errors.company[field] = error;
+        if (error) isValid = false;
+      });
+    }
+
+    return isValid;
+  }
+
+  submitInvoiceForm(): void {
+    // Validate all fields
+    if (!this.validateAllFields()) {
+      return;
+    }
+
+    console.log('Invoice data:', {
+      type: this.invoiceType,
+      data: this.invoiceType === 'individual' 
+        ? this.invoiceData.individual 
+        : this.invoiceData.company
+    });
+
+    // Đóng modal sau khi submit thành công
+    this.showInvoiceModal = false;
+    // Giữ checkbox được tick và đánh dấu đã submit
+    this.requestInvoice = true;
+    this.invoiceSubmitted = true;
   }
 }
 
