@@ -30,7 +30,7 @@ export class PaymentMethodComponent implements OnInit {
     {
       id: 'qr-code',
       name: 'Quét mã QR',
-      icon: '📱',
+      icon: 'qr-code',
       discount: 'Chiết khấu 5%'
     },
     {
@@ -42,7 +42,7 @@ export class PaymentMethodComponent implements OnInit {
     {
       id: 'international-card',
       name: 'Thẻ quốc tế',
-      icon: '🌐',
+      icon: 'visa',
       discount: 'Chiết khấu 5%'
     }
   ];

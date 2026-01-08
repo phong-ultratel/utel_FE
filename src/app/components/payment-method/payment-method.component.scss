@@ -128,6 +128,19 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  color: #1a1a1a;
+
+  svg {
+    width: 32px;
+    height: 32px;
+    color: #1a1a1a;
+  }
+
+  .visa-icon {
+    width: auto;
+    height: 50px;
+    object-fit: contain;
+  }
 }
 
 .option-info {

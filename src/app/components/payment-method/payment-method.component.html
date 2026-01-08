@@ -18,10 +18,49 @@
               (change)="selectPaymentMethod(option.id)">
             <label [for]="option.id"></label>
           </div>
-          <div class="option-icon">{{ option.icon }}</div>
+          <div class="option-icon">
+            <svg *ngIf="option.icon === 'qr-code'" width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Top-left square -->
+              <rect x="3" y="3" width="7" height="7" fill="currentColor" rx="1"/>
+              <rect x="5" y="5" width="3" height="3" fill="white"/>
+              <!-- Top-right square -->
+              <rect x="14" y="3" width="7" height="7" fill="currentColor" rx="1"/>
+              <rect x="16" y="5" width="3" height="3" fill="white"/>
+              <!-- Bottom-left square -->
+              <rect x="3" y="14" width="7" height="7" fill="currentColor" rx="1"/>
+              <rect x="5" y="16" width="3" height="3" fill="white"/>
+              <!-- Data pattern -->
+              <rect x="11" y="3" width="2" height="2" fill="currentColor"/>
+              <rect x="11" y="6" width="2" height="2" fill="currentColor"/>
+              <rect x="11" y="9" width="2" height="2" fill="currentColor"/>
+              <rect x="14" y="11" width="1" height="1" fill="currentColor"/>
+              <rect x="16" y="11" width="1" height="1" fill="currentColor"/>
+              <rect x="18" y="11" width="1" height="1" fill="currentColor"/>
+              <rect x="20" y="11" width="1" height="1" fill="currentColor"/>
+              <rect x="3" y="11" width="2" height="2" fill="currentColor"/>
+              <rect x="6" y="11" width="2" height="2" fill="currentColor"/>
+              <rect x="11" y="12" width="2" height="2" fill="currentColor"/>
+              <rect x="14" y="12" width="2" height="2" fill="currentColor"/>
+              <rect x="17" y="12" width="2" height="2" fill="currentColor"/>
+              <rect x="20" y="12" width="2" height="2" fill="currentColor"/>
+              <rect x="11" y="15" width="2" height="2" fill="currentColor"/>
+              <rect x="14" y="15" width="2" height="2" fill="currentColor"/>
+              <rect x="17" y="15" width="2" height="2" fill="currentColor"/>
+              <rect x="20" y="15" width="2" height="2" fill="currentColor"/>
+              <rect x="11" y="18" width="2" height="2" fill="currentColor"/>
+              <rect x="14" y="18" width="2" height="2" fill="currentColor"/>
+              <rect x="17" y="18" width="2" height="2" fill="currentColor"/>
+              <rect x="20" y="18" width="2" height="2" fill="currentColor"/>
+              <rect x="11" y="21" width="2" height="2" fill="currentColor"/>
+              <rect x="14" y="21" width="2" height="2" fill="currentColor"/>
+              <rect x="17" y="21" width="2" height="2" fill="currentColor"/>
+              <rect x="20" y="21" width="2" height="2" fill="currentColor"/>
+            </svg>
+            <img *ngIf="option.icon === 'visa'" src="assets/images/icons/visa.png" alt="VISA" class="visa-icon">
+            <span *ngIf="option.icon !== 'qr-code' && option.icon !== 'visa'">{{ option.icon }}</span>
+          </div>
           <div class="option-info">
             <div class="option-name">{{ option.name }}</div>
-            <div class="option-discount" *ngIf="option.discount">{{ option.discount }}</div>
           </div>
         </div>
       </div>
