@@ -1,5 +1,14 @@
 <section class="data-packages">
-  <div class="packages-container">
+  <!-- Payment Method Component -->
+  <app-payment-method 
+    *ngIf="showPaymentMethod && selectedPackage"
+    [totalAmount]="selectedPackage.price"
+    [discount]="5"
+    (back)="backToPackages()">
+  </app-payment-method>
+
+  <!-- Packages List -->
+  <div class="packages-container" *ngIf="!showPaymentMethod">
     <div class="section-header">
       <h2 class="section-title">Chọn Gói Data Phù Hợp</h2>
       <p class="section-subtitle">Nhiều lựa chọn với giá cả hợp lý, đáp ứng mọi nhu cầu sử dụng</p>

@@ -1,0 +1,64 @@
+<div class="payment-method-container">
+  <div class="payment-method-content">
+    <h2 class="payment-title">PHƯƠNG THỨC THANH TOÁN</h2>
+
+    <div class="payment-options">
+      <div 
+        *ngFor="let option of paymentOptions" 
+        class="payment-option"
+        [class.selected]="selectedPaymentMethod === option.id"
+        (click)="selectPaymentMethod(option.id)">
+        <div class="payment-option-content">
+          <div class="radio-wrapper">
+            <input 
+              type="radio" 
+              [id]="option.id"
+              [value]="option.id"
+              [checked]="selectedPaymentMethod === option.id"
+              (change)="selectPaymentMethod(option.id)">
+            <label [for]="option.id"></label>
+          </div>
+          <div class="option-icon">{{ option.icon }}</div>
+          <div class="option-info">
+            <div class="option-name">{{ option.name }}</div>
+            <div class="option-discount" *ngIf="option.discount">{{ option.discount }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="payment-summary">
+      <div class="summary-row">
+        <span class="summary-label">Tổng tiền:</span>
+        <span class="summary-value">{{ formatPrice(totalAmount) }}đ</span>
+      </div>
+      <div class="summary-row" *ngIf="discount > 0">
+        <span class="summary-label">Chiết khấu {{ discount }}%:</span>
+        <span class="summary-value discount">-{{ formatPrice(calculateDiscount()) }}đ</span>
+      </div>
+      <div class="summary-row total">
+        <span class="summary-label">Tổng thanh toán:</span>
+        <span class="summary-value">{{ formatPrice(calculateTotal()) }}đ</span>
+      </div>
+    </div>
+
+    <div class="payment-footer">
+      <div class="invoice-checkbox">
+        <input 
+          type="checkbox" 
+          id="request-invoice"
+          [(ngModel)]="requestInvoice">
+        <label for="request-invoice">Yêu cầu xuất hóa đơn</label>
+      </div>
+      <div class="terms-text">
+        Nhấn vào Tiếp tục đồng nghĩa với việc Quý khách đồng ý với 
+        <a href="#" class="terms-link">điều khoản mua hàng và thanh toán của Viettel</a>.
+      </div>
+      <div class="action-buttons">
+        <button class="btn-back" (click)="goBack()">Quay lại</button>
+        <button class="btn-continue" (click)="continue()">Tiếp tục</button>
+      </div>
+    </div>
+  </div>
+</div>
+

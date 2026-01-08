@@ -8,6 +8,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeroComponent } from './components/hero/hero.component';
 import { DataPackagesComponent } from './components/data-packages/data-packages.component';
+import { PaymentMethodComponent } from './components/payment-method/payment-method.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { DataPackagesComponent } from './components/data-packages/data-packages.
     HeaderComponent,
     FooterComponent,
     HeroComponent,
-    DataPackagesComponent
+    DataPackagesComponent,
+    PaymentMethodComponent
   ],
   imports: [
     BrowserModule,

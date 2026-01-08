@@ -115,6 +115,8 @@ export class DataPackagesComponent implements OnInit {
   filteredPackages: DataPackage[] = [];
   packageCount: number = 0;
   subscriberNumber: string = '';
+  showPaymentMethod: boolean = false;
+  selectedPackage: DataPackage | null = null;
 
   constructor() { }
 
@@ -184,7 +186,15 @@ export class DataPackagesComponent implements OnInit {
 
   selectPackage(pkg: DataPackage): void {
     console.log('Selected package:', pkg);
-    // Xử lý đăng ký gói ở đây
+    this.selectedPackage = pkg;
+    this.showPaymentMethod = true;
+    // Scroll to top để hiển thị payment method
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  backToPackages(): void {
+    this.showPaymentMethod = false;
+    this.selectedPackage = null;
   }
 
   viewDetails(pkg: DataPackage): void {
