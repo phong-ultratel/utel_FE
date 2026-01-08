@@ -16,21 +16,21 @@ export class PaymentMethodComponent implements OnInit {
   @Input() totalAmount: number = 0;
   @Input() discount: number = 0;
   @Output() back = new EventEmitter<void>();
-  
+
   selectedPaymentMethod: string = '';
   requestInvoice: boolean = false;
 
   paymentOptions: PaymentOption[] = [
     {
-      id: 'bank-transfer',
-      name: 'Chuyển khoản',
-      icon: '🏦',
-      discount: 'Chiết khấu 5%'
-    },
-    {
       id: 'qr-code',
       name: 'Quét mã QR',
       icon: 'qr-code',
+      discount: 'Chiết khấu 5%'
+    },
+    {
+      id: 'bank-transfer',
+      name: 'Chuyển khoản',
+      icon: '🏦',
       discount: 'Chiết khấu 5%'
     },
     {
@@ -84,11 +84,11 @@ export class PaymentMethodComponent implements OnInit {
       alert('Vui lòng chọn phương thức thanh toán');
       return;
     }
-    
+
     console.log('Selected payment method:', this.selectedPaymentMethod);
     console.log('Request invoice:', this.requestInvoice);
     console.log('Total amount:', this.calculateTotal());
-    
+
     // Xử lý tiếp tục thanh toán ở đây
   }
 }
