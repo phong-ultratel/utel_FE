@@ -689,8 +689,14 @@
     margin: 10px;
   }
 
+  .modal-close {
+    top: 20px;
+    right: 20px;
+    left: auto;
+  }
+
   .modal-header {
-    padding: 30px 20px 15px 20px;
+    padding: 60px 20px 15px 20px;
   }
 
   .modal-content {
