@@ -109,30 +109,64 @@
         <div class="package-content-section">
           <div class="package-info-list">
             <!-- Data -->
-            <div class="info-item" *ngIf="pkg.dailyData">
-              <span class="info-icon wifi-icon">📶</span>
+            <div class="info-item" *ngIf="pkg.dataInfo">
+              <span class="info-icon wifi-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clip-path="url(#clip0_13183_8846)">
+                    <path d="M12.3541 8.4715C11.1652 7.43556 9.66389 6.87036 8.07633 6.87036C6.48789 6.87036 4.92982 7.49258 3.73027 8.54002C3.53209 8.71305 3.52105 9.01919 3.70644 9.20604L4.84004 10.3485C5.00388 10.5136 5.26532 10.5271 5.44452 10.379C6.93823 9.14534 9.14804 9.09249 10.6414 10.313C10.8206 10.4595 11.0807 10.4453 11.2439 10.2808L12.3782 9.13774C12.5637 8.95082 12.5526 8.64441 12.3541 8.4715Z" fill="black"></path>
+                    <path d="M15.8616 5.55817C14.8339 4.60096 13.66 3.84918 12.366 3.32034C10.9779 2.75311 9.51154 2.46545 8.00764 2.46545C6.50373 2.46545 5.03739 2.75308 3.64929 3.32034C2.35522 3.84918 1.18129 4.60096 0.153611 5.55817C-0.0340607 5.73296 -0.0383764 6.03074 0.142321 6.21282L1.27257 7.35189C1.44282 7.52345 1.71703 7.53049 1.89494 7.36702C3.5707 5.82747 5.72487 4.98465 8.00761 4.98465C10.2903 4.98465 12.4445 5.82747 14.1203 7.36702C14.2982 7.53049 14.5724 7.52345 14.7426 7.35189L15.8729 6.21282C16.0536 6.03074 16.0493 5.73299 15.8616 5.55817Z" fill="black"></path>
+                    <path d="M8.00782 13.5369C8.69494 13.5369 9.25197 12.9756 9.25197 12.2831C9.25197 11.5906 8.69494 11.0293 8.00782 11.0293C7.3207 11.0293 6.76367 11.5906 6.76367 12.2831C6.76367 12.9756 7.3207 13.5369 8.00782 13.5369Z" fill="black"></path>
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_13183_8846">
+                      <rect width="15.9957" height="15.9957" fill="white" transform="translate(0.00390625 0.00219727)"></rect>
+                    </clipPath>
+                  </defs>
+                </svg>
+              </span>
               <span class="info-label">Data:</span>
-              <span class="info-value">{{ pkg.dailyData }}</span>
+              <span class="info-value">{{ pkg.dataInfo }}</span>
             </div>
             
-            <!-- Ưu đãi -->
-            <div class="info-item" *ngIf="pkg.promotion">
-              <span class="info-icon gift-icon">🎁</span>
-              <span class="info-label">Ưu đãi:</span>
-              <span class="info-value">{{ pkg.promotion }}</span>
+            <!-- Thoại -->
+            <div class="info-item" *ngIf="pkg.callInfo">
+              <span class="info-icon call-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M14 10.9467V13.3041C14 13.6541 13.7294 13.9445 13.3803 13.9691C13.0887 13.9897 12.8509 14 12.6667 14C6.7756 14 2 9.2244 2 3.33333C2 3.14914 2.0103 2.91125 2.0309 2.61967C2.05558 2.27059 2.34596 2 2.69591 2H5.0534C5.22452 2 5.36784 2.12961 5.38502 2.29987C5.40045 2.45271 5.41479 2.57543 5.42805 2.66801C5.5629 3.60981 5.83835 4.50624 6.23247 5.33535C6.29573 5.46843 6.25447 5.62773 6.13457 5.71337L4.6957 6.7412C5.57168 8.7874 7.2126 10.4283 9.2588 11.3043L10.2847 9.86793C10.3715 9.7466 10.5327 9.70487 10.6673 9.7688C11.4964 10.1626 12.3927 10.4377 13.3344 10.5723C13.4264 10.5855 13.5483 10.5997 13.7001 10.615C13.8704 10.6322 14 10.7755 14 10.9467Z" fill="black"></path>
+                </svg>
+              </span>
+              <span class="info-label">Thoại:</span>
+              <span class="info-value">{{ pkg.callInfo }}</span>
+            </div>
+
+            <!-- SMS -->
+            <div class="info-item" *ngIf="pkg.smsInfo">
+              <span class="info-icon sms-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2.00065 2H14.0007C14.3689 2 14.6673 2.29848 14.6673 2.66667V13.3333C14.6673 13.7015 14.3689 14 14.0007 14H2.00065C1.63246 14 1.33398 13.7015 1.33398 13.3333V2.66667C1.33398 2.29848 1.63246 2 2.00065 2ZM8.04105 7.7886L3.76546 4.15847L2.9025 5.17487L8.04938 9.54473L13.1036 5.17077L12.2311 4.16256L8.04105 7.7886Z" fill="black"></path>
+                </svg>
+              </span>
+              <span class="info-label">SMS:</span>
+              <span class="info-value">{{ pkg.smsInfo }}</span>
             </div>
             
             <!-- Tiện ích -->
-            <div class="info-item" *ngIf="pkg.utility">
-              <span class="info-icon play-icon">▶</span>
+            <div class="info-item utility-item" *ngIf="pkg.utilities && pkg.utilities.length > 0">
+              <span class="info-icon play-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.00065 14.6666C4.31875 14.6666 1.33398 11.6818 1.33398 7.99992C1.33398 4.31802 4.31875 1.33325 8.00065 1.33325C11.6825 1.33325 14.6673 4.31802 14.6673 7.99992C14.6673 11.6818 11.6825 14.6666 8.00065 14.6666ZM7.08192 5.60964C7.03812 5.58044 6.98665 5.56486 6.93398 5.56486C6.78672 5.56486 6.66732 5.68425 6.66732 5.83152V10.1683C6.66732 10.221 6.68292 10.2725 6.71212 10.3163C6.79378 10.4388 6.95938 10.4719 7.08192 10.3902L10.3345 8.22178C10.3638 8.20225 10.3889 8.17712 10.4085 8.14785C10.4902 8.02532 10.4571 7.85972 10.3345 7.77805L7.08192 5.60964Z" fill="black"></path>
+                </svg>
+              </span>
               <span class="info-label">Tiện ích:</span>
-              <span class="info-value">{{ pkg.utility }}</span>
-            </div>
-
-            <!-- Features -->
-            <div class="info-item" *ngFor="let feature of pkg.features">
-              <span class="info-icon check-icon">✓</span>
-              <span class="info-value">{{ feature }}</span>
+              <div class="utility-list">
+                <div class="utility-item-wrapper" *ngFor="let utility of pkg.utilities">
+                  <div class="utility-text">{{ utility.name }}</div>
+                  <img *ngIf="getUtilityIconUrl(utility.name)" 
+                       [src]="getUtilityIconUrl(utility.name)" 
+                       [alt]="utility.name" 
+                       class="utility-icon-img">
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -140,8 +174,22 @@
         <!-- Phần cuối: Giá, nút Đăng ký và Xem chi tiết -->
         <div class="package-footer-section">
           <div class="package-price">
-            <span class="price-amount">{{ formatPrice(pkg.price) }}</span>
-            <span class="price-unit">₫</span>
+            <!-- Hàng ngang: Badge khuyến mại và Giá gốc -->
+            <div class="discount-row" *ngIf="hasDiscount(pkg)">
+              <div class="discount-badge">
+                <span class="discount-text">{{ getDiscountDisplay(pkg) }}</span>
+              </div>
+              <div class="original-price-wrapper">
+                <span class="original-price-amount">{{ formatPrice(getOriginalPrice(pkg)) }}</span>
+                <span class="original-price-unit">₫</span>
+              </div>
+            </div>
+            
+            <!-- Giá sau khuyến mại -->
+            <div class="final-price-wrapper">
+              <span class="price-amount">{{ formatPrice(pkg.price) }}</span>
+              <span class="price-unit">₫</span>
+            </div>
           </div>
           
           <div class="package-actions">
