@@ -9,6 +9,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { HeroComponent } from './components/hero/hero.component';
 import { DataPackagesComponent } from './components/data-packages/data-packages.component';
 import { PaymentMethodComponent } from './components/payment-method/payment-method.component';
+import { TermsPoliciesComponent } from './components/terms-policies/terms-policies.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { PaymentMethodComponent } from './components/payment-method/payment-meth
     FooterComponent,
     HeroComponent,
     DataPackagesComponent,
-    PaymentMethodComponent
+    PaymentMethodComponent,
+    TermsPoliciesComponent
   ],
   imports: [
     BrowserModule,
