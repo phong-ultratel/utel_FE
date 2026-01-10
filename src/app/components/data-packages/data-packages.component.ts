@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef } from '@angular/core';
 
 interface DataPackage {
   id: number;
@@ -38,7 +38,7 @@ interface PackageType {
   templateUrl: './data-packages.component.html',
   styleUrls: ['./data-packages.component.scss']
 })
-export class DataPackagesComponent implements OnInit {
+export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestroy {
   packageTypes: PackageType[] = [
     { id: '4g5g', label: 'Gói cước 4G/5G' },
     { id: '5g', label: 'Gói cước 5G' },
@@ -146,11 +146,54 @@ export class DataPackagesComponent implements OnInit {
   subscriberNumber: string = '';
   showPaymentMethod: boolean = false;
   selectedPackage: DataPackage | null = null;
+  expandedPackages: { [key: number]: boolean } = {};
+  needsExpandIcon: { [key: number]: boolean } = {};
+  private hasOverflow: { [key: number]: boolean } = {}; // Lưu trạng thái ban đầu
+  private checkExpandIcons: boolean = true;
+  private resizeListener?: () => void;
 
-  constructor() { }
+  constructor(private cdr: ChangeDetectorRef) {
+    // Listen for window resize
+    this.resizeListener = () => {
+      if (window.innerWidth <= 768) {
+        this.checkExpandIcons = true;
+        setTimeout(() => {
+          this.updateExpandIcons();
+        }, 100);
+      }
+    };
+    window.addEventListener('resize', this.resizeListener);
+  }
 
   ngOnInit(): void {
     this.applyFilters();
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.checkExpandIcons && window.innerWidth <= 768) {
+      this.updateExpandIcons();
+      this.checkExpandIcons = false;
+    }
+  }
+
+  updateExpandIcons(): void {
+    this.filteredPackages.forEach(pkg => {
+      const element = document.getElementById(`info-list-${pkg.id}`);
+      if (element) {
+        // Kiểm tra khi chưa expanded
+        if (!this.expandedPackages[pkg.id]) {
+          // Kiểm tra xem nội dung có bị cắt không
+          const hasOverflow = element.scrollHeight > element.clientHeight;
+          this.hasOverflow[pkg.id] = hasOverflow;
+          this.needsExpandIcon[pkg.id] = hasOverflow;
+        } else {
+          // Khi expanded, chỉ hiển thị icon nếu ban đầu đã bị cắt
+          // (để có thể thu gọn lại)
+          this.needsExpandIcon[pkg.id] = this.hasOverflow[pkg.id] || false;
+        }
+      }
+    });
+    this.cdr.detectChanges();
   }
 
   selectPackageType(typeId: string): void {
@@ -207,6 +250,11 @@ export class DataPackagesComponent implements OnInit {
 
     this.filteredPackages = filtered;
     this.packageCount = filtered.length;
+    // Reset và kiểm tra lại expand icons sau khi filter
+    this.checkExpandIcons = true;
+    setTimeout(() => {
+      this.updateExpandIcons();
+    }, 100);
   }
 
   formatPrice(price: number): string {
@@ -280,5 +328,23 @@ export class DataPackagesComponent implements OnInit {
       'Facebook': 'http://media.vietteltelecom.vn/upload/ckfinder/files/Facebook.png'
     };
     return iconMap[utilityName] || null;
+  }
+
+  toggleExpand(pkgId: number): void {
+    this.expandedPackages[pkgId] = !this.expandedPackages[pkgId];
+    // Sau khi toggle, cập nhật lại trạng thái icon
+    setTimeout(() => {
+      this.updateExpandIcons();
+    }, 300); // Đợi animation hoàn thành
+  }
+
+  isExpanded(pkgId: number): boolean {
+    return !!this.expandedPackages[pkgId];
+  }
+
+  ngOnDestroy(): void {
+    if (this.resizeListener) {
+      window.removeEventListener('resize', this.resizeListener);
+    }
   }
 }
