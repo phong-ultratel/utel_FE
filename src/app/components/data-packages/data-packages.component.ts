@@ -9,7 +9,8 @@ interface DataPackage {
   originalPrice?: number; // Giá gốc (nếu có khuyến mại)
   discountAmount?: number; // Mức khuyến mại theo số tiền (₫)
   discountPercent?: number; // Mức khuyến mại theo phần trăm (%)
-  duration: string;
+  duration: string; // Hiển thị (ví dụ: "1 ngày", "30 ngày", "90 ngày")
+  durationDays: number; // Số ngày để sắp xếp (ví dụ: 1, 30, 90)
   // Thông tin Data
   dataInfo?: string; // Ví dụ: "1GB/ngày"
   // Thông tin Thoại
@@ -26,6 +27,7 @@ interface DataPackage {
   popular?: boolean;
   color: string;
   packageType?: string; // '4g5g', '5g', 'hot', 'dcom', 'roaming'
+  familyId?: string; // ID của family để nhóm các gói cùng thông tin nhưng khác thời hạn
 }
 
 interface PackageType {
@@ -62,8 +64,10 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       smsInfo: '100 SMS',
       price: 20000,
       duration: '1 ngày',
+      durationDays: 1,
       color: '#0066CC',
-      packageType: '4g5g'
+      packageType: '4g5g',
+      familyId: 'family-1'
     },
     {
       id: 2,
@@ -75,28 +79,66 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       smsInfo: '150 SMS',
       price: 50000,
       duration: '3 ngày',
+      durationDays: 3,
       color: '#0066CC',
-      packageType: '4g5g'
+      packageType: '4g5g',
+      familyId: 'family-1'
     },
     {
       id: 3,
-      name: '3T5GLQ190N',
-      data: '7GB',
-      dailyData: '7GB/ngày',
-      dataInfo: '7GB/ngày',
-      callInfo: '200p ngoại mạng, 20p/cuộc nội',
-      smsInfo: '200 SMS',
+      name: '3T5G160B',
+      data: '120GB',
+      dailyData: '4GB/ngày',
+      dataInfo: '120GB (4GB/ngày)',
+      callInfo: '100 phút gọi ngoại mạng. Miễn phí 10 phút đầu tiên của tất cả các cuộc gọi nội mạng (tối đa 1.000 phút)',
+      smsInfo: '',
       promotions: ['TIKTOK', 'YOUTUBE', 'FACEBOOK'],
       utilities: [{ name: 'TV360' }],
-      originalPrice: 600000,
-      price: 570000,
-      discountPercent: 5,
+      originalPrice: 500000,
+      price: 480000,
+      discountPercent: 4,
       duration: '90 ngày',
+      durationDays: 90,
       color: '#E60012',
-      packageType: '4g5g'
+      packageType: '4g5g',
+      familyId: 'family-2'
     },
     {
       id: 4,
+      name: '3T5G160B-30',
+      data: '120GB',
+      dailyData: '4GB/ngày',
+      dataInfo: '120GB (4GB/ngày)',
+      callInfo: '100 phút gọi ngoại mạng. Miễn phí 10 phút đầu tiên của tất cả các cuộc gọi nội mạng (tối đa 1.000 phút)',
+      smsInfo: '',
+      promotions: ['TIKTOK', 'YOUTUBE', 'FACEBOOK'],
+      utilities: [{ name: 'TV360' }],
+      price: 180000,
+      duration: '30 ngày',
+      durationDays: 30,
+      color: '#E60012',
+      packageType: '4g5g',
+      familyId: 'family-2'
+    },
+    {
+      id: 5,
+      name: '3T5G160B-7',
+      data: '120GB',
+      dailyData: '4GB/ngày',
+      dataInfo: '120GB (4GB/ngày)',
+      callInfo: '100 phút gọi ngoại mạng. Miễn phí 10 phút đầu tiên của tất cả các cuộc gọi nội mạng (tối đa 1.000 phút)',
+      smsInfo: '',
+      promotions: ['TIKTOK', 'YOUTUBE', 'FACEBOOK'],
+      utilities: [{ name: 'TV360' }],
+      price: 50000,
+      duration: '7 ngày',
+      durationDays: 7,
+      color: '#E60012',
+      packageType: '4g5g',
+      familyId: 'family-2'
+    },
+    {
+      id: 6,
       name: '3T5GLQ1530N',
       data: '15GB',
       dailyData: '500MB/ngày',
@@ -105,11 +147,13 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       smsInfo: '300 SMS',
       price: 200000,
       duration: '30 ngày',
+      durationDays: 30,
       color: '#0066CC',
-      packageType: '4g5g'
+      packageType: '4g5g',
+      familyId: 'family-3'
     },
     {
-      id: 5,
+      id: 7,
       name: '3T5GLQ3030N',
       data: '30GB',
       dailyData: '1GB/ngày',
@@ -119,11 +163,13 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       utilities: [{ name: 'TV360' }],
       price: 350000,
       duration: '30 ngày',
+      durationDays: 30,
       color: '#0066CC',
-      packageType: '4g5g'
+      packageType: '4g5g',
+      familyId: 'family-4'
     },
     {
-      id: 6,
+      id: 8,
       name: '3T5GLQ5030N',
       data: '50GB',
       dailyData: '1.67GB/ngày',
@@ -134,11 +180,33 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       utilities: [{ name: 'TV360' }],
       originalPrice: 550000,
       price: 500000,
-      discountAmount: 50000,
+      discountPercent: 9,
       duration: '7 ngày',
+      durationDays: 7,
       color: '#E60012',
-      packageType: '4g5g'
-    }
+      packageType: '4g5g',
+      familyId: 'family-5'
+    },
+    {
+      id: 9,
+      name: '3T5G160B-180',
+      data: '120GB',
+      dailyData: '4GB/ngày',
+      dataInfo: '120GB (4GB/ngày)',
+      callInfo: '100 phút gọi ngoại mạng. Miễn phí 10 phút đầu tiên của tất cả các cuộc gọi nội mạng (tối đa 1.000 phút)',
+      smsInfo: '',
+      promotions: ['TIKTOK', 'YOUTUBE', 'FACEBOOK'],
+      utilities: [{ name: 'TV360' }],
+      originalPrice: 500000,
+      price: 480000,
+      discountPercent: 4,
+      duration: '180 ngày',
+      durationDays: 180,
+      color: '#E60012',
+      packageType: '4g5g',
+      familyId: 'family-2'
+    },
+
   ];
 
   filteredPackages: DataPackage[] = [];
@@ -151,6 +219,10 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   private hasOverflow: { [key: number]: boolean } = {}; // Lưu trạng thái ban đầu
   private checkExpandIcons: boolean = true;
   private resizeListener?: () => void;
+  showDetailModal: boolean = false;
+  detailPackage: DataPackage | null = null;
+  familyPackages: DataPackage[] = []; // Các gói trong cùng family
+  selectedFamilyPackage: DataPackage | null = null; // Gói được chọn trong family
 
   constructor(private cdr: ChangeDetectorRef) {
     // Listen for window resize
@@ -310,7 +382,70 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
 
   viewDetails(pkg: DataPackage): void {
     console.log('View details for package:', pkg);
-    // Xử lý xem chi tiết gói ở đây
+    this.detailPackage = pkg;
+    
+    // Lọc các gói trong cùng family
+    if (pkg.familyId) {
+      this.familyPackages = this.packages.filter(
+        p => p.familyId === pkg.familyId && p.id !== pkg.id
+      );
+      // Sắp xếp theo durationDays (từ ít ngày đến nhiều ngày)
+      this.familyPackages.sort((a, b) => {
+        return (a.durationDays || 0) - (b.durationDays || 0);
+      });
+      // Thêm gói hiện tại vào danh sách và sắp xếp lại toàn bộ
+      this.familyPackages.push(pkg);
+      this.familyPackages.sort((a, b) => {
+        return (a.durationDays || 0) - (b.durationDays || 0);
+      });
+    } else {
+      // Nếu không có familyId, chỉ hiển thị gói hiện tại
+      this.familyPackages = [pkg];
+    }
+    
+    this.selectedFamilyPackage = pkg;
+    this.showDetailModal = true;
+    // Ngăn scroll body khi modal mở
+    document.body.style.overflow = 'hidden';
+  }
+
+  selectFamilyPackage(pkg: DataPackage): void {
+    this.selectedFamilyPackage = pkg;
+  }
+
+  closeDetailModal(): void {
+    this.showDetailModal = false;
+    this.detailPackage = null;
+    this.familyPackages = [];
+    this.selectedFamilyPackage = null;
+    // Khôi phục scroll body
+    document.body.style.overflow = 'auto';
+  }
+
+  registerFromModal(): void {
+    if (this.selectedFamilyPackage) {
+      this.closeDetailModal();
+      this.selectPackage(this.selectedFamilyPackage);
+    }
+  }
+
+  getUtilitiesText(utilities?: Array<{ name: string; iconUrl?: string }>): string {
+    if (!utilities || utilities.length === 0) {
+      return '';
+    }
+    return utilities.map(u => u.name).join(', ');
+  }
+
+  hasUtilities(pkg: DataPackage | null): boolean {
+    return !!(pkg?.utilities && pkg.utilities.length > 0);
+  }
+
+  // Lấy thông tin chung của family (lấy từ gói đầu tiên)
+  getFamilyInfo(): DataPackage | null {
+    if (this.familyPackages.length > 0) {
+      return this.familyPackages[0];
+    }
+    return this.selectedFamilyPackage;
   }
 
   handleLogin(): void {

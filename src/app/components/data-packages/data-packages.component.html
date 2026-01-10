@@ -7,6 +7,72 @@
     (back)="backToPackages()">
   </app-payment-method>
 
+  <!-- Detail Modal -->
+  <div class="modal-overlay" *ngIf="showDetailModal" (click)="closeDetailModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <!-- Package Family Tabs -->
+      <div class="modal-family-tabs" *ngIf="familyPackages.length > 1">
+        <div 
+          *ngFor="let pkg of familyPackages"
+          class="family-tab-card"
+          [class.active]="selectedFamilyPackage?.id === pkg.id"
+          (click)="selectFamilyPackage(pkg)">
+          <div class="family-tab-duration">{{ pkg.duration }}</div>
+          <div class="family-tab-discount" *ngIf="hasDiscount(pkg)">
+            {{ getDiscountDisplay(pkg) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-header">
+        <div class="modal-package-label">Tên gói cước</div>
+        <h2 class="modal-package-name">{{ selectedFamilyPackage?.name }}</h2>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-price-info">
+          <p class="price-text">Giá cước: <strong>{{ formatPrice(selectedFamilyPackage?.price || 0) }}₫/{{ selectedFamilyPackage?.duration }}</strong></p>
+          <div class="price-discount-info" *ngIf="selectedFamilyPackage && hasDiscount(selectedFamilyPackage)">
+            <div class="modal-discount-badge">
+              <span class="modal-discount-text">{{ getDiscountDisplay(selectedFamilyPackage) }}</span>
+            </div>
+            <div class="modal-original-price">
+              <span class="modal-original-price-amount">{{ formatPrice(getOriginalPrice(selectedFamilyPackage)) }}</span>
+              <span class="modal-original-price-unit">₫</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-benefits-section">
+          <p class="benefits-title">Ưu đãi sử dụng trong mỗi chu kỳ 30 ngày:</p>
+          <ul class="benefits-list">
+            <li *ngIf="getFamilyInfo()?.dataInfo" class="benefit-item">
+              - {{ getFamilyInfo()?.dataInfo }}
+            </li>
+            <li *ngIf="getFamilyInfo()?.callInfo" class="benefit-item">
+              - {{ getFamilyInfo()?.callInfo }}
+            </li>
+            <li *ngIf="getFamilyInfo()?.smsInfo" class="benefit-item">
+              - {{ getFamilyInfo()?.smsInfo }}
+            </li>
+            <li *ngIf="hasUtilities(getFamilyInfo())" class="benefit-item">
+              - Xem các giải thể thao độc quyền và kho phim mới nhất trên {{ getUtilitiesText(getFamilyInfo()?.utilities) }}.
+            </li>
+          </ul>
+        </div>
+
+        <div class="modal-renewal-info">
+          <p class="renewal-text">Gói cước gia hạn sau {{ selectedFamilyPackage?.duration }}</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="modal-back-btn" (click)="closeDetailModal()">Quay lại</button>
+        <button class="modal-register-btn" (click)="registerFromModal()">Đăng ký</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Packages List -->
   <div class="packages-container" *ngIf="!showPaymentMethod">
     <div class="section-header">

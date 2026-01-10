@@ -1274,3 +1274,560 @@
   }
 }
 
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 12px;
+  max-width: 700px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Family Tabs
+.modal-family-tabs {
+  display: flex;
+  gap: 16px;
+  padding: 15px 40px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #f5f5f5;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 2px;
+
+    &:hover {
+      background: #999;
+    }
+  }
+}
+
+.family-tab-card {
+  flex: 1;
+  min-width: 120px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+  position: relative;
+
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 60%;
+    background: #e0e0e0;
+  }
+
+  &:hover {
+    border-color: #E60012;
+    background: #fff5f5;
+    box-shadow: 0 2px 6px rgba(230, 0, 18, 0.1);
+  }
+
+  &.active {
+    border: 2px solid #E60012;
+    background: #fff5f5;
+    box-shadow: 0 2px 8px rgba(230, 0, 18, 0.15);
+    
+    &::after {
+      display: none;
+    }
+  }
+}
+
+.family-tab-duration {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.2;
+
+  .family-tab-card.active & {
+    color: #1a1a1a;
+    font-weight: 700;
+  }
+}
+
+.family-tab-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.2;
+
+  .family-tab-card.active & {
+    color: #E60012;
+  }
+}
+
+.family-tab-discount {
+  font-size: 16px;
+  font-weight: 700;
+  color: #E60012;
+  line-height: 1.2;
+  background: linear-gradient(135deg, #E60012 0%, #ff1a2e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  .family-tab-card.active & {
+    color: #E60012;
+    -webkit-text-fill-color: #E60012;
+  }
+}
+
+.modal-header {
+  padding: 20px 40px 15px 40px;
+  text-align: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.modal-package-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-package-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.modal-body {
+  padding: 20px 40px;
+  flex: 1;
+}
+
+.modal-price-info {
+  margin-bottom: 16px;
+}
+
+.price-text {
+  font-size: 15px;
+  color: #333;
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+
+  strong {
+    color: #1a1a1a;
+    font-weight: 700;
+  }
+}
+
+.price-discount-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.modal-discount-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #E60012 0%, #ff1a2e 100%);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(230, 0, 18, 0.3);
+}
+
+.modal-discount-text {
+  display: inline-block;
+  letter-spacing: 0.3px;
+}
+
+.modal-original-price {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  opacity: 0.7;
+
+  .modal-original-price-amount {
+    font-size: 16px;
+    font-weight: 500;
+    color: #999;
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: #999;
+  }
+
+  .modal-original-price-unit {
+    font-size: 13px;
+    color: #999;
+    text-decoration: line-through;
+  }
+}
+
+.modal-benefits-section {
+  margin-bottom: 16px;
+}
+
+.benefits-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+}
+
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.benefit-item {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 6px;
+  padding-left: 0;
+}
+
+.modal-renewal-info {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.renewal-text {
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.modal-footer {
+  padding: 12px 40px 20px 40px;
+  text-align: center;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: #f5f5f5;
+}
+
+.modal-back-btn {
+  flex: 1;
+  padding: 10px 24px;
+  background: #ffffff;
+  color: #333;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  &:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.modal-register-btn {
+  flex: 1;
+  padding: 10px 24px;
+  background: #E60012;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  &:hover {
+    background: #cc0010;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(230, 0, 18, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Responsive Modal
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 10px;
+  }
+
+  .modal-content {
+    max-width: 100%;
+    border-radius: 8px;
+    max-height: 95vh;
+  }
+
+  .modal-family-tabs {
+    padding: 15px 20px;
+    gap: 12px;
+  }
+
+  .family-tab-card {
+    min-width: 100px;
+    padding: 12px 16px;
+    gap: 6px;
+    border: 1px solid #e0e0e0;
+
+    &:not(:last-child)::after {
+      right: -6px;
+      height: 50%;
+    }
+  }
+
+  .family-tab-duration {
+    font-size: 14px;
+  }
+
+  .family-tab-price {
+    font-size: 15px;
+  }
+
+  .modal-header {
+    padding: 20px 30px 12px 30px;
+  }
+
+  .modal-package-label {
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+
+  .modal-package-name {
+    font-size: 22px;
+  }
+
+  .modal-body {
+    padding: 20px 30px;
+  }
+
+  .price-text {
+    font-size: 14px;
+  }
+
+  .price-discount-info {
+    gap: 8px;
+  }
+
+  .modal-discount-badge {
+    padding: 3px 10px;
+    font-size: 11px;
+  }
+
+  .modal-original-price {
+    .modal-original-price-amount {
+      font-size: 14px;
+    }
+
+    .modal-original-price-unit {
+      font-size: 12px;
+    }
+  }
+
+  .benefits-title {
+    font-size: 14px;
+  }
+
+  .benefit-item {
+    font-size: 13px;
+  }
+
+  .renewal-text {
+    font-size: 13px;
+  }
+
+  .modal-footer {
+    padding: 12px 30px 20px 30px;
+    gap: 10px;
+  }
+
+  .modal-back-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .modal-register-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-overlay {
+    padding: 5px;
+  }
+
+  .modal-family-tabs {
+    padding: 12px 15px;
+    gap: 10px;
+  }
+
+  .family-tab-card {
+    min-width: 80px;
+    padding: 10px 12px;
+    gap: 4px;
+    border: 1px solid #e0e0e0;
+
+    &:not(:last-child)::after {
+      right: -5px;
+      height: 45%;
+    }
+  }
+
+  .family-tab-duration {
+    font-size: 13px;
+  }
+
+  .family-tab-price {
+    font-size: 14px;
+  }
+
+  .modal-header {
+    padding: 18px 20px 10px 20px;
+  }
+
+  .modal-package-label {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  .modal-package-name {
+    font-size: 20px;
+  }
+
+  .modal-body {
+    padding: 15px 20px;
+  }
+
+  .price-text {
+    font-size: 13px;
+  }
+
+  .price-discount-info {
+    gap: 6px;
+  }
+
+  .modal-discount-badge {
+    padding: 2px 8px;
+    font-size: 10px;
+  }
+
+  .modal-original-price {
+    .modal-original-price-amount {
+      font-size: 12px;
+    }
+
+    .modal-original-price-unit {
+      font-size: 11px;
+    }
+  }
+
+  .benefits-title {
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .benefit-item {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .renewal-text {
+    font-size: 12px;
+  }
+
+  .modal-footer {
+    padding: 10px 20px 15px 20px;
+    gap: 8px;
+  }
+
+  .modal-back-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .modal-register-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+}
+
