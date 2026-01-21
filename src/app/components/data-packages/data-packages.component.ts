@@ -456,6 +456,29 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     return '';
   }
 
+  /**
+   * Tính discountPercent từ package để truyền vào payment-method
+   */
+  getDiscountPercent(pkg: DisplayPackage | null): number {
+    if (!pkg) {
+      return 0;
+    }
+    // Ưu tiên discountPercent trực tiếp
+    if (pkg.discountPercent) {
+      return pkg.discountPercent;
+    }
+    // Nếu có originalPrice và salePrice, tính từ đó
+    if (pkg.originalPrice && pkg.originalPrice > pkg.price) {
+      const discount = pkg.originalPrice - pkg.price;
+      return Math.round((discount / pkg.originalPrice) * 100);
+    }
+    // Nếu có discountAmount, tính từ đó
+    if (pkg.discountAmount && pkg.originalPrice) {
+      return Math.round((pkg.discountAmount / pkg.originalPrice) * 100);
+    }
+    return 0;
+  }
+
   getSmsDisplayText(smsInfo?: string): string {
     if (!smsInfo) {
       return '';

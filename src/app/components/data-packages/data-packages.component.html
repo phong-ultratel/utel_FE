@@ -2,8 +2,8 @@
   <!-- Payment Method Component -->
   <app-payment-method 
     *ngIf="showPaymentMethod && selectedPackage"
-    [totalAmount]="selectedPackage.price"
-    [discount]="5"
+    [totalAmount]="getOriginalPrice(selectedPackage)"
+    [discount]="getDiscountPercent(selectedPackage)"
     (back)="backToPackages()">
   </app-payment-method>
 
