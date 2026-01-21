@@ -20,6 +20,7 @@ interface DisplayPackage extends PackageCardDto {
   smsInfo?: string; // Alias cho display.smsText
   smsText?: string; // Giữ cả hai để tương thích
   specialInfo?: string; // Thông tin đặc biệt cho SPECIAL mode
+  benefitDetail?: string; // Chi tiết ưu đãi từ family.benefitDetail
   utilities?: Array<{ name: string; iconUrl?: string }>; // Parse từ display.benefitText
   packageType?: string; // Lấy từ packageGroups hoặc filter
   familyId?: string; // Dùng family code hoặc packageCode prefix
@@ -94,6 +95,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   familyPackages: DisplayPackage[] = [];
   selectedFamilyPackage: DisplayPackage | null = null;
   suggestedPackages: SuggestedPackageDto[] = [];
+  familyInfoPackage: DisplayPackage | null = null; // Package đầy đủ thông tin để hiển thị ưu đãi
   loading: boolean = false;
   error: string | null = null;
   searchQuery: string = '';
@@ -218,6 +220,9 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     const isSpecialMode = pkg.familyMode === 'SPECIAL';
     const specialInfo = isSpecialMode ? display.specialInfo : undefined;
 
+    // Lấy benefitDetail nếu có (từ PackageDetailResponse)
+    const benefitDetail = (pkg as any).benefitDetail;
+
     return {
       ...pkg,
       id: this.generateId(pkg.packageCode),
@@ -233,6 +238,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       smsInfo: display.smsText,
       smsText: display.smsText,
       specialInfo: specialInfo,
+      benefitDetail: benefitDetail,
       utilities,
       packageType: this.selectedPackageType, // Có thể map từ packageGroups
       familyId: pkg.packageCode.split('-')[0], // Hoặc dùng family code nếu có
@@ -484,18 +490,43 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         // Convert suggested packages sang DisplayPackage
         this.suggestedPackages = response.suggestedPackages || [];
 
+        // Convert package từ API response (có benefitDetail)
+        const detailPackage = this.convertToDisplayPackage(response.package, 0);
+        
+        // Lưu package đầy đủ thông tin để hiển thị ưu đãi cho tất cả packages trong family
+        this.familyInfoPackage = detailPackage;
+        
         // Tạo familyPackages từ suggested packages + package hiện tại
+        // Tìm package tương ứng trong danh sách đã load để lấy thông tin discount đầy đủ
+        const familyPackagesList = this.suggestedPackages.map((sp, idx) => {
+          // Tìm package tương ứng trong danh sách đã load để lấy discount info
+          const existingPackage = this.packages.find(p => p.packageCode === sp.packageCode);
+          if (existingPackage) {
+            // Nếu tìm thấy, dùng thông tin từ package đã load (có discount)
+            return {
+              ...this.convertSuggestedToDisplay(sp, idx),
+              originalPrice: existingPackage.originalPrice,
+              discountPercent: existingPackage.discountPercent,
+              discountAmount: existingPackage.discountAmount
+            };
+          }
+          // Nếu không tìm thấy, chỉ dùng thông tin từ suggested
+          return this.convertSuggestedToDisplay(sp, idx);
+        });
+        
         this.familyPackages = [
-          ...this.suggestedPackages.map((sp, idx) => this.convertSuggestedToDisplay(sp, idx)),
-          this.convertToDisplayPackage(response.package, 0)
+          ...familyPackagesList,
+          detailPackage
         ].sort((a, b) => a.validityDays - b.validityDays);
 
         // Nếu không có suggested, chỉ hiển thị package hiện tại
         if (this.familyPackages.length === 0) {
-          this.familyPackages = [pkg];
+          this.familyPackages = [detailPackage];
         }
 
-        this.selectedFamilyPackage = pkg;
+        // Tìm package tương ứng với pkg đã chọn để set selectedFamilyPackage
+        const selectedPkg = this.familyPackages.find(fp => fp.packageCode === pkg.packageCode) || detailPackage;
+        this.selectedFamilyPackage = selectedPkg;
         this.showDetailModal = true;
         document.body.style.overflow = 'hidden';
         this.loading = false;
@@ -510,6 +541,8 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         } else {
           this.familyPackages = [pkg];
         }
+        // Lưu package đầy đủ thông tin để hiển thị ưu đãi
+        this.familyInfoPackage = pkg;
         this.selectedFamilyPackage = pkg;
         this.showDetailModal = true;
         document.body.style.overflow = 'hidden';
@@ -543,6 +576,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   closeDetailModal(): void {
     this.showDetailModal = false;
     this.detailPackage = null;
+    this.familyInfoPackage = null;
     this.familyPackages = [];
     this.selectedFamilyPackage = null;
     this.suggestedPackages = [];
@@ -568,10 +602,21 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   }
 
   getFamilyInfo(): DisplayPackage | null {
-    if (this.familyPackages.length > 0) {
-      return this.familyPackages[0];
+    // Trả về familyInfoPackage (package đầy đủ thông tin) để hiển thị ưu đãi
+    // Vì tất cả packages trong cùng family có ưu đãi giống nhau
+    return this.familyInfoPackage || this.selectedFamilyPackage || (this.familyPackages.length > 0 ? this.familyPackages[0] : null);
+  }
+
+  /**
+   * Format callInfo cho DetailModal: thay "p" thành " phút"
+   */
+  formatCallInfoForModal(callInfo?: string): string {
+    if (!callInfo) {
+      return '';
     }
-    return this.selectedFamilyPackage;
+    // Thay "p" thành " phút" (chỉ thay khi "p" đứng một mình hoặc sau số)
+    // Ví dụ: "10p/cuộc" -> "10 phút/cuộc", "500p" -> "500 phút"
+    return callInfo.replace(/(\d+)p(\/| |$|\))/g, '$1 phút$2');
   }
 
   handleLogin(): void {
