@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { PackageCardDto } from '../models/package.model';
+import { PackageCardDto, TelecomProviderCode } from '../models/package.model';
 import { PackageDetailResponse } from '../models/package-detail.model';
 
 export interface CatalogResponse {
@@ -19,7 +19,7 @@ export class CatalogService {
   constructor(private http: HttpClient) {}
 
   getPackages(params?: {
-    provider?: string;
+    provider?: TelecomProviderCode;
     packageType?: string;
     validityDays?: number;
     familyMode?: string;

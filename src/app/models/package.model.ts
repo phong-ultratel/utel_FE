@@ -15,6 +15,7 @@ export interface PackagePricing {
 }
 
 export type PackageFamilyMode = 'STANDARD' | 'SPECIAL';
+export type TelecomProviderCode = 'VIETTEL' | 'MOBI' | 'VINA';
 
 export interface PackageCardDto {
   packageCode: string;

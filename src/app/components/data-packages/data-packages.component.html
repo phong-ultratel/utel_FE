@@ -53,7 +53,7 @@
               - {{ getFamilyInfo()?.callInfo }}
             </li>
             <li *ngIf="getFamilyInfo()?.smsInfo" class="benefit-item">
-              - {{ getFamilyInfo()?.smsInfo }}
+              - {{ getSmsDisplayText(getFamilyInfo()?.smsInfo) }}
             </li>
             <li *ngIf="hasUtilities(getFamilyInfo())" class="benefit-item">
               - Xem các giải thể thao độc quyền và kho phim mới nhất trên {{ getUtilitiesText(getFamilyInfo()?.utilities) }}.
@@ -111,6 +111,34 @@
 
     <!-- Filter Section -->
     <div class="filter-section">
+      <!-- Provider Selector -->
+      <div
+        class="provider-selector"
+        role="group"
+        aria-label="Chọn nhà mạng"
+      >
+        <span class="provider-label">Chọn nhà mạng:</span>
+        <div class="provider-buttons">
+          <button
+            *ngFor="let p of providers"
+            type="button"
+            class="provider-pill"
+            [class.active]="p.code === selectedProvider"
+            [disabled]="isProviderLocked"
+            (click)="onProviderChange(p.code)"
+            [attr.aria-pressed]="p.code === selectedProvider"
+            [attr.aria-label]="'Chọn nhà mạng ' + p.name"
+          >
+            <img
+              class="provider-logo"
+              [src]="p.logo"
+              [alt]="p.name"
+            />
+            <span class="provider-name">{{ p.name }}</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Package Type Navigation -->
       <div class="package-type-nav-wrapper">
         <div class="package-type-nav">
@@ -183,7 +211,13 @@
         [class.popular]="pkg.popular">
         
         <!-- Banner góc trên trái (chỉ hiển thị trên mobile) -->
-        <div class="package-ticket-banner">
+        <div
+          class="package-ticket-banner"
+          [ngClass]="{
+            'provider-mobi': selectedProvider === 'MOBI',
+            'provider-vina': selectedProvider === 'VINA'
+          }"
+        >
           <span class="ticket-banner-text">{{ pkg.name }} - {{ pkg.duration }}</span>
         </div>
 
@@ -199,7 +233,13 @@
         </div>
 
         <!-- Phần đầu: Tên gói cước - Thời hạn (desktop) -->
-        <div class="package-header-section">
+        <div
+          class="package-header-section"
+          [ngClass]="{
+            'provider-mobi': selectedProvider === 'MOBI',
+            'provider-vina': selectedProvider === 'VINA'
+          }"
+        >
           <div class="package-header-content">
             <span class="package-name-duration">{{ pkg.name }} - {{ pkg.duration }}</span>
           </div>
@@ -251,26 +291,18 @@
                 </svg>
               </span>
               <span class="info-label">SMS:</span>
-              <span class="info-value">{{ pkg.smsInfo }}</span>
+              <span class="info-value">{{ getSmsDisplayText(pkg.smsInfo) }}</span>
             </div>
             
             <!-- Tiện ích -->
-            <div class="info-item utility-item" *ngIf="pkg.utilities && pkg.utilities.length > 0">
+            <div class="info-item" *ngIf="pkg.utilities && pkg.utilities.length > 0">
               <span class="info-icon play-icon">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M8.00065 14.6666C4.31875 14.6666 1.33398 11.6818 1.33398 7.99992C1.33398 4.31802 4.31875 1.33325 8.00065 1.33325C11.6825 1.33325 14.6673 4.31802 14.6673 7.99992C14.6673 11.6818 11.6825 14.6666 8.00065 14.6666ZM7.08192 5.60964C7.03812 5.58044 6.98665 5.56486 6.93398 5.56486C6.78672 5.56486 6.66732 5.68425 6.66732 5.83152V10.1683C6.66732 10.221 6.68292 10.2725 6.71212 10.3163C6.79378 10.4388 6.95938 10.4719 7.08192 10.3902L10.3345 8.22178C10.3638 8.20225 10.3889 8.17712 10.4085 8.14785C10.4902 8.02532 10.4571 7.85972 10.3345 7.77805L7.08192 5.60964Z" fill="black"></path>
                 </svg>
               </span>
               <span class="info-label">Tiện ích:</span>
-              <div class="utility-list">
-                <div class="utility-item-wrapper" *ngFor="let utility of pkg.utilities">
-                  <div class="utility-text">{{ utility.name }}</div>
-                  <img *ngIf="getUtilityIconUrl(utility.name)" 
-                       [src]="getUtilityIconUrl(utility.name)" 
-                       [alt]="utility.name" 
-                       class="utility-icon-img">
-                </div>
-              </div>
+              <span class="info-value">{{ getUtilitiesText(pkg.utilities) }}</span>
             </div>
             </div>
             <!-- Icon mũi tên mở rộng (chỉ mobile và chỉ khi cần) -->
@@ -343,26 +375,18 @@
                 </svg>
               </span>
               <span class="info-label">SMS:</span>
-              <span class="info-value">{{ pkg.smsInfo }}</span>
+              <span class="info-value">{{ getSmsDisplayText(pkg.smsInfo) }}</span>
             </div>
             
             <!-- Tiện ích -->
-            <div class="info-item utility-item" *ngIf="pkg.utilities && pkg.utilities.length > 0">
+            <div class="info-item" *ngIf="pkg.utilities && pkg.utilities.length > 0">
               <span class="info-icon play-icon">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M8.00065 14.6666C4.31875 14.6666 1.33398 11.6818 1.33398 7.99992C1.33398 4.31802 4.31875 1.33325 8.00065 1.33325C11.6825 1.33325 14.6673 4.31802 14.6673 7.99992C14.6673 11.6818 11.6825 14.6666 8.00065 14.6666ZM7.08192 5.60964C7.03812 5.58044 6.98665 5.56486 6.93398 5.56486C6.78672 5.56486 6.66732 5.68425 6.66732 5.83152V10.1683C6.66732 10.221 6.68292 10.2725 6.71212 10.3163C6.79378 10.4388 6.95938 10.4719 7.08192 10.3902L10.3345 8.22178C10.3638 8.20225 10.3889 8.17712 10.4085 8.14785C10.4902 8.02532 10.4571 7.85972 10.3345 7.77805L7.08192 5.60964Z" fill="black"></path>
                 </svg>
               </span>
               <span class="info-label">Tiện ích:</span>
-              <div class="utility-list">
-                <div class="utility-item-wrapper" *ngFor="let utility of pkg.utilities">
-                  <div class="utility-text">{{ utility.name }}</div>
-                  <img *ngIf="getUtilityIconUrl(utility.name)" 
-                       [src]="getUtilityIconUrl(utility.name)" 
-                       [alt]="utility.name" 
-                       class="utility-icon-img">
-                </div>
-              </div>
+              <span class="info-value">{{ getUtilitiesText(pkg.utilities) }}</span>
             </div>
           </div>
         </div>
@@ -396,6 +420,10 @@
             </button>
             <a 
               class="btn-details"
+              [ngClass]="{
+                'provider-mobi': selectedProvider === 'MOBI',
+                'provider-vina': selectedProvider === 'VINA'
+              }"
               (click)="viewDetails(pkg)">
               Xem chi tiết >
             </a>

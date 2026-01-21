@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CatalogService } from '../../services/catalog.service';
-import { PackageCardDto } from '../../models/package.model';
+import { PackageCardDto, TelecomProviderCode } from '../../models/package.model';
 import { PackageDetailResponse, SuggestedPackageDto } from '../../models/package-detail.model';
 
 // Interface tương thích với template hiện tại
@@ -29,12 +29,36 @@ interface PackageType {
   label: string;
 }
 
+interface TelecomProvider {
+  code: TelecomProviderCode;
+  name: string;
+  logo: string;
+}
+
 @Component({
   selector: 'app-data-packages',
   templateUrl: './data-packages.component.html',
   styleUrls: ['./data-packages.component.scss']
 })
 export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestroy {
+  providers: TelecomProvider[] = [
+    {
+      code: 'VIETTEL',
+      name: 'Viettel',
+      logo: 'assets/images/telecom_provider_logo/viettel.png'
+    },
+    {
+      code: 'MOBI',
+      name: 'Mobifone',
+      logo: 'assets/images/telecom_provider_logo/mobiphone.png'
+    },
+    {
+      code: 'VINA',
+      name: 'Vinaphone',
+      logo: 'assets/images/telecom_provider_logo/vinaphone.png'
+    }
+  ];
+
   packageTypes: PackageType[] = [
     { id: '4g5g', label: 'Gói cước 4G/5G' },
     { id: '5g', label: 'Gói cước 5G' },
@@ -42,6 +66,10 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     { id: 'dcom', label: 'Gói cước Dcom' },
     { id: 'roaming', label: 'Gói Roaming' }
   ];
+
+  selectedProvider: TelecomProviderCode = 'VIETTEL';
+  // Chuẩn bị sẵn cấu trúc để khóa nhà mạng sau khi tra cứu thuê bao (logic sẽ bổ sung sau)
+  isProviderLocked: boolean = false;
 
   selectedPackageType: string = '4g5g';
   selectedDuration: string = 'all'; // Mặc định hiển thị tất cả
@@ -85,15 +113,20 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     this.loadPackages();
   }
 
+  onProviderChange(provider: TelecomProviderCode): void {
+    if (this.selectedProvider === provider || this.isProviderLocked) {
+      return;
+    }
+    this.selectedProvider = provider;
+    this.loadPackages();
+  }
+
   loadPackages(): void {
     this.loading = true;
     this.error = null;
 
-    // Gọi API không filter packageType ban đầu để lấy tất cả packages
-    // Sau đó filter ở client side
     this.catalogService.getPackages({
-      // Không filter packageType ở API level, để lấy tất cả
-      // packageType: packageTypeCode,
+      provider: this.selectedProvider,
       familyMode: 'STANDARD' // Chỉ lấy STANDARD mode
     }).subscribe({
       next: (response) => {
@@ -212,7 +245,9 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       const element = document.getElementById(`info-list-${pkg.id}`);
       if (element) {
         if (!this.expandedPackages[pkg.id]) {
-          const hasOverflow = element.scrollHeight > element.clientHeight;
+          // Dùng ngưỡng nhỏ để tránh trường hợp sai số khiến nút expand hiện dù không có nội dung ẩn
+          const overflowDelta = element.scrollHeight - element.clientHeight;
+          const hasOverflow = overflowDelta > 4;
           this.hasOverflow[pkg.id] = hasOverflow;
           this.needsExpandIcon[pkg.id] = hasOverflow;
         } else {
@@ -319,6 +354,17 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       return `-${percent}%`;
     }
     return '';
+  }
+
+  getSmsDisplayText(smsInfo?: string): string {
+    if (!smsInfo) {
+      return '';
+    }
+    // Nếu smsInfo chứa "9999" (có thể là "9999", "9999 SMS", "9999 tin nhắn", etc.)
+    if (smsInfo.includes('9999')) {
+      return 'Miễn phí SMS nội mạng';
+    }
+    return smsInfo;
   }
 
   selectPackage(pkg: DisplayPackage): void {

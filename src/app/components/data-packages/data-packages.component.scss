@@ -110,6 +110,71 @@
   margin-bottom: 40px;
 }
 
+.provider-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  .provider-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .provider-buttons {
+    display: flex;
+    gap: 16px;
+  }
+
+  .provider-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    color: #333;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      border-color: #e60012;
+      background: #fff5f5;
+    }
+
+    &.active {
+      border-color: #e60012;
+      background: #fff5f5;
+      color: #e60012;
+      font-weight: 600;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .provider-logo {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    .provider-name {
+      font-weight: 500;
+    }
+  }
+}
+
 .package-type-nav-wrapper {
   margin-bottom: 20px;
   border-bottom: 1px solid #e0e0e0;
@@ -275,39 +340,14 @@
   display: none;
 }
 
-// Phần đầu: Tên gói cước - Thời hạn (Header đỏ)
+// Phần đầu: Tên gói cước - Thời hạn (Header, dùng background svg)
 .package-header-section {
-  background: #E60012;
+  background: #E60012 url('/assets/images/svg/package_card_background.svg') no-repeat center;
+  background-size: cover;
   padding: 20px;
   position: relative;
   overflow: hidden;
   border-radius: 12px 12px 0 0;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image:
-      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
-    opacity: 0.3;
-    pointer-events: none;
-  }
-
-  &::after {
-    content: '📞 ✉';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 60px;
-    opacity: 0.1;
-    white-space: nowrap;
-    pointer-events: none;
-  }
 
   .package-header-content {
     position: relative;
@@ -322,6 +362,23 @@
     white-space: nowrap;
     letter-spacing: 0.5px;
   }
+}
+
+// Mobifone / Vinaphone: dùng màu thuần + icon overlay phía góc phải
+.package-header-section.provider-mobi {
+  background-color: #003A8F;
+  background-image: url('/assets/images/svg/image_package_backgound.svg');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 72px auto;
+}
+
+.package-header-section.provider-vina {
+  background-color: #007BFF;
+  background-image: url('/assets/images/svg/image_package_backgound.svg');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 72px auto;
 }
 
 // Phần giữa: Thông tin và tiện ích (có scroll)
@@ -389,7 +446,7 @@
     height: 16px;
     flex-shrink: 0;
     color: #333;
-    
+
     svg {
       width: 100%;
       height: 100%;
@@ -430,12 +487,13 @@
   .info-value {
     color: #333;
     flex: 1;
+    font-weight: 700;
   }
 
   // Utility item styling
   &.utility-item {
     align-items: flex-start;
-    
+
     .utility-list {
       display: flex;
       flex-wrap: wrap;
@@ -611,6 +669,24 @@
   }
 }
 
+.btn-details.provider-mobi {
+  color: #003A8F;
+
+  &:hover {
+    color: #002a63;
+    text-decoration: underline;
+  }
+}
+
+.btn-details.provider-vina {
+  color: #007BFF;
+
+  &:hover {
+    color: #0056b3;
+    text-decoration: underline;
+  }
+}
+
 // Responsive
 @media (max-width: 992px) {
   .packages-grid {
@@ -665,6 +741,30 @@
 
   .filter-section {
     margin-bottom: 12px;
+  }
+
+  .provider-selector {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+
+    .provider-buttons {
+      gap: 8px;
+    }
+
+    .provider-pill {
+      padding: 6px 10px;
+      font-size: 12px;
+
+      .provider-logo {
+        width: 18px;
+        height: 18px;
+      }
+
+      .provider-name {
+        font-size: 12px;
+      }
+    }
   }
 
   .package-type-nav-wrapper {
@@ -778,19 +878,41 @@
     position: absolute;
     top: 0;
     left: 0;
-    background: #E60012;
+    background-color: #E60012;
+    background-image: url('/assets/images/svg/package_card_background.svg');
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: cover;
     padding: 6px 12px;
     border-radius: 8px 0 8px 0;
     z-index: 10;
     clip-path: polygon(0 0, 85% 0, 100% 100%, 0 100%);
 
     .ticket-banner-text {
+      position: relative;
+      z-index: 1;
       color: #fff;
       font-size: 11px;
       font-weight: 700;
       white-space: nowrap;
       letter-spacing: 0.3px;
     }
+
+  &.provider-mobi {
+    background-color: #003A8F;
+    background-image: url('/assets/images/svg/image_package_backgound.svg');
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    background-size: 56px auto;
+  }
+
+  &.provider-vina {
+    background-color: #007BFF;
+    background-image: url('/assets/images/svg/image_package_backgound.svg');
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    background-size: 56px auto;
+  }
   }
 
   // Discount và Original Price ở góc phải trên (mobile)
@@ -1119,6 +1241,32 @@
     margin-bottom: 10px;
   }
 
+  .provider-selector {
+    gap: 6px;
+
+    .provider-label {
+      font-size: 12px;
+    }
+
+    .provider-buttons {
+      gap: 6px;
+    }
+
+    .provider-pill {
+      padding: 4px 8px;
+      font-size: 11px;
+
+      .provider-logo {
+        width: 16px;
+        height: 16px;
+      }
+
+      .provider-name {
+        font-size: 11px;
+      }
+    }
+  }
+
   .package-type-nav-wrapper {
     margin-left: -10px;
     margin-right: -10px;
@@ -1392,7 +1540,7 @@
     border: 2px solid #E60012;
     background: #fff5f5;
     box-shadow: 0 2px 8px rgba(230, 0, 18, 0.15);
-    
+
     &::after {
       display: none;
     }
