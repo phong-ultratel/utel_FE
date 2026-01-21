@@ -14,6 +14,19 @@ export interface PackagePricing {
   discountText?: string;
 }
 
+export interface CallRaw {
+  onNetCallMinutes?: number | null;
+  onNetCallLimitPerCall?: number | null;
+  offNetCallMinutes?: number | null;
+  offNetCallPeriod?: string | null;
+}
+
+export interface RawData {
+  data?: any;
+  call?: CallRaw;
+  smsCount?: number | null;
+}
+
 export type PackageFamilyMode = 'STANDARD' | 'SPECIAL';
 export type TelecomProviderCode = 'VIETTEL' | 'MOBI' | 'VINA';
 
@@ -25,5 +38,6 @@ export interface PackageCardDto {
   familyMode?: PackageFamilyMode;
   display?: PackageDisplay;
   pricing?: PackagePricing;
+  raw?: RawData;
 }
 

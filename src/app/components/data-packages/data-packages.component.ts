@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CatalogService } from '../../services/catalog.service';
-import { PackageCardDto, TelecomProviderCode } from '../../models/package.model';
+import { PackageCardDto, TelecomProviderCode, CallRaw } from '../../models/package.model';
 import { PackageDetailResponse, SuggestedPackageDto } from '../../models/package-detail.model';
 
 // Interface tương thích với template hiện tại
@@ -178,6 +178,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   private convertToDisplayPackage(pkg: PackageCardDto, index: number): DisplayPackage {
     const pricing = pkg.pricing || { originalPrice: 0, salePrice: 0 };
     const display = pkg.display || {};
+    const raw = pkg.raw;
     
     // Tính discount
     let discountPercent: number | undefined;
@@ -190,6 +191,21 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     // Parse utilities từ benefitText (nếu có)
     const utilities = this.parseUtilities(display.benefitText);
 
+    // Build callInfo: ưu tiên display.callText, nếu null thì build từ raw.call
+    let callInfo = display.callText;
+    if (!callInfo && raw?.call) {
+      callInfo = this.buildCallInfoFromRaw(raw.call);
+    }
+    
+    // Debug: log để kiểm tra
+    if (pkg.packageCode === 'VT_MP15K' || pkg.packageCode.includes('MP15K')) {
+      console.log('Package:', pkg.packageCode, {
+        callText: display.callText,
+        rawCall: raw?.call,
+        finalCallInfo: callInfo
+      });
+    }
+
     return {
       ...pkg,
       id: this.generateId(pkg.packageCode),
@@ -201,7 +217,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       duration: `${pkg.validityDays} ngày`,
       durationDays: pkg.validityDays,
       dataInfo: display.dataText,
-      callInfo: display.callText,
+      callInfo: callInfo,
       smsInfo: display.smsText,
       smsText: display.smsText,
       utilities,
@@ -210,6 +226,45 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       color: '#0066CC', // Màu mặc định, có thể map từ providerCode
       popular: false // Có thể set dựa trên logic (ví dụ: dựa trên số lượng bán)
     };
+  }
+
+  /**
+   * Build callInfo từ raw.call data khi display.callText null
+   * Format: "10p/cuộc nội mạng" hoặc "10p/cuộc nội mạng (tối đa 500p)"
+   */
+  private buildCallInfoFromRaw(callRaw: CallRaw): string | undefined {
+    if (!callRaw) {
+      return undefined;
+    }
+
+    const hasOffNet = callRaw.offNetCallMinutes != null;
+    const hasOnNet = callRaw.onNetCallMinutes != null;
+    const hasOnNetLimit = callRaw.onNetCallLimitPerCall != null;
+
+    if (!hasOffNet && !hasOnNet && !hasOnNetLimit) {
+      return undefined;
+    }
+
+    const parts: string[] = [];
+
+    // Off-net call
+    if (hasOffNet) {
+      parts.push(`${callRaw.offNetCallMinutes} phút ngoại mạng`);
+    }
+
+    // On-net call với limit per call
+    if (hasOnNetLimit) {
+      const limitText = `${callRaw.onNetCallLimitPerCall}p/cuộc nội mạng`;
+      if (hasOnNet) {
+        parts.push(`${limitText} (tối đa ${callRaw.onNetCallMinutes}p)`);
+      } else {
+        parts.push(limitText);
+      }
+    } else if (hasOnNet) {
+      parts.push(`${callRaw.onNetCallMinutes}p nội mạng`);
+    }
+
+    return parts.length > 0 ? parts.join(', ') : undefined;
   }
 
   /**
