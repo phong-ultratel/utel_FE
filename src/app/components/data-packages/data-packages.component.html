@@ -80,6 +80,23 @@
       <p class="section-subtitle">Nhiều lựa chọn với giá cả hợp lý, đáp ứng mọi nhu cầu sử dụng</p>
     </div>
 
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container" style="text-align: center; padding: 40px;">
+      <p>Đang tải danh sách gói cước...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-container" style="text-align: center; padding: 40px; color: red;">
+      <p>{{ error }}</p>
+      <button (click)="loadPackages()" style="margin-top: 10px; padding: 8px 16px;">Thử lại</button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && packageCount === 0" class="empty-container" style="text-align: center; padding: 40px;">
+      <p>Không có gói cước nào phù hợp với bộ lọc đã chọn.</p>
+      <button (click)="selectedDuration = 'all'; applyFilters()" style="margin-top: 10px; padding: 8px 16px;">Xem tất cả</button>
+    </div>
+
     <!-- Login Form Section -->
     <div class="login-form-section">
       <div class="login-form-container">
@@ -157,6 +174,7 @@
     </div>
 
     <div class="packages-grid" 
+         *ngIf="!loading && !error"
          [class.has-1-item]="packageCount === 1"
          [class.has-2-items]="packageCount === 2">
       <div 
