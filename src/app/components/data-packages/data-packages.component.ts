@@ -469,9 +469,8 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
 
   selectPackage(pkg: DisplayPackage): void {
     console.log('Selected package:', pkg);
-    this.selectedPackage = pkg;
-    this.showPaymentMethod = true;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Thay vì mở payment method, mở modal detail
+    this.viewDetails(pkg);
   }
 
   backToPackages(): void {
@@ -585,8 +584,13 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
 
   registerFromModal(): void {
     if (this.selectedFamilyPackage) {
+      // Lưu package đã chọn trước khi đóng modal (vì closeDetailModal sẽ set selectedFamilyPackage = null)
+      const selectedPkg = this.selectedFamilyPackage;
       this.closeDetailModal();
-      this.selectPackage(this.selectedFamilyPackage);
+      // Mở payment method trực tiếp từ modal
+      this.selectedPackage = selectedPkg;
+      this.showPaymentMethod = true;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
