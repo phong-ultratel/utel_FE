@@ -1,18 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { SearchService } from '../../services/search.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   isMenuOpen = false;
   searchQuery = '';
   isSearchFocused = false;
+  private destroy$ = new Subject<void>();
 
-  constructor() { }
+  constructor(private searchService: SearchService) { }
 
   ngOnInit(): void {
+    // Subscribe để đồng bộ search query từ service
+    this.searchService.searchQuery$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(query => {
+        this.searchQuery = query;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   toggleMenu(): void {
@@ -20,11 +34,13 @@ export class HeaderComponent implements OnInit {
   }
 
   onSearch(): void {
-    if (this.searchQuery.trim()) {
-      // Xử lý tìm kiếm ở đây
-      console.log('Đang tìm kiếm:', this.searchQuery);
-      // Có thể thêm logic điều hướng hoặc gọi service tìm kiếm
-    }
+    // Cập nhật search query vào service
+    this.searchService.setSearchQuery(this.searchQuery.trim());
+  }
+
+  onSearchInput(): void {
+    // Tìm kiếm real-time khi người dùng nhập
+    this.searchService.setSearchQuery(this.searchQuery.trim());
   }
 
   onSearchFocus(): void {

@@ -21,8 +21,9 @@
         <input
           type="text"
           class="search-input"
-          placeholder="Tìm kiếm..."
+          placeholder="Tìm kiếm gói cước..."
           [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
           (keyup.enter)="onSearch()"
           (focus)="onSearchFocus()"
           (blur)="onSearchBlur()"

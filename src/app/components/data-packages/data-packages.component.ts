@@ -1,7 +1,9 @@
 import { Component, OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CatalogService } from '../../services/catalog.service';
+import { SearchService } from '../../services/search.service';
 import { PackageCardDto, TelecomProviderCode, CallRaw } from '../../models/package.model';
 import { PackageDetailResponse, SuggestedPackageDto } from '../../models/package-detail.model';
+import { Subject, takeUntil } from 'rxjs';
 
 // Interface tương thích với template hiện tại
 interface DisplayPackage extends PackageCardDto {
@@ -94,10 +96,13 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   suggestedPackages: SuggestedPackageDto[] = [];
   loading: boolean = false;
   error: string | null = null;
+  searchQuery: string = '';
+  private destroy$ = new Subject<void>();
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private catalogService: CatalogService
+    private catalogService: CatalogService,
+    private searchService: SearchService
   ) {
     this.resizeListener = () => {
       if (window.innerWidth <= 768) {
@@ -112,6 +117,14 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
 
   ngOnInit(): void {
     this.loadPackages();
+
+    // Subscribe search query từ header
+    this.searchService.searchQuery$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(query => {
+        this.searchQuery = query;
+        this.applyFilters();
+      });
   }
 
   onProviderChange(provider: TelecomProviderCode): void {
@@ -119,6 +132,8 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       return;
     }
     this.selectedProvider = provider;
+    // Clear search khi đổi nhà mạng để hiển thị tất cả gói của nhà mạng mới
+    this.searchService.clearSearch();
     this.loadPackages();
   }
 
@@ -133,7 +148,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       next: (response) => {
         console.log('API Response:', response);
         console.log('Packages count:', response.packages?.length || 0);
-        
+
         if (!response.packages || response.packages.length === 0) {
           this.error = 'Không có gói cước nào.';
           this.packages = [];
@@ -180,7 +195,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     const pricing = pkg.pricing || { originalPrice: 0, salePrice: 0 };
     const display = pkg.display || {};
     const raw = pkg.raw;
-    
+
     // Tính discount
     let discountPercent: number | undefined;
     let discountAmount: number | undefined;
@@ -197,7 +212,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     if (!callInfo && raw?.call) {
       callInfo = this.buildCallInfoFromRaw(raw.call);
     }
-    
+
     // Xử lý SPECIAL mode: nếu có specialInfo, set vào specialInfo
     // Vẫn có thể có callInfo từ raw.call nếu có
     const isSpecialMode = pkg.familyMode === 'SPECIAL';
@@ -274,7 +289,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     }
 
     // Tìm các utility names trong benefitText
-    const utilityNames = ['TV360', 'TIKTOK', 'YOUTUBE', 'FACEBOOK'];
+    const utilityNames = ['TV360', 'TIKTOK', 'YOUTUBE', 'FACEBOOK', 'META'];
     const found: Array<{ name: string; iconUrl?: string }> = [];
 
     utilityNames.forEach(name => {
@@ -336,9 +351,35 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     console.log('Applying filters. Total packages:', filtered.length);
     console.log('Selected package type:', this.selectedPackageType);
     console.log('Selected duration:', this.selectedDuration);
+    console.log('Search query:', this.searchQuery);
+
+    // Filter by search query - chỉ tìm trong packages của nhà mạng đang chọn
+    if (this.searchQuery && this.searchQuery.trim()) {
+      const query = this.searchQuery.trim().toLowerCase();
+      filtered = filtered.filter(pkg => {
+        // Tìm kiếm theo tên gói
+        const nameMatch = pkg.name?.toLowerCase().includes(query);
+        // Tìm kiếm theo mã gói
+        const codeMatch = pkg.packageCode?.toLowerCase().includes(query);
+        // Tìm kiếm theo thông tin data
+        const dataMatch = pkg.dataInfo?.toLowerCase().includes(query);
+        // Tìm kiếm theo thông tin call
+        const callMatch = pkg.callInfo?.toLowerCase().includes(query);
+        // Tìm kiếm theo thông tin SMS
+        const smsMatch = pkg.smsInfo?.toLowerCase().includes(query);
+        // Tìm kiếm theo specialInfo (cho SPECIAL mode)
+        const specialMatch = pkg.specialInfo?.toLowerCase().includes(query);
+        // Tìm kiếm theo tiện ích
+        const utilitiesMatch = pkg.utilities?.some(u =>
+          u.name?.toLowerCase().includes(query)
+        );
+
+        return nameMatch || codeMatch || dataMatch || callMatch || smsMatch || specialMatch || utilitiesMatch;
+      });
+    }
 
     // Filter by package type - tạm thời bỏ qua vì chưa có dữ liệu packageType từ API
-    // filtered = filtered.filter(pkg => 
+    // filtered = filtered.filter(pkg =>
     //   (pkg.packageType || '4g5g') === this.selectedPackageType
     // );
 
@@ -358,8 +399,8 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     // Sort by price
     if (this.selectedPriceSort) {
       filtered.sort((a, b) => {
-        return this.selectedPriceSort === 'asc' 
-          ? a.price - b.price 
+        return this.selectedPriceSort === 'asc'
+          ? a.price - b.price
           : b.price - a.price;
       });
     }
@@ -435,14 +476,14 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   viewDetails(pkg: DisplayPackage): void {
     console.log('View details for package:', pkg);
     this.detailPackage = pkg;
-    
+
     // Gọi API để lấy chi tiết package
     this.loading = true;
     this.catalogService.getPackageDetail(pkg.packageCode).subscribe({
       next: (response) => {
         // Convert suggested packages sang DisplayPackage
         this.suggestedPackages = response.suggestedPackages || [];
-        
+
         // Tạo familyPackages từ suggested packages + package hiện tại
         this.familyPackages = [
           ...this.suggestedPackages.map((sp, idx) => this.convertSuggestedToDisplay(sp, idx)),
@@ -562,6 +603,8 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     if (this.resizeListener) {
       window.removeEventListener('resize', this.resizeListener);
     }
