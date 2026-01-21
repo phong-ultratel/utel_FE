@@ -17,6 +17,7 @@ interface DisplayPackage extends PackageCardDto {
   callInfo?: string; // Alias cho display.callText
   smsInfo?: string; // Alias cho display.smsText
   smsText?: string; // Giữ cả hai để tương thích
+  specialInfo?: string; // Thông tin đặc biệt cho SPECIAL mode
   utilities?: Array<{ name: string; iconUrl?: string }>; // Parse từ display.benefitText
   packageType?: string; // Lấy từ packageGroups hoặc filter
   familyId?: string; // Dùng family code hoặc packageCode prefix
@@ -126,8 +127,8 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     this.error = null;
 
     this.catalogService.getPackages({
-      provider: this.selectedProvider,
-      familyMode: 'STANDARD' // Chỉ lấy STANDARD mode
+      provider: this.selectedProvider
+      // Không filter familyMode để lấy cả STANDARD và SPECIAL
     }).subscribe({
       next: (response) => {
         console.log('API Response:', response);
@@ -197,14 +198,10 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       callInfo = this.buildCallInfoFromRaw(raw.call);
     }
     
-    // Debug: log để kiểm tra
-    if (pkg.packageCode === 'VT_MP15K' || pkg.packageCode.includes('MP15K')) {
-      console.log('Package:', pkg.packageCode, {
-        callText: display.callText,
-        rawCall: raw?.call,
-        finalCallInfo: callInfo
-      });
-    }
+    // Xử lý SPECIAL mode: nếu có specialInfo, set vào specialInfo
+    // Vẫn có thể có callInfo từ raw.call nếu có
+    const isSpecialMode = pkg.familyMode === 'SPECIAL';
+    const specialInfo = isSpecialMode ? display.specialInfo : undefined;
 
     return {
       ...pkg,
@@ -220,6 +217,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       callInfo: callInfo,
       smsInfo: display.smsText,
       smsText: display.smsText,
+      specialInfo: specialInfo,
       utilities,
       packageType: this.selectedPackageType, // Có thể map từ packageGroups
       familyId: pkg.packageCode.split('-')[0], // Hoặc dùng family code nếu có

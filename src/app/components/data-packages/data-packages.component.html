@@ -58,6 +58,9 @@
             <li *ngIf="hasUtilities(getFamilyInfo())" class="benefit-item">
               - Xem các giải thể thao độc quyền và kho phim mới nhất trên {{ getUtilitiesText(getFamilyInfo()?.utilities) }}.
             </li>
+            <li *ngIf="getFamilyInfo()?.specialInfo" class="benefit-item">
+              - {{ getFamilyInfo()?.specialInfo }}
+            </li>
           </ul>
         </div>
 
@@ -304,6 +307,11 @@
               <span class="info-label">Tiện ích:</span>
               <span class="info-value">{{ getUtilitiesText(pkg.utilities) }}</span>
             </div>
+            
+            <!-- Special Info (cho SPECIAL mode) -->
+            <div class="info-item" *ngIf="pkg.specialInfo">
+              <span class="info-value">{{ pkg.specialInfo }}</span>
+            </div>
             </div>
             <!-- Icon mũi tên mở rộng (chỉ mobile và chỉ khi cần) -->
             <button class="expand-toggle-btn" 
@@ -387,6 +395,11 @@
               </span>
               <span class="info-label">Tiện ích:</span>
               <span class="info-value">{{ getUtilitiesText(pkg.utilities) }}</span>
+            </div>
+            
+            <!-- Special Info (cho SPECIAL mode) -->
+            <div class="info-item" *ngIf="pkg.specialInfo">
+              <span class="info-value">{{ pkg.specialInfo }}</span>
             </div>
           </div>
         </div>
