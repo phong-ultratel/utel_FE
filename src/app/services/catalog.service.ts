@@ -14,7 +14,7 @@ export interface CatalogResponse {
   providedIn: 'root'
 })
 export class CatalogService {
-  private baseUrl = environment.apiBaseUrl + '/api/public/catalog';
+  private baseUrl = environment.apiBaseUrl + '/public/catalog';
 
   constructor(private http: HttpClient) {}
 
