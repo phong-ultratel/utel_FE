@@ -832,6 +832,8 @@
 
   .quick-filters {
     gap: 5px;
+    padding-top: 12px;
+    padding-bottom: 12px;
 
     .filter-btn {
       padding: 5px 10px;
@@ -884,6 +886,7 @@
     position: absolute;
     top: 0;
     left: 0;
+    width: 160px;
     background-color: #E60012;
     background-image: url('/assets/images/svg/package_card_background.svg');
     background-repeat: no-repeat;
@@ -898,7 +901,7 @@
       position: relative;
       z-index: 1;
       color: #fff;
-      font-size: 11px;
+      font-size: 14px;
       font-weight: 700;
       white-space: nowrap;
       letter-spacing: 0.3px;
@@ -1264,16 +1267,16 @@
     }
 
     .provider-pill {
-      padding: 4px 8px;
-      font-size: 11px;
+      padding: 8px 12px;
+      font-size: 13px;
 
       .provider-logo {
-        width: 16px;
-        height: 16px;
+        width: 20px;
+        height: 20px;
       }
 
       .provider-name {
-        font-size: 11px;
+        font-size: 13px;
       }
     }
   }
@@ -1298,6 +1301,8 @@
 
   .quick-filters {
     gap: 4px;
+    padding-top: 12px;
+    padding-bottom: 12px;
 
     .filter-btn {
       padding: 4px 8px;

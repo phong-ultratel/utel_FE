@@ -2,8 +2,8 @@
   <!-- Payment Method Component -->
   <app-payment-method 
     *ngIf="showPaymentMethod && selectedPackage"
-    [totalAmount]="getOriginalPrice(selectedPackage)"
-    [discount]="getDiscountPercent(selectedPackage)"
+    [totalAmount]="selectedPackage.price"
+    [discount]="5"
     (back)="backToPackages()">
   </app-payment-method>
 
@@ -32,10 +32,6 @@
       <div class="modal-body">
         <div class="modal-price-info">
           <p class="price-text">Giá cước: <strong>{{ formatPrice(selectedFamilyPackage?.price || 0) }}₫/{{ selectedFamilyPackage?.duration }}.</strong></p>
-          <div class="modal-original-price" *ngIf="selectedFamilyPackage && hasDiscount(selectedFamilyPackage)">
-            <span class="modal-original-price-amount">{{ formatPrice(getOriginalPrice(selectedFamilyPackage)) }}</span>
-            <span class="modal-original-price-unit">₫</span>
-          </div>
         </div>
 
         <div class="modal-benefits-section">
@@ -171,15 +167,21 @@
         </button>
         <button 
           class="filter-btn"
-          [class.active]="selectedDuration === '5'"
-          (click)="selectDuration('5')">
-          5 ngày
+          [class.active]="selectedDuration === '3'"
+          (click)="selectDuration('3')">
+          3 ngày
         </button>
         <button 
           class="filter-btn"
           [class.active]="selectedDuration === '7'"
           (click)="selectDuration('7')">
           7 ngày
+        </button>
+        <button 
+          class="filter-btn"
+          [class.active]="selectedDuration === '15'"
+          (click)="selectDuration('15')">
+          15 ngày
         </button>
         <button 
           class="filter-btn"
@@ -192,6 +194,12 @@
           [class.active]="selectedDuration === 'long'"
           (click)="selectDuration('long')">
           Dài ngày
+        </button>
+        <button 
+          class="filter-btn"
+          [class.active]="selectedDuration === 'other'"
+          (click)="selectDuration('other')">
+          Khác
         </button>
       </div>
     </div>

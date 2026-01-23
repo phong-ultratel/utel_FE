@@ -391,14 +391,26 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
 
     // Filter by duration
     if (this.selectedDuration !== 'all') {
-      if (this.selectedDuration === '30') {
-        filtered = filtered.filter(pkg => pkg.validityDays === 30);
-      } else if (this.selectedDuration === '1') {
+      if (this.selectedDuration === '1') {
         filtered = filtered.filter(pkg => pkg.validityDays === 1);
+      } else if (this.selectedDuration === '3') {
+        filtered = filtered.filter(pkg => pkg.validityDays === 3);
       } else if (this.selectedDuration === '7') {
         filtered = filtered.filter(pkg => pkg.validityDays === 7);
+      } else if (this.selectedDuration === '15') {
+        filtered = filtered.filter(pkg => pkg.validityDays === 15);
+      } else if (this.selectedDuration === '30') {
+        // Lọc các gói có thời hạn từ 30-31 ngày
+        filtered = filtered.filter(pkg => pkg.validityDays >= 30 && pkg.validityDays <= 31);
       } else if (this.selectedDuration === 'long') {
-        filtered = filtered.filter(pkg => pkg.validityDays > 30);
+        // Lọc các gói có thời hạn > 31 ngày
+        filtered = filtered.filter(pkg => pkg.validityDays > 31);
+      } else if (this.selectedDuration === 'other') {
+        // Lọc các gói không có trong các quick filter: không phải 1, 3, 7, 15, 30-31 ngày và không phải > 31 ngày
+        filtered = filtered.filter(pkg => {
+          const days = pkg.validityDays;
+          return days !== 1 && days !== 3 && days !== 7 && days !== 15 && !(days >= 30 && days <= 31) && days <= 31;
+        });
       }
     }
 
