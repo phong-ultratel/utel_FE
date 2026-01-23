@@ -1,9 +1,9 @@
-import { Component, OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { CatalogService } from '../../services/catalog.service';
-import { SearchService } from '../../services/search.service';
-import { PackageCardDto, TelecomProviderCode, CallRaw } from '../../models/package.model';
-import { PackageDetailResponse, SuggestedPackageDto } from '../../models/package-detail.model';
-import { Subject, takeUntil } from 'rxjs';
+import {Component, OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef} from '@angular/core';
+import {CatalogService} from '../../services/catalog.service';
+import {SearchService} from '../../services/search.service';
+import {PackageCardDto, TelecomProviderCode, CallRaw} from '../../models/package.model';
+import {PackageDetailResponse, SuggestedPackageDto} from '../../models/package-detail.model';
+import {Subject, takeUntil} from 'rxjs';
 
 // Interface tương thích với template hiện tại
 interface DisplayPackage extends PackageCardDto {
@@ -64,11 +64,11 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   ];
 
   packageTypes: PackageType[] = [
-    { id: '4g5g', label: 'Gói cước 4G/5G' },
-    { id: '5g', label: 'Gói cước 5G' },
-    { id: 'hot', label: 'Gói cước Hot' },
-    { id: 'dcom', label: 'Gói cước Dcom' },
-    { id: 'roaming', label: 'Gói Roaming' }
+    {id: '4g5g', label: 'Gói cước 4G/5G'},
+    {id: '5g', label: 'Gói cước 5G'},
+    {id: 'hot', label: 'Gói cước Hot'},
+    {id: 'dcom', label: 'Gói cước Dcom'},
+    {id: 'roaming', label: 'Gói Roaming'}
   ];
 
   selectedProvider: TelecomProviderCode = 'VIETTEL';
@@ -194,7 +194,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
    * Convert PackageCardDto từ API sang DisplayPackage cho template
    */
   private convertToDisplayPackage(pkg: PackageCardDto, index: number): DisplayPackage {
-    const pricing = pkg.pricing || { originalPrice: 0, salePrice: 0 };
+    const pricing = pkg.pricing || {originalPrice: 0, salePrice: 0};
     const display = pkg.display || {};
     const raw = pkg.raw;
 
@@ -295,12 +295,12 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     }
 
     // Tìm các utility names trong benefitText
-    const utilityNames = ['TV360', 'TIKTOK', 'YOUTUBE', 'FACEBOOK', 'META'];
+    const utilityNames = ['TV360', 'TIKTOK', 'YOUTUBE', 'FACEBOOK', 'META', 'MYTV', 'VIEON', 'KASPERSKY'];
     const found: Array<{ name: string; iconUrl?: string }> = [];
 
     utilityNames.forEach(name => {
       if (benefitText.toUpperCase().includes(name)) {
-        found.push({ name });
+        found.push({name});
       }
     });
 
@@ -514,10 +514,10 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
 
         // Convert package từ API response (có benefitDetail)
         const detailPackage = this.convertToDisplayPackage(response.package, 0);
-        
+
         // Lưu package đầy đủ thông tin để hiển thị ưu đãi cho tất cả packages trong family
         this.familyInfoPackage = detailPackage;
-        
+
         // Tạo familyPackages từ suggested packages + package hiện tại
         // Tìm package tương ứng trong danh sách đã load để lấy thông tin discount đầy đủ
         const familyPackagesList = this.suggestedPackages.map((sp, idx) => {
@@ -535,7 +535,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
           // Nếu không tìm thấy, chỉ dùng thông tin từ suggested
           return this.convertSuggestedToDisplay(sp, idx);
         });
-        
+
         this.familyPackages = [
           ...familyPackagesList,
           detailPackage
@@ -613,7 +613,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       // Mở payment method trực tiếp từ modal
       this.selectedPackage = selectedPkg;
       this.showPaymentMethod = true;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({top: 0, behavior: 'smooth'});
     }
   }
 
