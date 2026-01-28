@@ -1638,6 +1638,15 @@
 
 .modal-price-info {
   margin-bottom: 16px;
+  text-align: left;
+
+  .original-price-wrapper {
+    justify-content: flex-start;
+  }
+
+  .final-price-wrapper {
+    justify-content: flex-start;
+  }
 }
 
 .price-text {

@@ -31,7 +31,16 @@
 
       <div class="modal-body">
         <div class="modal-price-info">
-          <p class="price-text">Giá cước: <strong>{{ formatPrice(selectedFamilyPackage?.price || 0) }}₫/{{ selectedFamilyPackage?.duration }}.</strong></p>
+          <!-- Giá gốc (nếu có discount) -->
+          <div class="original-price-wrapper" *ngIf="selectedFamilyPackage && hasDiscount(selectedFamilyPackage)">
+            <span class="original-price-amount">{{ formatPrice(getOriginalPrice(selectedFamilyPackage)) }}</span>
+            <span class="original-price-unit">₫</span>
+          </div>
+          
+          <!-- Giá sau khuyến mại -->
+          <div class="final-price-wrapper">
+            <p class="price-text">Giá cước: <strong>{{ formatPrice(selectedFamilyPackage?.price || 0) }}₫/{{ selectedFamilyPackage?.duration }}.</strong></p>
+          </div>
         </div>
 
         <div class="modal-benefits-section">
