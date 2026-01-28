@@ -39,6 +39,13 @@ interface TelecomProvider {
   logo: string;
 }
 
+interface PackageGroup {
+  label: string;
+  durationKey: string;
+  packages: DisplayPackage[];
+  totalCount: number;
+}
+
 @Component({
   selector: 'app-data-packages',
   templateUrl: './data-packages.component.html',
@@ -82,6 +89,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   packages: DisplayPackage[] = [];
   filteredPackages: DisplayPackage[] = [];
   packageCount: number = 0;
+  groupedPackages: PackageGroup[] = [];
   subscriberNumber: string = '';
   showPaymentMethod: boolean = false;
   selectedPackage: DisplayPackage | null = null;
@@ -315,7 +323,20 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   }
 
   updateExpandIcons(): void {
-    this.filteredPackages.forEach(pkg => {
+    // Lấy danh sách packages cần kiểm tra
+    let packagesToCheck: DisplayPackage[] = [];
+    
+    if (this.selectedDuration === 'all' && this.groupedPackages.length > 0) {
+      // Khi hiển thị theo nhóm, kiểm tra tất cả packages trong các nhóm
+      this.groupedPackages.forEach(group => {
+        packagesToCheck.push(...group.packages);
+      });
+    } else {
+      // Khi hiển thị bình thường, kiểm tra filteredPackages
+      packagesToCheck = this.filteredPackages;
+    }
+    
+    packagesToCheck.forEach(pkg => {
       const element = document.getElementById(`info-list-${pkg.id}`);
       if (element) {
         if (!this.expandedPackages[pkg.id]) {
@@ -424,12 +445,81 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     }
 
     console.log('Filtered packages count:', filtered.length);
-    this.filteredPackages = filtered;
+    
+    // Nếu selectedDuration === 'all', nhóm packages theo duration
+    if (this.selectedDuration === 'all') {
+      this.groupedPackages = this.groupPackagesByDuration(filtered);
+      this.filteredPackages = []; // Clear filteredPackages khi hiển thị theo nhóm
+    } else {
+      this.groupedPackages = [];
+      this.filteredPackages = filtered;
+    }
+    
     this.packageCount = filtered.length;
     this.checkExpandIcons = true;
     setTimeout(() => {
       this.updateExpandIcons();
     }, 100);
+  }
+
+  /**
+   * Nhóm packages theo duration khi selectedDuration === 'all'
+   */
+  private groupPackagesByDuration(packages: DisplayPackage[]): PackageGroup[] {
+    const groups: PackageGroup[] = [];
+    
+    // Định nghĩa các nhóm duration
+    const durationGroups = [
+      { key: '1', label: 'GÓI 1 NGÀY', filter: (pkg: DisplayPackage) => pkg.validityDays === 1 },
+      { key: '3', label: 'GÓI 3 NGÀY', filter: (pkg: DisplayPackage) => pkg.validityDays === 3 },
+      { key: '7', label: 'GÓI 7 NGÀY', filter: (pkg: DisplayPackage) => pkg.validityDays === 7 },
+      { key: '15', label: 'GÓI 15 NGÀY', filter: (pkg: DisplayPackage) => pkg.validityDays === 15 },
+      { key: '30', label: 'GÓI 30 NGÀY', filter: (pkg: DisplayPackage) => pkg.validityDays >= 30 && pkg.validityDays <= 31 },
+      { key: 'long', label: 'GÓI DÀI NGÀY', filter: (pkg: DisplayPackage) => pkg.validityDays > 31 },
+      { key: 'other', label: 'GÓI KHÁC', filter: (pkg: DisplayPackage) => {
+        const days = pkg.validityDays;
+        return days !== 1 && days !== 3 && days !== 7 && days !== 15 && !(days >= 30 && days <= 31) && days <= 31;
+      }}
+    ];
+
+    // Tạo nhóm cho mỗi duration
+    durationGroups.forEach(groupDef => {
+      const groupPackages = packages.filter(groupDef.filter);
+      
+      if (groupPackages.length > 0) {
+        // Sort by price nếu có selectedPriceSort
+        let sortedPackages = [...groupPackages];
+        if (this.selectedPriceSort) {
+          sortedPackages.sort((a, b) => {
+            return this.selectedPriceSort === 'asc'
+              ? a.price - b.price
+              : b.price - a.price;
+          });
+        }
+        
+        // Chỉ lấy tối đa 3 packages đầu tiên để hiển thị
+        const displayPackages = sortedPackages.slice(0, 3);
+        
+        groups.push({
+          label: groupDef.label,
+          durationKey: groupDef.key,
+          packages: displayPackages,
+          totalCount: sortedPackages.length
+        });
+      }
+    });
+
+    return groups;
+  }
+
+  /**
+   * Xử lý khi click "Xem tất cả" của một nhóm
+   */
+  viewAllPackagesInGroup(durationKey: string): void {
+    this.selectedDuration = durationKey;
+    this.applyFilters();
+    // Scroll to top of page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   formatPrice(price: number): string {
