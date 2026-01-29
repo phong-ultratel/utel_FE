@@ -107,6 +107,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   loading: boolean = false;
   error: string | null = null;
   searchQuery: string = '';
+  isSearchFocused: boolean = false;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -812,6 +813,24 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
 
   isExpanded(pkgId: number): boolean {
     return !!this.expandedPackages[pkgId];
+  }
+
+  onSearch(): void {
+    // Cập nhật search query vào service
+    this.searchService.setSearchQuery(this.searchQuery.trim());
+  }
+
+  onSearchInput(): void {
+    // Tìm kiếm real-time khi người dùng nhập
+    this.searchService.setSearchQuery(this.searchQuery.trim());
+  }
+
+  onSearchFocus(): void {
+    this.isSearchFocused = true;
+  }
+
+  onSearchBlur(): void {
+    this.isSearchFocused = false;
   }
 
   ngOnDestroy(): void {

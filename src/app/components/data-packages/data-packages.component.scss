@@ -230,6 +230,70 @@
   }
 }
 
+// Search Section
+.search-section {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  border-radius: 25px;
+  padding: 0;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  max-width: 500px;
+  width: 100%;
+
+  &:focus-within {
+    background: #fff;
+    border-color: #E60012;
+    box-shadow: 0 2px 8px rgba(230, 0, 18, 0.15);
+  }
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 10px 20px;
+  font-size: 15px;
+  color: #333;
+  flex: 1;
+  width: 100%;
+
+  &::placeholder {
+    color: #999;
+  }
+}
+
+.search-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: color 0.3s;
+  border-radius: 0 25px 25px 0;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #E60012;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
 .quick-filters {
   display: flex;
   gap: 12px;
@@ -932,6 +996,35 @@
     }
   }
 
+  .search-section {
+    margin: 15px 0;
+    padding: 0 10px;
+  }
+
+  .search-box {
+    max-width: 100%;
+
+    &:focus-within {
+      .search-input {
+        width: 100%;
+      }
+    }
+  }
+
+  .search-input {
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+
+  .search-btn {
+    padding: 8px 12px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
   .quick-filters {
     gap: 5px;
     padding-top: 12px;
@@ -1401,6 +1494,37 @@
     .nav-item {
       font-size: 15px;
       padding-bottom: 4px;
+    }
+  }
+
+  .search-section {
+    margin: 12px 0;
+    padding: 0 5px;
+  }
+
+  .search-box {
+    &:focus-within {
+      .search-input {
+        width: 100%;
+      }
+    }
+  }
+
+  .search-input {
+    padding: 8px 12px;
+    font-size: 13px;
+
+    &::placeholder {
+      font-size: 12px;
+    }
+  }
+
+  .search-btn {
+    padding: 8px 10px;
+
+    svg {
+      width: 16px;
+      height: 16px;
     }
   }
 
