@@ -1,6 +1,6 @@
 <section class="data-packages">
   <!-- Payment Method Component -->
-  <app-payment-method 
+  <app-payment-method
     *ngIf="showPaymentMethod && selectedPackage"
     [totalAmount]="selectedPackage.price"
     [discount]="5"
@@ -12,7 +12,7 @@
     <div class="modal-content" (click)="$event.stopPropagation()">
       <!-- Package Family Tabs -->
       <div class="modal-family-tabs" *ngIf="familyPackages.length > 1">
-        <div 
+        <div
           *ngFor="let pkg of familyPackages"
           class="family-tab-card"
           [class.active]="selectedFamilyPackage?.id === pkg.id"
@@ -36,7 +36,7 @@
             <span class="original-price-amount">{{ formatPrice(getOriginalPrice(selectedFamilyPackage)) }}</span>
             <span class="original-price-unit">₫</span>
           </div>
-          
+
           <!-- Giá sau khuyến mại -->
           <div class="final-price-wrapper">
             <p class="price-text">Giá cước: <strong>{{ formatPrice(selectedFamilyPackage?.price || 0) }}₫/{{ selectedFamilyPackage?.duration }}.</strong></p>
@@ -45,12 +45,12 @@
 
         <div class="modal-benefits-section">
           <p class="benefits-title">Ưu đãi:</p>
-          
+
           <!-- SPECIAL mode: chỉ hiển thị specialInfo -->
           <div *ngIf="getFamilyInfo()?.familyMode === 'SPECIAL' && getFamilyInfo()?.specialInfo" class="benefits-special">
             {{ getFamilyInfo()?.specialInfo }}
           </div>
-          
+
           <!-- STANDARD mode: hiển thị các thông tin thông thường -->
           <ul class="benefits-list" *ngIf="getFamilyInfo()?.familyMode !== 'SPECIAL'">
             <li *ngIf="getFamilyInfo()?.dataInfo" class="benefit-item">
@@ -100,9 +100,9 @@
     <!-- Login Form Section -->
     <div class="login-form-section">
       <div class="login-form-container">
-        <input 
-          type="text" 
-          class="subscriber-input" 
+        <input
+          type="text"
+          class="subscriber-input"
           placeholder="Nhập số thuê bao"
           [(ngModel)]="subscriberNumber">
         <button class="login-btn" (click)="handleLogin()">ĐĂNG NHẬP</button>
@@ -142,8 +142,8 @@
       <!-- Package Type Navigation -->
       <div class="package-type-nav-wrapper">
         <div class="package-type-nav">
-          <button 
-            *ngFor="let type of packageTypes" 
+          <button
+            *ngFor="let type of packageTypes"
             class="nav-item"
             [class.active]="selectedPackageType === type.id"
             (click)="selectPackageType(type.id)">
@@ -154,57 +154,58 @@
 
       <!-- Quick Filters -->
       <div class="quick-filters">
-        <button 
+        <button
           class="filter-btn"
           [class.active]="selectedPriceSort !== null"
           (click)="togglePriceSort()">
-          <span>Giá</span>
+          <span *ngIf="selectedPriceSort === 'asc'">Giá tăng dần</span>
+          <span *ngIf="selectedPriceSort === 'desc'">Giá giảm dần</span>
           <span class="sort-icon" *ngIf="selectedPriceSort === 'asc'">▲</span>
           <span class="sort-icon" *ngIf="selectedPriceSort === 'desc'">▼</span>
         </button>
-        <button 
+        <button
           class="filter-btn"
           [class.active]="selectedDuration === 'all'"
           (click)="selectDuration('all')">
           Tất cả
         </button>
-        <button 
+        <button
           class="filter-btn"
           [class.active]="selectedDuration === '1'"
           (click)="selectDuration('1')">
           1 ngày
         </button>
-        <button 
+        <button
           class="filter-btn"
           [class.active]="selectedDuration === '3'"
           (click)="selectDuration('3')">
           3 ngày
         </button>
-        <button 
+        <button
           class="filter-btn"
           [class.active]="selectedDuration === '7'"
           (click)="selectDuration('7')">
           7 ngày
         </button>
-        <button 
+        <button
           class="filter-btn"
           [class.active]="selectedDuration === '15'"
           (click)="selectDuration('15')">
           15 ngày
         </button>
-        <button 
+        <button
           class="filter-btn"
           [class.active]="selectedDuration === '30'"
           (click)="selectDuration('30')">
           30 ngày
         </button>
-        <button 
+        <button
           class="filter-btn"
           [class.active]="selectedDuration === 'long'"
           (click)="selectDuration('long')">
           Dài ngày
         </button>
-        <button 
+        <button
           class="filter-btn"
           [class.active]="selectedDuration === 'other'"
           (click)="selectDuration('other')">
@@ -222,14 +223,14 @@
             Xem tất cả <span class="chevron">></span>
           </a>
         </div>
-        <div class="packages-grid group-packages" 
+        <div class="packages-grid group-packages"
              [class.has-1-item]="group.packages.length === 1"
              [class.has-2-items]="group.packages.length === 2">
-          <div 
-            *ngFor="let pkg of group.packages" 
+          <div
+            *ngFor="let pkg of group.packages"
             class="package-card"
             [class.popular]="pkg.popular">
-        
+
         <!-- Banner góc trên trái (chỉ hiển thị trên mobile) -->
         <div
           class="package-ticket-banner"
@@ -269,7 +270,7 @@
         <div class="package-ticket-layout">
           <!-- Phần trái: Thông tin gói -->
           <div class="ticket-left-section">
-            <div class="package-info-list" 
+            <div class="package-info-list"
                  [class.expanded]="isExpanded(pkg.id)"
                  [id]="'info-list-' + pkg.id">
             <!-- Data -->
@@ -291,7 +292,7 @@
               <span class="info-label">Data:</span>
               <span class="info-value">{{ pkg.dataInfo }}</span>
             </div>
-            
+
             <!-- Thoại -->
             <div class="info-item" *ngIf="pkg.callInfo">
               <span class="info-icon call-icon">
@@ -313,7 +314,7 @@
               <span class="info-label">SMS:</span>
               <span class="info-value">{{ getSmsDisplayText(pkg.smsInfo) }}</span>
             </div>
-            
+
             <!-- Tiện ích -->
             <div class="info-item" *ngIf="pkg.utilities && pkg.utilities.length > 0">
               <span class="info-icon play-icon">
@@ -324,18 +325,18 @@
               <span class="info-label">Tiện ích:</span>
               <span class="info-value">{{ getUtilitiesText(pkg.utilities) }}</span>
             </div>
-            
+
             <!-- Special Info (cho SPECIAL mode) -->
             <div class="info-item" *ngIf="pkg.specialInfo">
               <span class="info-value">{{ pkg.specialInfo }}</span>
             </div>
             </div>
             <!-- Icon mũi tên mở rộng (chỉ mobile và chỉ khi cần) -->
-            <button class="expand-toggle-btn" 
+            <button class="expand-toggle-btn"
                     *ngIf="needsExpandIcon[pkg.id]"
                     (click)="toggleExpand(pkg.id)"
                     [attr.aria-expanded]="isExpanded(pkg.id)">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" 
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"
                    [class.rotated]="isExpanded(pkg.id)">
                 <path d="M4 6L8 10L12 6" stroke="#E60012" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -350,7 +351,7 @@
             <div class="ticket-price">
               <div class="ticket-price-amount">{{ formatPrice(pkg.price) }}₫</div>
             </div>
-            <button 
+            <button
               class="ticket-btn-register"
               (click)="selectPackage(pkg)">
               Đăng ký
@@ -380,7 +381,7 @@
               <span class="info-label">Data:</span>
               <span class="info-value">{{ pkg.dataInfo }}</span>
             </div>
-            
+
             <!-- Thoại -->
             <div class="info-item" *ngIf="pkg.callInfo">
               <span class="info-icon call-icon">
@@ -402,7 +403,7 @@
               <span class="info-label">SMS:</span>
               <span class="info-value">{{ getSmsDisplayText(pkg.smsInfo) }}</span>
             </div>
-            
+
             <!-- Tiện ích -->
             <div class="info-item" *ngIf="pkg.utilities && pkg.utilities.length > 0">
               <span class="info-icon play-icon">
@@ -413,7 +414,7 @@
               <span class="info-label">Tiện ích:</span>
               <span class="info-value">{{ getUtilitiesText(pkg.utilities) }}</span>
             </div>
-            
+
             <!-- Special Info (cho SPECIAL mode) -->
             <div class="info-item" *ngIf="pkg.specialInfo">
               <span class="info-value">{{ pkg.specialInfo }}</span>
@@ -434,21 +435,21 @@
                 <span class="original-price-unit">₫</span>
               </div>
             </div>
-            
+
             <!-- Giá sau khuyến mại -->
             <div class="final-price-wrapper">
               <span class="price-amount">{{ formatPrice(pkg.price) }}</span>
               <span class="price-unit">₫</span>
             </div>
           </div>
-          
+
           <div class="package-actions">
-            <button 
+            <button
               class="btn-register"
               (click)="selectPackage(pkg)">
               Đăng ký
             </button>
-            <a 
+            <a
               class="btn-details"
               [ngClass]="{
                 'provider-mobi': selectedProvider === 'MOBI',
@@ -466,14 +467,14 @@
 
     <!-- Hiển thị bình thường khi selectedDuration !== 'all' -->
     <div *ngIf="!loading && !error && selectedDuration !== 'all'" class="packages-grid-wrapper">
-      <div class="packages-grid" 
+      <div class="packages-grid"
            [class.has-1-item]="packageCount === 1"
            [class.has-2-items]="packageCount === 2">
-      <div 
-        *ngFor="let pkg of filteredPackages" 
+      <div
+        *ngFor="let pkg of filteredPackages"
         class="package-card"
         [class.popular]="pkg.popular">
-        
+
         <!-- Banner góc trên trái (chỉ hiển thị trên mobile) -->
         <div
           class="package-ticket-banner"
@@ -513,7 +514,7 @@
         <div class="package-ticket-layout">
           <!-- Phần trái: Thông tin gói -->
           <div class="ticket-left-section">
-            <div class="package-info-list" 
+            <div class="package-info-list"
                  [class.expanded]="isExpanded(pkg.id)"
                  [id]="'info-list-' + pkg.id">
             <!-- Data -->
@@ -535,7 +536,7 @@
               <span class="info-label">Data:</span>
               <span class="info-value">{{ pkg.dataInfo }}</span>
             </div>
-            
+
             <!-- Thoại -->
             <div class="info-item" *ngIf="pkg.callInfo">
               <span class="info-icon call-icon">
@@ -557,7 +558,7 @@
               <span class="info-label">SMS:</span>
               <span class="info-value">{{ getSmsDisplayText(pkg.smsInfo) }}</span>
             </div>
-            
+
             <!-- Tiện ích -->
             <div class="info-item" *ngIf="pkg.utilities && pkg.utilities.length > 0">
               <span class="info-icon play-icon">
@@ -568,18 +569,18 @@
               <span class="info-label">Tiện ích:</span>
               <span class="info-value">{{ getUtilitiesText(pkg.utilities) }}</span>
             </div>
-            
+
             <!-- Special Info (cho SPECIAL mode) -->
             <div class="info-item" *ngIf="pkg.specialInfo">
               <span class="info-value">{{ pkg.specialInfo }}</span>
             </div>
             </div>
             <!-- Icon mũi tên mở rộng (chỉ mobile và chỉ khi cần) -->
-            <button class="expand-toggle-btn" 
+            <button class="expand-toggle-btn"
                     *ngIf="needsExpandIcon[pkg.id]"
                     (click)="toggleExpand(pkg.id)"
                     [attr.aria-expanded]="isExpanded(pkg.id)">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" 
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"
                    [class.rotated]="isExpanded(pkg.id)">
                 <path d="M4 6L8 10L12 6" stroke="#E60012" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -594,7 +595,7 @@
             <div class="ticket-price">
               <div class="ticket-price-amount">{{ formatPrice(pkg.price) }}₫</div>
             </div>
-            <button 
+            <button
               class="ticket-btn-register"
               (click)="selectPackage(pkg)">
               Đăng ký
@@ -624,7 +625,7 @@
               <span class="info-label">Data:</span>
               <span class="info-value">{{ pkg.dataInfo }}</span>
             </div>
-            
+
             <!-- Thoại -->
             <div class="info-item" *ngIf="pkg.callInfo">
               <span class="info-icon call-icon">
@@ -646,7 +647,7 @@
               <span class="info-label">SMS:</span>
               <span class="info-value">{{ getSmsDisplayText(pkg.smsInfo) }}</span>
             </div>
-            
+
             <!-- Tiện ích -->
             <div class="info-item" *ngIf="pkg.utilities && pkg.utilities.length > 0">
               <span class="info-icon play-icon">
@@ -657,7 +658,7 @@
               <span class="info-label">Tiện ích:</span>
               <span class="info-value">{{ getUtilitiesText(pkg.utilities) }}</span>
             </div>
-            
+
             <!-- Special Info (cho SPECIAL mode) -->
             <div class="info-item" *ngIf="pkg.specialInfo">
               <span class="info-value">{{ pkg.specialInfo }}</span>
@@ -678,21 +679,21 @@
                 <span class="original-price-unit">₫</span>
               </div>
             </div>
-            
+
             <!-- Giá sau khuyến mại -->
             <div class="final-price-wrapper">
               <span class="price-amount">{{ formatPrice(pkg.price) }}</span>
               <span class="price-unit">₫</span>
             </div>
           </div>
-          
+
           <div class="package-actions">
-            <button 
+            <button
               class="btn-register"
               (click)="selectPackage(pkg)">
               Đăng ký
             </button>
-            <a 
+            <a
               class="btn-details"
               [ngClass]="{
                 'provider-mobi': selectedProvider === 'MOBI',
