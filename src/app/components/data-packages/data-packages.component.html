@@ -2,7 +2,7 @@
   <!-- Payment Method Component -->
   <app-payment-method
     *ngIf="showPaymentMethod && selectedPackage"
-    [totalAmount]="selectedPackage.price"
+    [totalAmount]="getOriginalPrice(selectedPackage)"
     [discount]="getDiscountPercent(selectedPackage)"
     (back)="backToPackages()">
   </app-payment-method>
@@ -26,14 +26,20 @@
 
       <div class="modal-header">
         <div class="modal-package-label">Tên gói cước</div>
-        <h2 class="modal-package-name">{{ selectedFamilyPackage?.name }}</h2>
+        <div class="modal-package-name-wrapper">
+          <h2 class="modal-package-name">{{ selectedFamilyPackage?.name }}</h2>
+          <!-- Badge chiết khấu bên phải tên gói cước (chỉ hiển thị khi là gói đơn lẻ) -->
+          <div class="modal-header-discount-badge" *ngIf="familyPackages.length === 1 && getModalPackage() && hasDiscount(getModalPackage()!)">
+            <span class="modal-header-discount-text">{{ getDiscountDisplay(getModalPackage()!) }}</span>
+          </div>
+        </div>
       </div>
 
       <div class="modal-body">
         <div class="modal-price-info">
           <!-- Giá gốc (nếu có discount) -->
-          <div class="original-price-wrapper" *ngIf="selectedFamilyPackage && hasDiscount(selectedFamilyPackage)">
-            <span class="original-price-amount">{{ formatPrice(getOriginalPrice(selectedFamilyPackage)) }}</span>
+          <div class="original-price-wrapper" *ngIf="getModalPackage() && hasDiscount(getModalPackage()!)">
+            <span class="original-price-amount">{{ formatPrice(getOriginalPrice(getModalPackage()!)) }}</span>
             <span class="original-price-unit">₫</span>
           </div>
 

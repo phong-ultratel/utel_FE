@@ -617,6 +617,13 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         // Convert package từ API response (có benefitDetail)
         const detailPackage = this.convertToDisplayPackage(response.package, 0);
 
+        // Merge discount info từ package gốc vào detailPackage (nếu có)
+        if (pkg.originalPrice || pkg.discountPercent || pkg.discountAmount) {
+          detailPackage.originalPrice = pkg.originalPrice || detailPackage.originalPrice;
+          detailPackage.discountPercent = pkg.discountPercent || detailPackage.discountPercent;
+          detailPackage.discountAmount = pkg.discountAmount || detailPackage.discountAmount;
+        }
+
         // Lưu package đầy đủ thông tin để hiển thị ưu đãi cho tất cả packages trong family
         this.familyInfoPackage = detailPackage;
 
@@ -649,7 +656,15 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         }
 
         // Tìm package tương ứng với pkg đã chọn để set selectedFamilyPackage
+        // Merge discount info từ package gốc nếu selectedPkg không có
         const selectedPkg = this.familyPackages.find(fp => fp.packageCode === pkg.packageCode) || detailPackage;
+        if (!selectedPkg.originalPrice && !selectedPkg.discountPercent && !selectedPkg.discountAmount) {
+          if (pkg.originalPrice || pkg.discountPercent || pkg.discountAmount) {
+            selectedPkg.originalPrice = pkg.originalPrice;
+            selectedPkg.discountPercent = pkg.discountPercent;
+            selectedPkg.discountAmount = pkg.discountAmount;
+          }
+        }
         this.selectedFamilyPackage = selectedPkg;
         this.showDetailModal = true;
         document.body.style.overflow = 'hidden';
@@ -734,6 +749,29 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     // Trả về familyInfoPackage (package đầy đủ thông tin) để hiển thị ưu đãi
     // Vì tất cả packages trong cùng family có ưu đãi giống nhau
     return this.familyInfoPackage || this.selectedFamilyPackage || (this.familyPackages.length > 0 ? this.familyPackages[0] : null);
+  }
+
+  /**
+   * Lấy package có discount info đầy đủ cho modal
+   * Ưu tiên tìm trong danh sách packages đã load (có discount info)
+   */
+  getModalPackage(): DisplayPackage | null {
+    if (!this.selectedFamilyPackage) {
+      return null;
+    }
+
+    // Tìm package trong danh sách đã load để lấy discount info đầy đủ
+    const packageWithDiscount = this.packages.find(
+      p => p.packageCode === this.selectedFamilyPackage?.packageCode
+    );
+
+    // Nếu tìm thấy package có discount info, dùng nó
+    if (packageWithDiscount && this.hasDiscount(packageWithDiscount)) {
+      return packageWithDiscount;
+    }
+
+    // Nếu không, dùng selectedFamilyPackage (có thể có hoặc không có discount)
+    return this.selectedFamilyPackage;
   }
 
   /**

@@ -1728,12 +1728,37 @@
   letter-spacing: 0.5px;
 }
 
+.modal-package-name-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .modal-package-name {
   font-size: 24px;
   font-weight: 700;
   color: #1a1a1a;
   margin: 0;
   line-height: 1.2;
+}
+
+.modal-header-discount-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #E60012 0%, #ff1a2e 100%);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(230, 0, 18, 0.3);
+  white-space: nowrap;
+}
+
+.modal-header-discount-text {
+  display: inline-block;
+  letter-spacing: 0.3px;
 }
 
 .modal-body {
@@ -1956,8 +1981,18 @@
     margin-bottom: 5px;
   }
 
+  .modal-package-name-wrapper {
+    gap: 8px;
+  }
+
   .modal-package-name {
     font-size: 22px;
+  }
+
+  .modal-header-discount-badge {
+    padding: 5px 12px;
+    font-size: 12px;
+    border-radius: 18px;
   }
 
   .modal-body {
@@ -2054,8 +2089,18 @@
     margin-bottom: 4px;
   }
 
+  .modal-package-name-wrapper {
+    gap: 6px;
+  }
+
   .modal-package-name {
     font-size: 20px;
+  }
+
+  .modal-header-discount-badge {
+    padding: 4px 10px;
+    font-size: 11px;
+    border-radius: 16px;
   }
 
   .modal-body {
