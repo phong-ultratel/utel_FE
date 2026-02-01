@@ -12,7 +12,7 @@
     </div>
 
     <!-- Navigation Tabs -->
-    <div class="modal-tabs">
+    <div class="modal-tabs" *ngIf="!isLoading && policySections.length > 0">
       <button
         *ngFor="let section of policySections"
         class="tab-button"
@@ -24,7 +24,13 @@
 
     <!-- Modal Body -->
     <div class="modal-body">
-      <div class="policy-content" [innerHTML]="getCurrentSection()?.content"></div>
+      <div *ngIf="isLoading" class="loading-message">
+        <p>Đang tải nội dung...</p>
+      </div>
+      <div *ngIf="!isLoading && policySections.length === 0" class="no-content-message">
+        <p>Không có nội dung nào được tìm thấy.</p>
+      </div>
+      <div *ngIf="!isLoading && policySections.length > 0" class="policy-content" [innerHTML]="getCurrentSection()?.content"></div>
     </div>
 
     <!-- Modal Footer -->
