@@ -64,18 +64,45 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
+            },
+            "prod.local": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "20kb",
+                  "maximumError": "40kb"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.local.ts"
+                }
+              ],
+              "outputHashing": "all"
             }
           },
           "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "browserTarget": "utel_FE:build:production"
             },
             "development": {
               "browserTarget": "utel_FE:build:development"
+            },
+            "prod.local": {
+              "browserTarget": "utel_FE:build:prod.local"
             }
           },
           "defaultConfiguration": "development"

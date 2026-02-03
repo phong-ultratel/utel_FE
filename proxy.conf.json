@@ -1,0 +1,9 @@
+{
+  "/api": {
+    "target": "https://admin.ultratel.vn",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}
+
