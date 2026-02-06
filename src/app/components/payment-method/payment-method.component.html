@@ -71,9 +71,17 @@
         <span class="summary-label">Tổng tiền:</span>
         <span class="summary-value">{{ formatPrice(totalAmount) }}đ</span>
       </div>
-      <div class="summary-row" *ngIf="discount > 0">
-        <span class="summary-label">Chiết khấu {{ discount }}%:</span>
-        <span class="summary-value discount">-{{ formatPrice(calculateDiscount()) }}đ</span>
+      <div class="summary-row" *ngIf="calculateDiscount() > 0">
+        <span class="summary-label">
+          Chiết khấu
+          <ng-container *ngIf="!discountAmount && discount > 0">
+            {{ ' ' + discount + '%' }}
+          </ng-container>
+          :
+        </span>
+        <span class="summary-value discount">
+          -{{ formatPrice(calculateDiscount()) }}đ
+        </span>
       </div>
       <div class="summary-row total">
         <span class="summary-label">Tổng thanh toán:</span>

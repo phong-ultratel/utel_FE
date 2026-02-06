@@ -13,6 +13,7 @@ interface DisplayPackage extends PackageCardDto {
   originalPrice?: number; // Alias cho pricing.originalPrice
   discountPercent?: number; // Tính từ pricing
   discountAmount?: number; // Tính từ pricing
+  discountText?: string; // Text hiển thị từ pricing hoặc tự format
   duration: string; // Format từ validityDays
   durationDays: number; // Alias cho validityDays
   dataInfo?: string; // Alias cho display.dataText
@@ -207,10 +208,18 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     const display = pkg.display || {};
     const raw = pkg.raw;
 
-    // Tính discount
-    let discountPercent: number | undefined;
-    let discountAmount: number | undefined;
-    if (pricing.originalPrice && pricing.salePrice && pricing.originalPrice > pricing.salePrice) {
+    // Tính discount: ưu tiên dùng thông tin từ API (pricing.discountPercent / discountValue / discountText)
+    let discountPercent: number | undefined = pricing.discountPercent;
+    let discountAmount: number | undefined = pricing.discountValue;
+    const discountText: string | undefined = pricing.discountText;
+
+    // Nếu API không trả discount nhưng có originalPrice > salePrice thì tự tính
+    if (
+      (!discountPercent && !discountAmount) &&
+      pricing.originalPrice &&
+      pricing.salePrice &&
+      pricing.originalPrice > pricing.salePrice
+    ) {
       discountAmount = pricing.originalPrice - pricing.salePrice;
       discountPercent = Math.round((discountAmount / pricing.originalPrice) * 100);
     }
@@ -240,6 +249,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       originalPrice: pricing.originalPrice > pricing.salePrice ? pricing.originalPrice : undefined,
       discountPercent,
       discountAmount,
+      discountText,
       duration: `${pkg.validityDays} ngày`,
       durationDays: pkg.validityDays,
       dataInfo: display.dataText,
@@ -528,7 +538,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   }
 
   hasDiscount(pkg: DisplayPackage): boolean {
-    return !!(pkg.originalPrice || pkg.discountAmount || pkg.discountPercent);
+    return !!(pkg.originalPrice || pkg.discountAmount || pkg.discountPercent || pkg.discountText);
   }
 
   getOriginalPrice(pkg: DisplayPackage): number {
@@ -545,17 +555,28 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   }
 
   getDiscountDisplay(pkg: DisplayPackage): string {
+    // Ưu tiên dùng discountText từ API (đã được format theo logic Pricing Rule)
+    if (pkg.discountText) {
+      return pkg.discountText;
+    }
+
+    // Nếu có phần trăm giảm giá -> hiển thị dạng "-20%"
     if (pkg.discountPercent) {
       return `-${pkg.discountPercent}%`;
     }
+
+    // Nếu có số tiền giảm cố định -> hiển thị dạng "(-20.000đ)"
     if (pkg.discountAmount) {
-      return `-${this.formatPrice(pkg.discountAmount)}₫`;
+      return `(-${this.formatPrice(pkg.discountAmount)}đ)`;
     }
+
+    // Fallback: tự tính từ originalPrice và price nếu có
     if (pkg.originalPrice && pkg.originalPrice > pkg.price) {
       const discount = pkg.originalPrice - pkg.price;
       const percent = Math.round((discount / pkg.originalPrice) * 100);
       return `-${percent}%`;
     }
+
     return '';
   }
 
@@ -639,7 +660,8 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
               ...this.convertSuggestedToDisplay(sp, idx),
               originalPrice: existingPackage.originalPrice,
               discountPercent: existingPackage.discountPercent,
-              discountAmount: existingPackage.discountAmount
+              discountAmount: existingPackage.discountAmount,
+              discountText: existingPackage.discountText
             };
           }
           // Nếu không tìm thấy, chỉ dùng thông tin từ suggested

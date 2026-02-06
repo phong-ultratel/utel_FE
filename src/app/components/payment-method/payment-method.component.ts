@@ -14,7 +14,12 @@ interface PaymentOption {
 })
 export class PaymentMethodComponent implements OnInit {
   @Input() totalAmount: number = 0;
+  // Tỷ lệ chiết khấu (%), dùng cho rule giảm theo phần trăm
   @Input() discount: number = 0;
+  // Số tiền chiết khấu cố định (VND), dùng cho rule giảm theo số tiền
+  @Input() discountAmount: number = 0;
+  // Text hiển thị chiết khấu (ví dụ "-20%" hoặc "(-20.000đ)"), ưu tiên dùng cho UI
+  @Input() discountText: string | null = null;
   @Output() back = new EventEmitter<void>();
 
   selectedPaymentMethod: string = '';
@@ -96,9 +101,16 @@ export class PaymentMethodComponent implements OnInit {
   }
 
   calculateDiscount(): number {
+    // Nếu có cấu hình giảm theo số tiền cố định, ưu tiên dùng discountAmount
+    if (this.discountAmount && this.discountAmount > 0) {
+      return this.discountAmount;
+    }
+
+    // Nếu giảm theo phần trăm
     if (this.discount > 0) {
       return Math.round(this.totalAmount * (this.discount / 100));
     }
+
     return 0;
   }
 

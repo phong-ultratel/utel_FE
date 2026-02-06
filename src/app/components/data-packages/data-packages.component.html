@@ -4,6 +4,8 @@
     *ngIf="showPaymentMethod && selectedPackage"
     [totalAmount]="getOriginalPrice(selectedPackage)"
     [discount]="getDiscountPercent(selectedPackage)"
+    [discountAmount]="selectedPackage?.discountAmount || 0"
+    [discountText]="getDiscountDisplay(selectedPackage)"
     (back)="backToPackages()">
   </app-payment-method>
 
