@@ -11,4 +11,11 @@ export class HeaderComponent {
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }
+
+  scrollToFooter(): void {
+    const contactInfo = document.getElementById('contact-info');
+    if (contactInfo) {
+      contactInfo.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
 }
