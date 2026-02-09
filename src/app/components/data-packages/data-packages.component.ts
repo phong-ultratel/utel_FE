@@ -617,7 +617,10 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   selectPackage(pkg: DisplayPackage): void {
     console.log('Selected package:', pkg);
     // Thay vì mở payment method, mở modal detail
-    this.viewDetails(pkg);
+    // Sử dụng requestAnimationFrame để tránh chớp nháy
+    requestAnimationFrame(() => {
+      this.viewDetails(pkg);
+    });
   }
 
   backToPackages(): void {
@@ -629,8 +632,25 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     console.log('View details for package:', pkg);
     this.detailPackage = pkg;
 
-    // Gọi API để lấy chi tiết package
-    this.loading = true;
+    // Hiển thị modal ngay với dữ liệu local để tránh chớp nháy
+    // Fallback: dùng dữ liệu local trước
+    if (pkg.familyId) {
+      this.familyPackages = this.packages.filter(
+        p => p.familyId === pkg.familyId
+      ).sort((a, b) => a.validityDays - b.validityDays);
+    } else {
+      this.familyPackages = [pkg];
+    }
+    this.familyInfoPackage = pkg;
+    this.selectedFamilyPackage = pkg;
+    
+    // Sử dụng requestAnimationFrame để đảm bảo DOM đã sẵn sàng trước khi hiển thị modal
+    requestAnimationFrame(() => {
+      this.showDetailModal = true;
+      document.body.style.overflow = 'hidden';
+    });
+
+    // Gọi API để lấy chi tiết package (không set loading để tránh chớp nháy)
     this.catalogService.getPackageDetail(pkg.packageCode).subscribe({
       next: (response) => {
         // Convert suggested packages sang DisplayPackage
@@ -689,26 +709,10 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
           }
         }
         this.selectedFamilyPackage = selectedPkg;
-        this.showDetailModal = true;
-        document.body.style.overflow = 'hidden';
-        this.loading = false;
       },
       error: (err) => {
         console.error('Error loading package detail:', err);
-        // Fallback: dùng dữ liệu local
-        if (pkg.familyId) {
-          this.familyPackages = this.packages.filter(
-            p => p.familyId === pkg.familyId
-          ).sort((a, b) => a.validityDays - b.validityDays);
-        } else {
-          this.familyPackages = [pkg];
-        }
-        // Lưu package đầy đủ thông tin để hiển thị ưu đãi
-        this.familyInfoPackage = pkg;
-        this.selectedFamilyPackage = pkg;
-        this.showDetailModal = true;
-        document.body.style.overflow = 'hidden';
-        this.loading = false;
+        // Giữ nguyên dữ liệu local đã hiển thị
       }
     });
   }
@@ -749,11 +753,16 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     if (this.selectedFamilyPackage) {
       // Lưu package đã chọn trước khi đóng modal (vì closeDetailModal sẽ set selectedFamilyPackage = null)
       const selectedPkg = this.selectedFamilyPackage;
+      
+      // Đóng modal trước, sau đó mở payment method để tránh chớp nháy
       this.closeDetailModal();
-      // Mở payment method trực tiếp từ modal
-      this.selectedPackage = selectedPkg;
-      this.showPaymentMethod = true;
-      window.scrollTo({top: 0, behavior: 'smooth'});
+      
+      // Sử dụng setTimeout để đảm bảo modal đã đóng hoàn toàn trước khi mở payment method
+      setTimeout(() => {
+        this.selectedPackage = selectedPkg;
+        this.showPaymentMethod = true;
+        window.scrollTo({top: 0, behavior: 'smooth'});
+      }, 150); // Đợi animation đóng modal hoàn tất (0.3s / 2)
     }
   }
 
