@@ -38,7 +38,9 @@ export class TermsPoliciesService {
     'terms-of-use': 'TERMS_OF_USE',
     'purchase-terms': 'PURCHASE_TERMS',
     'payment-policy': 'PAYMENT_POLICY',
-    'privacy-policy': 'PRIVACY_POLICY'
+    'privacy-policy': 'PRIVACY_POLICY',
+    'e-commerce-regulation': 'E_COMMERCE_REGULATION',
+    'complaint-resolution': 'COMPLAINT_RESOLUTION'
   };
 
   constructor(private http: HttpClient) {}
@@ -84,7 +86,9 @@ export class TermsPoliciesService {
           'TERMS_OF_USE': 'terms-of-use',
           'PURCHASE_TERMS': 'purchase-terms',
           'PAYMENT_POLICY': 'payment-policy',
-          'PRIVACY_POLICY': 'privacy-policy'
+          'PRIVACY_POLICY': 'privacy-policy',
+          'E_COMMERCE_REGULATION': 'e-commerce-regulation',
+          'COMPLAINT_RESOLUTION': 'complaint-resolution'
         };
 
         // Tạo sections từ content pages
@@ -98,8 +102,8 @@ export class TermsPoliciesService {
           }
         });
 
-        // Đảm bảo thứ tự: terms-of-use, purchase-terms, payment-policy, privacy-policy
-        const order = ['terms-of-use', 'purchase-terms', 'payment-policy', 'privacy-policy'];
+        // Đảm bảo thứ tự: terms-of-use, purchase-terms, payment-policy, privacy-policy, e-commerce-regulation, complaint-resolution
+        const order = ['terms-of-use', 'purchase-terms', 'payment-policy', 'privacy-policy', 'e-commerce-regulation', 'complaint-resolution'];
         return sections.sort((a, b) => {
           const indexA = order.indexOf(a.id);
           const indexB = order.indexOf(b.id);
@@ -118,7 +122,9 @@ export class TermsPoliciesService {
       'TERMS_OF_USE': 'Điều khoản sử dụng',
       'PURCHASE_TERMS': 'Điều khoản mua hàng',
       'PAYMENT_POLICY': 'Chính sách thanh toán',
-      'PRIVACY_POLICY': 'Chính sách bảo vệ dữ liệu cá nhân'
+      'PRIVACY_POLICY': 'Chính sách bảo vệ dữ liệu cá nhân',
+      'E_COMMERCE_REGULATION': 'Quy chế hoạt động TMĐT',
+      'COMPLAINT_RESOLUTION': 'Giải quyết khiếu nại'
     };
     return titles[contentType] || contentType;
   }
