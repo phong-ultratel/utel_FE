@@ -55,6 +55,9 @@
   padding: 8px 0;
   position: relative;
   transition: color 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 
   &:hover {
     color: #E60012;
@@ -73,6 +76,21 @@
       background: #E60012;
     }
   }
+}
+
+.coming-soon-badge {
+  display: inline-block;
+  background: #9e9e9e;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(158, 158, 158, 0.3);
 }
 
 .search-section {
@@ -227,7 +245,9 @@
   }
 
   .nav-link {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 12px 0;
     border-bottom: 1px solid #f0f0f0;
     text-align: left;
@@ -240,6 +260,12 @@
     &.active {
       font-weight: 700;
     }
+  }
+
+  .coming-soon-badge {
+    font-size: 8px;
+    padding: 2px 5px;
+    margin-left: auto;
   }
 
   .search-section {
