@@ -136,10 +136,24 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   }
 
   ngOnInit(): void {
-    this.loadPackages();
     this.lookupStatus$ = this.lookupState.getStatus();
     this.lookedUpPhoneDisplay$ = this.lookupState.getLookedUpPhoneDisplay();
     this.lookedUpProviderName$ = this.lookupState.getLookedUpProviderName();
+
+    // Restore trạng thái tra cứu sau khi refresh
+    const restored = this.lookupState.getRestoredPackages();
+    if (this.lookupState.currentStatus === 'success' && restored?.length) {
+      const providerCode = this.lookupState.getRestoredProviderCode();
+      if (providerCode) {
+        this.selectedProvider = providerCode as TelecomProviderCode;
+      }
+      this.isProviderLocked = true;
+      this.packages = (restored as TelecomPackageDto[]).map((p, i) => this.convertTelecomPackageToDisplay(p, i));
+      this.lookupState.clearRestoredData();
+      this.applyFilters();
+    } else {
+      this.loadPackages();
+    }
 
     // Khi reset từ success -> idle: scroll về lookup và focus input
     this.lookupState
@@ -865,19 +879,20 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
           return;
         }
 
+        const rawPackages = (resp.packages || []).filter(
+          p => p.status === 'ACTIVE' || p.status === 'PENDING_CONFIG'
+        );
         this.lookupState.setSuccess(
           this.formatPhoneForDisplay(msisdn),
-          this.getProviderDisplayName(resp.providerCode)
+          this.getProviderDisplayName(resp.providerCode),
+          resp.providerCode,
+          rawPackages
         );
 
         if (resp.providerCode && resp.providerCode !== this.selectedProvider) {
           this.selectedProvider = resp.providerCode as TelecomProviderCode;
         }
         this.isProviderLocked = true;
-
-        const rawPackages = (resp.packages || []).filter(
-          p => p.status === 'ACTIVE' || p.status === 'PENDING_CONFIG'
-        );
         this.packages = rawPackages.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
         this.applyFilters();
       },
