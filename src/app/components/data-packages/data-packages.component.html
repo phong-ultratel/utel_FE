@@ -105,15 +105,33 @@
       <button (click)="selectedDuration = 'all'; applyFilters()" style="margin-top: 10px; padding: 8px 16px;">Xem tất cả</button>
     </div>
 
-    <!-- Login Form Section -->
-    <div class="login-form-section">
-      <div class="login-form-container">
-        <input
-          type="text"
-          class="subscriber-input"
-          placeholder="Nhập số thuê bao"
-          [(ngModel)]="subscriberNumber">
-        <button class="login-btn" (click)="handleLogin()">TRA CỨU</button>
+    <!-- Lookup: form (idle/loading/error) hoặc block xác nhận (success) -->
+    <div id="lookup-section" class="lookup-section-wrapper">
+      <!-- Trước / đang / lỗi: hiển thị input + nút Tra cứu -->
+      <div *ngIf="(lookupStatus$ | async) !== 'success'" class="login-form-section lookup-form" [class.lookup-fade]="true">
+        <div class="login-form-container">
+          <input
+            id="lookup-input"
+            type="text"
+            class="subscriber-input"
+            placeholder="Nhập số thuê bao"
+            [(ngModel)]="subscriberNumber"
+            (keyup.enter)="handleLogin()">
+          <button class="login-btn" (click)="handleLogin()">TRA CỨU</button>
+        </div>
+      </div>
+      <!-- Sau khi tra cứu thành công: block xác nhận, không còn input -->
+      <div *ngIf="(lookupStatus$ | async) === 'success'" class="lookup-result-block lookup-fade">
+        <div class="lookup-result-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="lookup-result-title">
+          Kết quả cho: <strong>{{ lookedUpPhoneDisplay$ | async }}</strong>
+        </p>
+        <p class="lookup-result-subtitle">Thuê bao đủ điều kiện các gói sau</p>
+        <a (click)="resetLookup()" class="lookup-result-change-link" href="javascript:void(0)">Đổi số khác</a>
       </div>
     </div>
 

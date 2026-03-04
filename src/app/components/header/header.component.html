@@ -17,7 +17,14 @@
     </nav>
 
     <div class="header-actions">
-      <button class="btn-login">Tra cứu</button>
+      <!-- Trước khi tra cứu: nút Tra cứu (scroll xuống form) -->
+      <ng-container *ngIf="(lookupStatus$ | async) !== 'success'">
+        <button type="button" class="btn-login" (click)="scrollToLookup()">Tra cứu</button>
+      </ng-container>
+      <!-- Sau khi tra cứu thành công: chỉ hiện số điện thoại -->
+      <div *ngIf="(lookupStatus$ | async) === 'success'" class="header-subscriber-phone-only">
+        {{ lookedUpPhoneDisplay$ | async }}
+      </div>
       <button class="btn-menu-toggle" (click)="toggleMenu()" aria-label="Toggle menu">
         <span></span>
         <span></span>

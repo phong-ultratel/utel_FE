@@ -1,9 +1,11 @@
 import {Component, OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef} from '@angular/core';
 import {CatalogService} from '../../services/catalog.service';
 import {SearchService} from '../../services/search.service';
-import {PackageCardDto, TelecomProviderCode, CallRaw} from '../../models/package.model';
+import {LookupStateService, LookupStatus} from '../../services/lookup-state.service';
+import {PackageCardDto, TelecomProviderCode, CallRaw, PackageFamilyMode} from '../../models/package.model';
 import {PackageDetailResponse, SuggestedPackageDto} from '../../models/package-detail.model';
-import {Subject, takeUntil} from 'rxjs';
+import {Observable, Subject, takeUntil, pairwise, startWith} from 'rxjs';
+import {TelcoService, TelecomPackageDto} from '../../services/telco.service';
 
 // Interface tương thích với template hiện tại
 interface DisplayPackage extends PackageCardDto {
@@ -111,10 +113,16 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   isSearchFocused: boolean = false;
   private destroy$ = new Subject<void>();
 
+  lookupStatus$!: Observable<LookupStatus>;
+  lookedUpPhoneDisplay$!: Observable<string | null>;
+  lookedUpProviderName$!: Observable<string | null>;
+
   constructor(
     private cdr: ChangeDetectorRef,
     private catalogService: CatalogService,
-    private searchService: SearchService
+    private searchService: SearchService,
+    private telcoService: TelcoService,
+    private lookupState: LookupStateService
   ) {
     this.resizeListener = () => {
       if (window.innerWidth <= 768) {
@@ -129,8 +137,27 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
 
   ngOnInit(): void {
     this.loadPackages();
+    this.lookupStatus$ = this.lookupState.getStatus();
+    this.lookedUpPhoneDisplay$ = this.lookupState.getLookedUpPhoneDisplay();
+    this.lookedUpProviderName$ = this.lookupState.getLookedUpProviderName();
 
-    // Subscribe search query từ header
+    // Khi reset từ success -> idle: scroll về lookup và focus input
+    this.lookupState
+      .getStatus()
+      .pipe(
+        startWith(this.lookupState.currentStatus),
+        pairwise(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(([prev, curr]) => {
+        if (prev === 'success' && curr === 'idle') {
+          setTimeout(() => {
+            document.getElementById('lookup-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => (document.getElementById('lookup-input') as HTMLInputElement)?.focus(), 300);
+          }, 50);
+        }
+      });
+
     this.searchService.searchQuery$
       .pipe(takeUntil(this.destroy$))
       .subscribe(query => {
@@ -819,10 +846,108 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   }
 
   handleLogin(): void {
-    if (this.subscriberNumber.trim()) {
-      console.log('Login with subscriber number:', this.subscriberNumber);
-      // Xử lý đăng nhập ở đây
+    const msisdn = this.subscriberNumber.trim();
+    if (!msisdn) {
+      return;
     }
+
+    this.loading = true;
+    this.error = null;
+    this.lookupState.setLoading();
+
+    this.telcoService.lookup(msisdn).pipe(takeUntil(this.destroy$)).subscribe({
+      next: resp => {
+        this.loading = false;
+
+        if (!resp?.success) {
+          this.error = resp?.message || 'Không thể tra cứu thuê bao. Vui lòng thử lại sau.';
+          this.lookupState.setError();
+          return;
+        }
+
+        this.lookupState.setSuccess(
+          this.formatPhoneForDisplay(msisdn),
+          this.getProviderDisplayName(resp.providerCode)
+        );
+
+        if (resp.providerCode && resp.providerCode !== this.selectedProvider) {
+          this.selectedProvider = resp.providerCode as TelecomProviderCode;
+        }
+        this.isProviderLocked = true;
+
+        const rawPackages = (resp.packages || []).filter(
+          p => p.status === 'ACTIVE' || p.status === 'PENDING_CONFIG'
+        );
+        this.packages = rawPackages.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
+        this.applyFilters();
+      },
+      error: err => {
+        console.error('Error lookup telco packages:', err);
+        this.loading = false;
+        this.error = 'Không thể tra cứu thuê bao. Vui lòng thử lại sau.';
+        this.lookupState.setError();
+      }
+    });
+  }
+
+  /** Reset lookup: về idle, xóa số, load lại catalog, scroll + focus input */
+  resetLookup(): void {
+    this.lookupState.reset();
+    this.subscriberNumber = '';
+    this.isProviderLocked = false;
+    this.error = null;
+    this.loadPackages();
+  }
+
+  /** Format số điện thoại để hiển thị: 0xx xxx xxx */
+  private formatPhoneForDisplay(phone: string): string {
+    const digits = phone.replace(/\D/g, '');
+    const nine = digits.slice(-9).padStart(9, '0');
+    return '0' + nine.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+  }
+
+  private getProviderDisplayName(code: string | undefined): string {
+    if (!code) return 'Nhà mạng';
+    const p = this.providers.find(pr => pr.code === code);
+    return p?.name ?? code;
+  }
+
+  private convertTelecomPackageToDisplay(pkg: TelecomPackageDto, index: number): DisplayPackage {
+    const validityDays = pkg.validityDays || 1;
+    const price = pkg.originalPrice || 0;
+
+    // Ưu đãi/mô tả: ưu tiên specialInfo, benefitDetail; luôn có fallback để package-info-list có ít nhất một info-value
+    const specialInfoText =
+      (pkg.family?.specialInfo && pkg.family.specialInfo.trim()) ||
+      (pkg.family?.benefitDetail && pkg.family.benefitDetail.trim()) ||
+      `Gói ${pkg.displayName || pkg.packageCode}`;
+
+    const cardDto: PackageCardDto = {
+      packageCode: pkg.packageCode,
+      displayName: pkg.displayName,
+      validityDays: validityDays,
+      familyMode: (pkg.family?.packageFamilyMode as PackageFamilyMode) || 'SPECIAL',
+      display: {
+        specialInfo: specialInfoText,
+        dataText: (pkg.family as any)?.description?.trim() || undefined,
+        callText: undefined,
+        smsText: undefined,
+        benefitText: undefined
+      },
+      pricing: {
+        originalPrice: price,
+        salePrice: price
+      },
+      raw: {}
+    };
+
+    const display = this.convertToDisplayPackage(cardDto, index);
+
+    // Luôn gán specialInfo để block "Special Info" và info-value hiển thị (kể cả khi API không trả family)
+    display.specialInfo = specialInfoText;
+    display.familyId = pkg.family?.code || display.familyId;
+
+    return display;
   }
 
   getUtilityIconUrl(utilityName: string): string | null {
