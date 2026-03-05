@@ -128,6 +128,10 @@
         <p class="lookup-result-subtitle">Thuê bao đủ điều kiện các gói sau</p>
         <a (click)="resetLookup()" class="lookup-result-change-link" href="javascript:void(0)">Đổi số khác</a>
       </div>
+      <!-- Lỗi validate: hiển thị bên dưới toàn bộ phần tra cứu -->
+      <div *ngIf="lookupError" class="lookup-error-message" style="color: red; margin-top: 8px; text-align: center;">
+        {{ lookupError }}
+      </div>
     </div>
 
     <!-- Filter Section -->

@@ -94,6 +94,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   packageCount: number = 0;
   groupedPackages: PackageGroup[] = [];
   subscriberNumber: string = '';
+  lookupError: string | null = null;
   showPaymentMethod: boolean = false;
   selectedPackage: DisplayPackage | null = null;
   expandedPackages: { [key: number]: boolean } = {};
@@ -859,14 +860,71 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     return callInfo.replace(/(\d+)p(\/| |$|\))/g, '$1 phút$2');
   }
 
+  /**
+   * Chuẩn hóa và validate số điện thoại di động Việt Nam.
+   * Trả về msisdn dạng 84xxxxxxxxx nếu hợp lệ, ngược lại trả về null.
+   * Các dạng hỗ trợ (ví dụ 0966818787):
+   *  - 84966818787
+   *  - +84966818787
+   *  - 0966818787
+   *  - 966818787
+   */
+  private normalizeVietnamPhone(input: string): string | null {
+    if (!input) {
+      return null;
+    }
+
+    // Loại bỏ khoảng trắng, dấu chấm, gạch ngang...
+    let raw = input.replace(/[\s\.\-]/g, '');
+
+    // Bỏ dấu +
+    if (raw.startsWith('+')) {
+      raw = raw.substring(1);
+    }
+
+    // Chỉ chấp nhận chữ số
+    if (!/^\d+$/.test(raw)) {
+      return null;
+    }
+
+    let digits = raw;
+
+    // 84xxxxxxxxx (11 số, bắt đầu bằng 84)
+    if (digits.length === 11 && digits.startsWith('84')) {
+      // giữ nguyên
+    }
+    // 0xxxxxxxxx (10 số, bắt đầu bằng 0) -> 84xxxxxxxxx
+    else if (digits.length === 10 && digits.startsWith('0')) {
+      digits = '84' + digits.substring(1);
+    }
+    // xxxxxxxxx (9 số, thiếu số 0 đầu) -> 84xxxxxxxxx
+    else if (digits.length === 9) {
+      digits = '84' + digits;
+    } else {
+      return null;
+    }
+
+    // Validate lại prefix di động Việt Nam: 0[3|5|7|8|9]xxxxxxxx
+    const localForm = '0' + digits.substring(2); // chuyển 84xxxxxxxxx -> 0xxxxxxxxx
+    if (!/^0(3|5|7|8|9)\d{8}$/.test(localForm)) {
+      return null;
+    }
+
+    return digits;
+  }
+
   handleLogin(): void {
-    const msisdn = this.subscriberNumber.trim();
-    if (!msisdn) {
+    const normalized = this.normalizeVietnamPhone(this.subscriberNumber.trim());
+    if (!normalized) {
+      this.lookupError = 'Số thuê bao không hợp lệ. Vui lòng nhập đúng định dạng';
       return;
     }
 
+    const msisdn = normalized;
+
     this.loading = true;
     this.error = null;
+    this.lookupError = null;
     this.lookupState.setLoading();
 
     this.telcoService.lookup(msisdn).pipe(takeUntil(this.destroy$)).subscribe({
@@ -911,6 +969,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     this.subscriberNumber = '';
     this.isProviderLocked = false;
     this.error = null;
+    this.lookupError = null;
     this.loadPackages();
   }
 
