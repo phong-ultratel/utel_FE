@@ -74,11 +74,11 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   ];
 
   packageTypes: PackageType[] = [
-    {id: '4g5g', label: 'Gói cước 4G/5G'},
-    {id: '5g', label: 'Gói cước 5G'},
-    {id: 'hot', label: 'Gói cước Hot'},
-    {id: 'dcom', label: 'Gói cước Dcom'},
-    {id: 'roaming', label: 'Gói Roaming'}
+    {id: 'combo', label: 'GÓI COMBO/ MXH'},
+    {id: 'data', label: 'GÓI DATA'},
+    // {id: 'hot', label: 'Gói cước Hot'},
+    // {id: 'dcom', label: 'Gói cước Dcom'},
+    {id: 'roaming', label: 'GÓI ROAMING'}
   ];
 
   selectedProvider: TelecomProviderCode = 'VIETTEL';
@@ -377,7 +377,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   updateExpandIcons(): void {
     // Lấy danh sách packages cần kiểm tra
     let packagesToCheck: DisplayPackage[] = [];
-    
+
     if (this.selectedDuration === 'all' && this.groupedPackages.length > 0) {
       // Khi hiển thị theo nhóm, kiểm tra tất cả packages trong các nhóm
       this.groupedPackages.forEach(group => {
@@ -387,7 +387,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       // Khi hiển thị bình thường, kiểm tra filteredPackages
       packagesToCheck = this.filteredPackages;
     }
-    
+
     packagesToCheck.forEach(pkg => {
       const element = document.getElementById(`info-list-${pkg.id}`);
       if (element) {
@@ -497,7 +497,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     }
 
     console.log('Filtered packages count:', filtered.length);
-    
+
     // Nếu selectedDuration === 'all', nhóm packages theo duration
     if (this.selectedDuration === 'all') {
       this.groupedPackages = this.groupPackagesByDuration(filtered);
@@ -506,7 +506,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       this.groupedPackages = [];
       this.filteredPackages = filtered;
     }
-    
+
     this.packageCount = filtered.length;
     this.checkExpandIcons = true;
     setTimeout(() => {
@@ -519,7 +519,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
    */
   private groupPackagesByDuration(packages: DisplayPackage[]): PackageGroup[] {
     const groups: PackageGroup[] = [];
-    
+
     // Định nghĩa các nhóm duration
     const durationGroups = [
       { key: '1', label: 'GÓI 1 NGÀY', filter: (pkg: DisplayPackage) => pkg.validityDays === 1 },
@@ -537,7 +537,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     // Tạo nhóm cho mỗi duration
     durationGroups.forEach(groupDef => {
       const groupPackages = packages.filter(groupDef.filter);
-      
+
       if (groupPackages.length > 0) {
         // Sort by price nếu có selectedPriceSort
         let sortedPackages = [...groupPackages];
@@ -548,10 +548,10 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
               : b.price - a.price;
           });
         }
-        
+
         // Chỉ lấy tối đa 3 packages đầu tiên để hiển thị
         const displayPackages = sortedPackages.slice(0, 3);
-        
+
         groups.push({
           label: groupDef.label,
           durationKey: groupDef.key,
@@ -684,7 +684,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     }
     this.familyInfoPackage = pkg;
     this.selectedFamilyPackage = pkg;
-    
+
     // Sử dụng requestAnimationFrame để đảm bảo DOM đã sẵn sàng trước khi hiển thị modal
     requestAnimationFrame(() => {
       this.showDetailModal = true;
@@ -794,10 +794,10 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     if (this.selectedFamilyPackage) {
       // Lưu package đã chọn trước khi đóng modal (vì closeDetailModal sẽ set selectedFamilyPackage = null)
       const selectedPkg = this.selectedFamilyPackage;
-      
+
       // Đóng modal trước, sau đó mở payment method để tránh chớp nháy
       this.closeDetailModal();
-      
+
       // Sử dụng setTimeout để đảm bảo modal đã đóng hoàn toàn trước khi mở payment method
       setTimeout(() => {
         this.selectedPackage = selectedPkg;
