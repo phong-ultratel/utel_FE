@@ -74,6 +74,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   ];
 
   packageTypes: PackageType[] = [
+    {id: 'all', label: 'TẤT CẢ'},
     {id: 'combo', label: 'GÓI COMBO/ MXH'},
     {id: 'data', label: 'GÓI DATA'},
     // {id: 'hot', label: 'Gói cước Hot'},
