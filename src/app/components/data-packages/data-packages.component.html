@@ -52,11 +52,11 @@
         </div>
 
         <div class="modal-benefits-section">
-          <p class="benefits-title">Ưu đãi:</p>
+          <p class="benefits-title">Thông tin gói:</p>
 
           <!-- SPECIAL mode: chỉ hiển thị specialInfo -->
           <div *ngIf="getFamilyInfo()?.familyMode === 'SPECIAL' && getFamilyInfo()?.specialInfo" class="benefits-special">
-            {{ getFamilyInfo()?.specialInfo }}
+            {{ formatSpecialInfo(getFamilyInfo()?.specialInfo) }}
           </div>
 
           <!-- STANDARD mode: hiển thị các thông tin thông thường -->
@@ -377,7 +377,7 @@
 
             <!-- Special Info (cho SPECIAL mode) -->
             <div class="info-item" *ngIf="pkg.specialInfo">
-              <span class="info-value">{{ pkg.specialInfo }}</span>
+              <span class="info-value">{{ formatSpecialInfo(pkg.specialInfo) }}</span>
             </div>
             </div>
             <!-- Icon mũi tên mở rộng (chỉ mobile và chỉ khi cần) -->
@@ -466,7 +466,7 @@
 
             <!-- Special Info (cho SPECIAL mode) -->
             <div class="info-item" *ngIf="pkg.specialInfo">
-              <span class="info-value">{{ pkg.specialInfo }}</span>
+              <span class="info-value">{{ formatSpecialInfo(pkg.specialInfo) }}</span>
             </div>
           </div>
         </div>
@@ -621,7 +621,7 @@
 
             <!-- Special Info (cho SPECIAL mode) -->
             <div class="info-item" *ngIf="pkg.specialInfo">
-              <span class="info-value">{{ pkg.specialInfo }}</span>
+              <span class="info-value">{{ formatSpecialInfo(pkg.specialInfo) }}</span>
             </div>
             </div>
             <!-- Icon mũi tên mở rộng (chỉ mobile và chỉ khi cần) -->
@@ -710,7 +710,7 @@
 
             <!-- Special Info (cho SPECIAL mode) -->
             <div class="info-item" *ngIf="pkg.specialInfo">
-              <span class="info-value">{{ pkg.specialInfo }}</span>
+              <span class="info-value">{{ formatSpecialInfo(pkg.specialInfo) }}</span>
             </div>
           </div>
         </div>

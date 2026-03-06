@@ -837,6 +837,53 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     return utilities.map(u => u.name).join(', ');
   }
 
+  /**
+   * Format specialInfo: tách các mục sau dấu "- " thành các dòng riêng biệt.
+   * Ví dụ: "Ưu đãi: - 1.5GB/1 ngày - Gói cước không tự động gia hạn"
+   * → "Ưu đãi: \n- 1.5GB/1 ngày \n- Gói cước không tự động gia hạn"
+   */
+  formatSpecialInfo(specialInfo?: string): string {
+    if (!specialInfo || !specialInfo.trim()) {
+      return specialInfo || '';
+    }
+
+    // Nếu đã có \n thì có thể đã được format rồi, nhưng vẫn kiểm tra lại
+    let text = specialInfo.trim();
+    
+    // Tách các phần sau "Ưu đãi:" nếu có
+    let prefix = '';
+    let content = text;
+    
+    if (text.startsWith('Ưu đãi:')) {
+      prefix = 'Ưu đãi:';
+      content = text.substring('Ưu đãi:'.length).trim();
+    }
+    
+    // Tách các phần sau dấu "- " thành các dòng riêng
+    const parts = content.split(/\s*-\s+/);
+    const formatted: string[] = [];
+    
+    if (prefix) {
+      formatted.push(prefix);
+    }
+    
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i].trim();
+      if (!part) {
+        continue;
+      }
+      
+      // Nếu là phần đầu tiên và không có prefix "Ưu đãi:", có thể không có dấu "-"
+      if (i === 0 && !prefix && !content.startsWith('-')) {
+        formatted.push(part);
+      } else {
+        formatted.push('- ' + part);
+      }
+    }
+    
+    return formatted.join('\n');
+  }
+
   hasUtilities(pkg: DisplayPackage | null): boolean {
     return !!(pkg?.utilities && pkg.utilities.length > 0);
   }

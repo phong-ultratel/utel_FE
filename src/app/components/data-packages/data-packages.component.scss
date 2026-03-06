@@ -720,6 +720,7 @@
     line-height: 1.4;
     overflow-wrap: break-word;
     word-break: break-word;
+    white-space: pre-line; /* Hiển thị đúng các dòng mới từ \n */
   }
 
   // Utility item styling
@@ -2039,6 +2040,12 @@
   font-weight: 600;
   color: #1a1a1a;
   margin: 0 0 8px 0;
+}
+
+.benefits-special {
+  white-space: pre-line; /* Hiển thị đúng các dòng mới từ \n */
+  line-height: 1.6;
+  color: #333;
 }
 
 .benefits-list {
