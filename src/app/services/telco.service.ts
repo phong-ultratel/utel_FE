@@ -28,6 +28,10 @@ export interface TelcoLookupResponse {
   providerCode: string;
   eligiblePackageCodes: string[];
   packages: TelecomPackageDto[];
+  group1: TelecomPackageDto[];
+  group2: TelecomPackageDto[];
+  group3: TelecomPackageDto[];
+  group4: TelecomPackageDto[];
 }
 
 @Injectable({

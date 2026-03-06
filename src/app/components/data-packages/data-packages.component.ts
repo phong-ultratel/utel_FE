@@ -86,7 +86,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   // Chuẩn bị sẵn cấu trúc để khóa nhà mạng sau khi tra cứu thuê bao (logic sẽ bổ sung sau)
   isProviderLocked: boolean = false;
 
-  selectedPackageType: string = '4g5g';
+  selectedPackageType: string = 'all'; // Mặc định là 'all'
   selectedDuration: string = 'all'; // Mặc định hiển thị tất cả
   selectedPriceSort: string | null = 'asc';
 
@@ -96,6 +96,13 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   groupedPackages: PackageGroup[] = [];
   subscriberNumber: string = '';
   lookupError: string | null = null;
+  lookupDone: boolean = false; // Trạng thái đã tra cứu hay chưa
+
+  // Packages theo từng group
+  group1Packages: DisplayPackage[] = [];
+  group2Packages: DisplayPackage[] = [];
+  group3Packages: DisplayPackage[] = [];
+  group4Packages: DisplayPackage[] = [];
   showPaymentMethod: boolean = false;
   selectedPackage: DisplayPackage | null = null;
   expandedPackages: { [key: number]: boolean } = {};
@@ -150,10 +157,13 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         this.selectedProvider = providerCode as TelecomProviderCode;
       }
       this.isProviderLocked = true;
+      this.lookupDone = true;
+      // Note: Khi restore, không có thông tin về group, nên chỉ restore packages tổng hợp
       this.packages = (restored as TelecomPackageDto[]).map((p, i) => this.convertTelecomPackageToDisplay(p, i));
       this.lookupState.clearRestoredData();
       this.applyFilters();
     } else {
+      this.lookupDone = false;
       this.loadPackages();
     }
 
@@ -408,8 +418,19 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   }
 
   selectPackageType(typeId: string): void {
+    if (!this.lookupDone && typeId !== 'all') {
+      // Chỉ cho phép chọn tab "Tất cả" khi chưa tra cứu
+      return;
+    }
     this.selectedPackageType = typeId;
-    this.loadPackages();
+    if (this.lookupDone) {
+      // Nếu đã tra cứu, cập nhật packages theo tab
+      this.updatePackagesBySelectedTab();
+      this.applyFilters();
+    } else {
+      // Nếu chưa tra cứu, load packages từ catalog
+      this.loadPackages();
+    }
   }
 
   selectDuration(duration: string): void {
@@ -935,24 +956,41 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         if (!resp?.success) {
           this.error = resp?.message || 'Không thể tra cứu thuê bao. Vui lòng thử lại sau.';
           this.lookupState.setError();
+          this.lookupDone = false;
           return;
         }
 
-        const rawPackages = (resp.packages || []).filter(
-          p => p.status === 'ACTIVE' || p.status === 'PENDING_CONFIG'
-        );
+        // Lọc packages theo status
+        const filterByStatus = (pkgs: TelecomPackageDto[]) => 
+          (pkgs || []).filter(p => p.status === 'ACTIVE' || p.status === 'PENDING_CONFIG');
+
+        const allRawPackages = filterByStatus(resp.packages || []);
+        const group1Raw = filterByStatus(resp.group1 || []);
+        const group2Raw = filterByStatus(resp.group2 || []);
+        const group3Raw = filterByStatus(resp.group3 || []);
+        const group4Raw = filterByStatus(resp.group4 || []);
+
         this.lookupState.setSuccess(
           this.formatPhoneForDisplay(msisdn),
           this.getProviderDisplayName(resp.providerCode),
           resp.providerCode,
-          rawPackages
+          allRawPackages
         );
 
         if (resp.providerCode && resp.providerCode !== this.selectedProvider) {
           this.selectedProvider = resp.providerCode as TelecomProviderCode;
         }
         this.isProviderLocked = true;
-        this.packages = rawPackages.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
+        this.lookupDone = true;
+
+        // Convert và lưu packages theo từng group
+        this.group1Packages = group1Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
+        this.group2Packages = group2Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
+        this.group3Packages = group3Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
+        this.group4Packages = group4Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
+
+        // Set packages theo tab hiện tại
+        this.updatePackagesBySelectedTab();
         this.applyFilters();
       },
       error: err => {
@@ -960,8 +998,40 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         this.loading = false;
         this.error = 'Không thể tra cứu thuê bao. Vui lòng thử lại sau.';
         this.lookupState.setError();
+        this.lookupDone = false;
       }
     });
+  }
+
+  /**
+   * Cập nhật packages theo tab đã chọn
+   */
+  private updatePackagesBySelectedTab(): void {
+    switch (this.selectedPackageType) {
+      case 'all':
+        // Tất cả = group1 + group2 + group3 + group4
+        this.packages = [
+          ...this.group1Packages,
+          ...this.group2Packages,
+          ...this.group3Packages,
+          ...this.group4Packages
+        ];
+        break;
+      case 'combo':
+        // Combo/MXH = group3
+        this.packages = [...this.group3Packages];
+        break;
+      case 'data':
+        // Data = group1 + group4
+        this.packages = [...this.group1Packages, ...this.group4Packages];
+        break;
+      case 'roaming':
+        // Roaming = group2
+        this.packages = [...this.group2Packages];
+        break;
+      default:
+        this.packages = [];
+    }
   }
 
   /** Reset lookup: về idle, xóa số, load lại catalog, scroll + focus input */
@@ -971,6 +1041,12 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     this.isProviderLocked = false;
     this.error = null;
     this.lookupError = null;
+    this.lookupDone = false;
+    this.selectedPackageType = 'all'; // Reset về tab "Tất cả"
+    this.group1Packages = [];
+    this.group2Packages = [];
+    this.group3Packages = [];
+    this.group4Packages = [];
     this.loadPackages();
   }
 

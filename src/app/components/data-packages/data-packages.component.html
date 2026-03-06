@@ -171,8 +171,11 @@
             *ngFor="let type of packageTypes"
             class="nav-item"
             [class.active]="selectedPackageType === type.id"
+            [class.disabled]="!lookupDone && type.id !== 'all'"
+            [disabled]="!lookupDone && type.id !== 'all'"
             (click)="selectPackageType(type.id)">
             {{ type.label }}
+            <span *ngIf="!lookupDone && type.id !== 'all'" class="lock-icon">🔒</span>
           </button>
         </div>
       </div>
