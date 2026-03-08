@@ -1094,7 +1094,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     }
   }
 
-  /** Reset lookup: về idle, xóa số, load lại catalog, scroll + focus input */
+  /** Reset lookup: về idle, xóa số, xóa bộ lọc, về nhà mạng mặc định, load lại catalog */
   resetLookup(): void {
     this.lookupState.reset();
     this.subscriberNumber = '';
@@ -1102,7 +1102,12 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     this.error = null;
     this.lookupError = null;
     this.lookupDone = false;
-    this.selectedPackageType = 'all'; // Reset về tab "Tất cả"
+    this.selectedPackageType = 'all';
+    this.selectedDuration = 'all';
+    this.searchQuery = '';
+    this.searchService.clearSearch();
+    // Về nhà mạng mặc định để catalog chắc chắn có gói (tránh trường hợp sau tra cứu đang ở MOBI/VINA mà DB chưa có gói)
+    this.selectedProvider = this.providers[0]?.code ?? 'VIETTEL';
     this.group1Packages = [];
     this.group2Packages = [];
     this.group3Packages = [];
