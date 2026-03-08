@@ -1,4 +1,5 @@
 .header {
+  position: relative;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
@@ -226,16 +227,19 @@
     top: 100%;
     left: 0;
     right: 0;
+    z-index: 1001;
     background: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease;
-    justify-content: flex-start;
-    align-items: flex-start;
+    opacity: 0;
+    visibility: hidden;
+    transition: max-height 0.3s ease, opacity 0.2s ease, visibility 0.2s;
 
     &.menu-open {
       max-height: 400px;
+      opacity: 1;
+      visibility: visible;
     }
   }
 
