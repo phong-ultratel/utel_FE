@@ -1008,14 +1008,14 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         }
 
         // Lọc packages theo status
-        const filterByStatus = (pkgs: TelecomPackageDto[]) => 
+        const filterByStatus = (pkgs: TelecomPackageDto[]) =>
           (pkgs || []).filter(p => p.status === 'ACTIVE' || p.status === 'PENDING_CONFIG');
 
-        const allRawPackages = filterByStatus(resp.packages || []);
         const group1Raw = filterByStatus(resp.group1 || []);
         const group2Raw = filterByStatus(resp.group2 || []);
         const group3Raw = filterByStatus(resp.group3 || []);
         const group4Raw = filterByStatus(resp.group4 || []);
+        const allRawPackages = filterByStatus(resp.packages || []);
 
         this.lookupState.setSuccess(
           this.formatPhoneForDisplay(msisdn),
@@ -1030,15 +1030,28 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         this.isProviderLocked = true;
         this.lookupDone = true;
 
-        // Convert và lưu packages theo từng group
-        this.group1Packages = group1Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
-        this.group2Packages = group2Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
-        this.group3Packages = group3Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
-        this.group4Packages = group4Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
-
-        // Set packages theo tab hiện tại
-        this.updatePackagesBySelectedTab();
-        this.applyFilters();
+        // Gọi catalog để lấy pricing (salePrice, discount) cho từng gói, rồi convert với pricing đầy đủ
+        const provider = this.selectedProvider;
+        this.catalogService.getPackages({ provider }).subscribe({
+          next: catalogResponse => {
+            const catalogByCode = this.buildCatalogPricingMap(catalogResponse.packages || []);
+            this.group1Packages = group1Raw.map((p, i) => this.convertTelecomPackageToDisplay(p, i, catalogByCode));
+            this.group2Packages = group2Raw.map((p, i) => this.convertTelecomPackageToDisplay(p, i, catalogByCode));
+            this.group3Packages = group3Raw.map((p, i) => this.convertTelecomPackageToDisplay(p, i, catalogByCode));
+            this.group4Packages = group4Raw.map((p, i) => this.convertTelecomPackageToDisplay(p, i, catalogByCode));
+            this.updatePackagesBySelectedTab();
+            this.applyFilters();
+          },
+          error: () => {
+            // Fallback: không có catalog thì hiển thị giá gốc, không discount
+            this.group1Packages = group1Raw.map((p, i) => this.convertTelecomPackageToDisplay(p, i, {}));
+            this.group2Packages = group2Raw.map((p, i) => this.convertTelecomPackageToDisplay(p, i, {}));
+            this.group3Packages = group3Raw.map((p, i) => this.convertTelecomPackageToDisplay(p, i, {}));
+            this.group4Packages = group4Raw.map((p, i) => this.convertTelecomPackageToDisplay(p, i, {}));
+            this.updatePackagesBySelectedTab();
+            this.applyFilters();
+          }
+        });
       },
       error: err => {
         console.error('Error lookup telco packages:', err);
@@ -1110,9 +1123,34 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     return p?.name ?? code;
   }
 
-  private convertTelecomPackageToDisplay(pkg: TelecomPackageDto, index: number): DisplayPackage {
+  /**
+   * Map packageCode -> PackageCardDto từ catalog để lấy pricing (salePrice, discount) khi hiển thị sau tra cứu.
+   */
+  private buildCatalogPricingMap(packages: PackageCardDto[]): Record<string, PackageCardDto> {
+    const map: Record<string, PackageCardDto> = {};
+    (packages || []).forEach(p => {
+      if (p.packageCode) {
+        map[p.packageCode] = p;
+      }
+    });
+    return map;
+  }
+
+  private convertTelecomPackageToDisplay(
+    pkg: TelecomPackageDto,
+    index: number,
+    catalogByCode?: Record<string, PackageCardDto>
+  ): DisplayPackage {
     const validityDays = pkg.validityDays || 1;
-    const price = pkg.originalPrice || 0;
+    const catalogPackage = catalogByCode?.[pkg.packageCode];
+
+    // Ưu tiên pricing từ catalog (có salePrice, discount); không có thì dùng originalPrice từ lookup làm cả hai
+    const originalPrice = catalogPackage?.pricing?.originalPrice ?? (pkg.originalPrice ?? 0);
+    const salePrice =
+      catalogPackage?.pricing?.salePrice ?? (pkg as any).salePrice ?? (pkg.originalPrice ?? 0);
+    const discountText = catalogPackage?.pricing?.discountText;
+    const discountPercent = catalogPackage?.pricing?.discountPercent;
+    const discountValue = catalogPackage?.pricing?.discountValue;
 
     // Ưu đãi/mô tả: ưu tiên specialInfo, benefitDetail; luôn có fallback để package-info-list có ít nhất một info-value
     const specialInfoText =
@@ -1127,16 +1165,19 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       familyMode: (pkg.family?.packageFamilyMode as PackageFamilyMode) || 'SPECIAL',
       display: {
         specialInfo: specialInfoText,
-        dataText: (pkg.family as any)?.description?.trim() || undefined,
-        callText: undefined,
-        smsText: undefined,
-        benefitText: undefined
+        dataText: (pkg.family as any)?.description?.trim() || (catalogPackage?.display?.dataText),
+        callText: catalogPackage?.display?.callText,
+        smsText: catalogPackage?.display?.smsText,
+        benefitText: catalogPackage?.display?.benefitText
       },
       pricing: {
-        originalPrice: price,
-        salePrice: price
+        originalPrice,
+        salePrice,
+        discountText: discountText || undefined,
+        discountPercent: discountPercent ?? undefined,
+        discountValue: discountValue ?? undefined
       },
-      raw: {}
+      raw: catalogPackage?.raw || {}
     };
 
     const display = this.convertToDisplayPackage(cardDto, index);
