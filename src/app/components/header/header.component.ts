@@ -27,6 +27,11 @@ export class HeaderComponent implements OnInit {
     const el = document.getElementById('lookup-section');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Focus vào input "Nhập số thuê bao" sau khi scroll xong
+      setTimeout(() => {
+        const input = document.getElementById('lookup-input') as HTMLInputElement | null;
+        input?.focus();
+      }, 400);
     }
   }
 
