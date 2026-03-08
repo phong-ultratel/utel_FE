@@ -679,12 +679,38 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   }
 
   selectPackage(pkg: DisplayPackage): void {
+    if (!this.lookupDone) {
+      this.scrollToLookupAndRequire();
+      return;
+    }
     console.log('Selected package:', pkg);
-    // Thay vì mở payment method, mở modal detail
-    // Sử dụng requestAnimationFrame để tránh chớp nháy
     requestAnimationFrame(() => {
       this.viewDetails(pkg);
     });
+  }
+
+  /**
+   * Xóa thông báo "Vui lòng nhập số thuê bao..." khi người dùng đã nhập nội dung vào ô.
+   */
+  clearLookupErrorIfHasInput(): void {
+    if (this.subscriberNumber?.trim()) {
+      this.lookupError = null;
+    }
+  }
+
+  /**
+   * Scroll tới ô tra cứu, focus input và hiển thị thông báo yêu cầu tra cứu trước khi đăng ký.
+   */
+  scrollToLookupAndRequire(): void {
+    this.lookupError = 'Vui lòng nhập số thuê bao và bấm Tra cứu trước khi đăng ký gói.';
+    const el = document.getElementById('lookup-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => {
+        const input = document.getElementById('lookup-input') as HTMLInputElement | null;
+        input?.focus();
+      }, 400);
+    }
   }
 
   backToPackages(): void {
@@ -814,19 +840,20 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   }
 
   registerFromModal(): void {
-    if (this.selectedFamilyPackage) {
-      // Lưu package đã chọn trước khi đóng modal (vì closeDetailModal sẽ set selectedFamilyPackage = null)
-      const selectedPkg = this.selectedFamilyPackage;
-
-      // Đóng modal trước, sau đó mở payment method để tránh chớp nháy
+    if (!this.lookupDone) {
       this.closeDetailModal();
-
-      // Sử dụng setTimeout để đảm bảo modal đã đóng hoàn toàn trước khi mở payment method
+      // Đợi modal đóng rồi mới scroll + focus + hiển thị thông báo (giống khi bấm Đăng ký trên card)
+      setTimeout(() => this.scrollToLookupAndRequire(), 200);
+      return;
+    }
+    if (this.selectedFamilyPackage) {
+      const selectedPkg = this.selectedFamilyPackage;
+      this.closeDetailModal();
       setTimeout(() => {
         this.selectedPackage = selectedPkg;
         this.showPaymentMethod = true;
         window.scrollTo({top: 0, behavior: 'smooth'});
-      }, 150); // Đợi animation đóng modal hoàn tất (0.3s / 2)
+      }, 150);
     }
   }
 

@@ -116,6 +116,7 @@
             class="subscriber-input"
             placeholder="Nhập số thuê bao"
             [(ngModel)]="subscriberNumber"
+            (input)="clearLookupErrorIfHasInput()"
             (keyup.enter)="handleLogin()">
           <button class="login-btn" (click)="handleLogin()">TRA CỨU</button>
         </div>
