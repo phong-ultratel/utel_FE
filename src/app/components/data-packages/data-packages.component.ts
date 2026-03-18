@@ -849,30 +849,30 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
 
     // Nếu đã có \n thì có thể đã được format rồi, nhưng vẫn kiểm tra lại
     let text = specialInfo.trim();
-    
+
     // Tách các phần sau "Ưu đãi:" nếu có
     let prefix = '';
     let content = text;
-    
+
     if (text.startsWith('Ưu đãi:')) {
       prefix = 'Ưu đãi:';
       content = text.substring('Ưu đãi:'.length).trim();
     }
-    
+
     // Tách các phần sau dấu "- " thành các dòng riêng
     const parts = content.split(/\s*-\s+/);
     const formatted: string[] = [];
-    
+
     if (prefix) {
       formatted.push(prefix);
     }
-    
+
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i].trim();
       if (!part) {
         continue;
       }
-      
+
       // Nếu là phần đầu tiên và không có prefix "Ưu đãi:", có thể không có dấu "-"
       if (i === 0 && !prefix && !content.startsWith('-')) {
         formatted.push(part);
@@ -880,7 +880,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         formatted.push('- ' + part);
       }
     }
-    
+
     return formatted.join('\n');
   }
 
@@ -990,13 +990,14 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     }
 
     const msisdn = normalized;
+    const sessionId = this.lookupState.getOrCreateSessionId();
 
     this.loading = true;
     this.error = null;
     this.lookupError = null;
     this.lookupState.setLoading();
 
-    this.telcoService.lookup(msisdn).pipe(takeUntil(this.destroy$)).subscribe({
+    this.telcoService.lookup(msisdn, sessionId).pipe(takeUntil(this.destroy$)).subscribe({
       next: resp => {
         this.loading = false;
 
@@ -1008,7 +1009,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         }
 
         // Lọc packages theo status
-        const filterByStatus = (pkgs: TelecomPackageDto[]) => 
+        const filterByStatus = (pkgs: TelecomPackageDto[]) =>
           (pkgs || []).filter(p => p.status === 'ACTIVE' || p.status === 'PENDING_CONFIG');
 
         const allRawPackages = filterByStatus(resp.packages || []);
