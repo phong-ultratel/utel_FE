@@ -1,0 +1,22 @@
+<div class="payment-result-container">
+  <h2>Kết quả thanh toán</h2>
+
+  <div *ngIf="loading" class="loading">Đang kiểm tra...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div *ngIf="order && !loading" class="result-card">
+    <div class="row">
+      <span class="label">Order ID:</span>
+      <span class="value">{{ orderId }}</span>
+    </div>
+    <div class="row">
+      <span class="label">Mã đơn:</span>
+      <span class="value">{{ order.orderCode }}</span>
+    </div>
+    <div class="row">
+      <span class="label">Trạng thái:</span>
+      <span class="value">{{ order.status }}</span>
+    </div>
+  </div>
+</div>
+

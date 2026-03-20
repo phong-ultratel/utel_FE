@@ -1,4 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 interface PaymentOption {
   id: string;
@@ -20,6 +22,12 @@ export class PaymentMethodComponent implements OnInit {
   @Input() discountAmount: number = 0;
   // Text hiển thị chiết khấu (ví dụ "-20%" hoặc "(-20.000đ)"), ưu tiên dùng cho UI
   @Input() discountText: string | null = null;
+
+  // Thông tin cần để tạo Order cho luồng thanh toán
+  @Input() phoneNumber: string = '';
+  @Input() sessionId: string = '';
+  @Input() telecomPackageCodeSnapshot: string = '';
+  @Input() telecomPackageNameSnapshot: string = '';
   @Output() back = new EventEmitter<void>();
 
   selectedPaymentMethod: string = '';
@@ -84,10 +92,16 @@ export class PaymentMethodComponent implements OnInit {
       name: 'Thẻ quốc tế',
       icon: 'visa',
       discount: 'Chiết khấu 5%'
+    },
+    {
+      id: 'viettel-money',
+      name: 'Viettel Money',
+      icon: 'Viettel',
+      discount: 'Chiết khấu 5%'
     }
   ];
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     // Set default selected payment method
@@ -132,11 +146,70 @@ export class PaymentMethodComponent implements OnInit {
       return;
     }
 
-    console.log('Selected payment method:', this.selectedPaymentMethod);
-    console.log('Request invoice:', this.requestInvoice);
-    console.log('Total amount:', this.calculateTotal());
+    if (this.selectedPaymentMethod === 'viettel-money') {
+      this.startViettelMoneyFlow();
+      return;
+    }
 
-    // Xử lý tiếp tục thanh toán ở đây
+    alert('Chưa hỗ trợ phương thức thanh toán này ở luồng demo.');
+  }
+
+  private startViettelMoneyFlow(): void {
+    if (!this.phoneNumber || !this.sessionId) {
+      alert('Thiếu thông tin số thuê bao / session. Vui lòng thử lại.');
+      return;
+    }
+    if (!this.telecomPackageCodeSnapshot || !this.telecomPackageNameSnapshot) {
+      alert('Thiếu thông tin gói cước. Vui lòng thử lại.');
+      return;
+    }
+
+    const originalPrice = this.totalAmount;
+    const salePrice = this.calculateTotal();
+    const orderCode = `ORDER_${Date.now()}`;
+
+    const orderPayload = {
+      orderCode,
+      phoneNumber: this.phoneNumber,
+      originalPrice,
+      salePrice,
+      status: 'INIT',
+      paymentMethod: 'CARD',
+      telecomPackageCodeSnapshot: this.telecomPackageCodeSnapshot,
+      telecomPackageNameSnapshot: this.telecomPackageNameSnapshot,
+      sessionId: this.sessionId,
+      createdAt: new Date().toISOString()
+    };
+
+    this.http.post<any>(`${environment.apiBaseUrl}/orders`, orderPayload).subscribe({
+      next: (orderResp) => {
+        const orderId = orderResp?.id;
+        if (!orderId) {
+          alert('Không tạo được Order. Vui lòng thử lại.');
+          return;
+        }
+
+        const paymentReq = { orderId };
+        this.http.post<any>(`${environment.apiBaseUrl}/payment/viettel-money/create`, paymentReq).subscribe({
+          next: (payResp) => {
+            const paymentUrl = payResp?.paymentUrl || payResp?.url || payResp?.redirectUrl;
+            if (!paymentUrl) {
+              alert('Không nhận được URL thanh toán từ Viettel. Vui lòng thử lại.');
+              return;
+            }
+            window.location.href = paymentUrl;
+          },
+          error: (err) => {
+            console.error('create payment failed', err);
+            alert('Tạo thanh toán Viettel Money thất bại. Vui lòng thử lại.');
+          }
+        });
+      },
+      error: (err) => {
+        console.error('create order failed', err);
+        alert('Tạo đơn hàng thất bại. Vui lòng thử lại.');
+      }
+    });
   }
 
   onInvoiceCheckboxChange(event: any): void {

@@ -105,6 +105,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   group4Packages: DisplayPackage[] = [];
   showPaymentMethod: boolean = false;
   selectedPackage: DisplayPackage | null = null;
+  paymentSessionId: string = '';
   expandedPackages: { [key: number]: boolean } = {};
   needsExpandIcon: { [key: number]: boolean } = {};
   private hasOverflow: { [key: number]: boolean } = {};
@@ -690,6 +691,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   backToPackages(): void {
     this.showPaymentMethod = false;
     this.selectedPackage = null;
+    this.paymentSessionId = '';
   }
 
   viewDetails(pkg: DisplayPackage): void {
@@ -824,6 +826,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       // Sử dụng setTimeout để đảm bảo modal đã đóng hoàn toàn trước khi mở payment method
       setTimeout(() => {
         this.selectedPackage = selectedPkg;
+        this.paymentSessionId = this.lookupState.getOrCreateSessionId();
         this.showPaymentMethod = true;
         window.scrollTo({top: 0, behavior: 'smooth'});
       }, 150); // Đợi animation đóng modal hoàn tất (0.3s / 2)

@@ -6,6 +6,10 @@
     [discount]="getDiscountPercent(selectedPackage)"
     [discountAmount]="selectedPackage?.discountAmount || 0"
     [discountText]="getDiscountDisplay(selectedPackage)"
+    [phoneNumber]="subscriberNumber"
+    [sessionId]="paymentSessionId"
+    [telecomPackageCodeSnapshot]="selectedPackage.packageCode"
+    [telecomPackageNameSnapshot]="selectedPackage.name"
     (back)="backToPackages()">
   </app-payment-method>
 
