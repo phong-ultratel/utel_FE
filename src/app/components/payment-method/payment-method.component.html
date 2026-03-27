@@ -103,10 +103,19 @@
         <a href="#" class="terms-link">điều khoản mua hàng và thanh toán của Ultratel</a>.
       </div>
       <div class="action-buttons">
-        <button class="btn-back" (click)="goBack()">Quay lại</button>
-        <button class="btn-continue" (click)="continue()">Tiếp tục</button>
+        <button class="btn-back" (click)="goBack()" [disabled]="isProcessingPayment">Quay lại</button>
+        <button class="btn-continue" (click)="continue()" [disabled]="isProcessingPayment">
+          {{ isProcessingPayment ? 'Đang xử lý...' : 'Tiếp tục' }}
+        </button>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="payment-loading-overlay" *ngIf="isProcessingPayment">
+  <div class="payment-loading-content">
+    <div class="payment-loading-spinner"></div>
+    <p class="payment-loading-text">Đang khởi tạo thanh toán, vui lòng chờ...</p>
   </div>
 </div>
 

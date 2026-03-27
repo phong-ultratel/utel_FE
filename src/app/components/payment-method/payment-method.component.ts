@@ -31,6 +31,7 @@ export class PaymentMethodComponent implements OnInit {
   @Output() back = new EventEmitter<void>();
 
   selectedPaymentMethod: string = '';
+  isProcessingPayment: boolean = false;
   requestInvoice: boolean = false;
   showInvoiceModal: boolean = false;
   invoiceType: 'individual' | 'company' = 'individual';
@@ -141,6 +142,10 @@ export class PaymentMethodComponent implements OnInit {
   }
 
   continue(): void {
+    if (this.isProcessingPayment) {
+      return;
+    }
+
     if (!this.selectedPaymentMethod) {
       alert('Vui lòng chọn phương thức thanh toán');
       return;
@@ -167,6 +172,7 @@ export class PaymentMethodComponent implements OnInit {
     const originalPrice = this.totalAmount;
     const salePrice = this.calculateTotal();
     const orderCode = `ORDER_${Date.now()}`;
+    this.isProcessingPayment = true;
 
     const orderPayload = {
       orderCode,
@@ -185,6 +191,7 @@ export class PaymentMethodComponent implements OnInit {
       next: (orderResp) => {
         const orderId = orderResp?.id;
         if (!orderId) {
+          this.isProcessingPayment = false;
           alert('Không tạo được Order. Vui lòng thử lại.');
           return;
         }
@@ -194,18 +201,21 @@ export class PaymentMethodComponent implements OnInit {
           next: (payResp) => {
             const paymentUrl = payResp?.paymentUrl || payResp?.url || payResp?.redirectUrl;
             if (!paymentUrl) {
+              this.isProcessingPayment = false;
               alert('Không nhận được URL thanh toán từ Viettel. Vui lòng thử lại.');
               return;
             }
             window.location.href = paymentUrl;
           },
           error: (err) => {
+            this.isProcessingPayment = false;
             console.error('create payment failed', err);
             alert('Tạo thanh toán Viettel Money thất bại. Vui lòng thử lại.');
           }
         });
       },
       error: (err) => {
+        this.isProcessingPayment = false;
         console.error('create order failed', err);
         alert('Tạo đơn hàng thất bại. Vui lòng thử lại.');
       }
