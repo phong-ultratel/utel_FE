@@ -35,7 +35,7 @@ export class PaymentMethodComponent implements OnInit {
   showInvoiceModal: boolean = false;
   invoiceType: 'individual' | 'company' = 'individual';
   invoiceSubmitted: boolean = false;
-  
+
   invoiceData = {
     individual: {
       buyerName: '',
@@ -93,12 +93,12 @@ export class PaymentMethodComponent implements OnInit {
       icon: 'visa',
       discount: 'Chiết khấu 5%'
     },
-    {
-      id: 'viettel-money',
-      name: 'Viettel Money',
-      icon: 'Viettel',
-      discount: 'Chiết khấu 5%'
-    }
+    // {
+    //   id: 'viettel-money',
+    //   name: 'Viettel Money',
+    //   icon: 'Viettel',
+    //   discount: 'Chiết khấu 5%'
+    // }
   ];
 
   constructor(private http: HttpClient) { }
@@ -146,7 +146,7 @@ export class PaymentMethodComponent implements OnInit {
       return;
     }
 
-    if (this.selectedPaymentMethod === 'viettel-money') {
+    if (this.selectedPaymentMethod === 'qr-code') {
       this.startViettelMoneyFlow();
       return;
     }
@@ -277,7 +277,7 @@ export class PaymentMethodComponent implements OnInit {
           return 'Trường này là bắt buộc.';
       }
     }
-    
+
     // Validate email format
     if (fieldName === 'email' && value) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -285,7 +285,7 @@ export class PaymentMethodComponent implements OnInit {
         return 'Vui lòng nhập email hợp lệ.';
       }
     }
-    
+
     return '';
   }
 
@@ -353,8 +353,8 @@ export class PaymentMethodComponent implements OnInit {
 
     console.log('Invoice data:', {
       type: this.invoiceType,
-      data: this.invoiceType === 'individual' 
-        ? this.invoiceData.individual 
+      data: this.invoiceType === 'individual'
+        ? this.invoiceData.individual
         : this.invoiceData.company
     });
 
