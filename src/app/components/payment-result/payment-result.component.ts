@@ -66,5 +66,35 @@ export class PaymentResultComponent implements OnInit {
     this.resultTitle = 'Kết quả giao dịch';
     this.resultMessage = 'Đã quay về từ cổng thanh toán. Vui lòng kiểm tra trạng thái đơn hàng.';
   }
+
+  getStatusText(status?: string): string {
+    if (!status) {
+      return 'Đang xử lý';
+    }
+    const statusMap: { [key: string]: string } = {
+      CREATED: 'Đã tạo đơn',
+      PENDING: 'Đang chờ thanh toán',
+      PROCESSING: 'Đang xử lý',
+      PAID: 'Đã thanh toán',
+      COMPLETED: 'Hoàn tất',
+      FAILED: 'Thất bại',
+      CANCELLED: 'Đã hủy',
+      CANCELED: 'Đã hủy',
+      EXPIRED: 'Hết hạn',
+      REFUNDED: 'Đã hoàn tiền'
+    };
+    return statusMap[status] || status;
+  }
+
+  getStatusClass(status?: string): string {
+    const normalized = (status || '').toUpperCase();
+    if (normalized === 'PAID' || normalized === 'COMPLETED') {
+      return 'status-success';
+    }
+    if (normalized === 'FAILED' || normalized === 'CANCELLED' || normalized === 'CANCELED' || normalized === 'EXPIRED') {
+      return 'status-danger';
+    }
+    return 'status-warning';
+  }
 }
 

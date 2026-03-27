@@ -1,24 +1,25 @@
 <div class="payment-result-container">
-  <h2>{{ resultTitle }}</h2>
-  <p class="result-message">{{ resultMessage }}</p>
+  <div class="result-card">
+    <h2 class="title">{{ resultTitle }}</h2>
+    <p class="result-message">{{ resultMessage }}</p>
 
-  <div *ngIf="loading" class="loading">Đang kiểm tra...</div>
-  <div *ngIf="error" class="error">{{ error }}</div>
+    <div *ngIf="loading" class="loading">Đang kiểm tra kết quả thanh toán...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
 
-  <div *ngIf="orderId" class="row">
-    <span class="label">Order ID:</span>
-    <span class="value">{{ orderId }}</span>
-  </div>
-
-  <div *ngIf="order && !loading" class="result-card">
-    <div class="row">
-      <span class="label">Mã đơn:</span>
-      <span class="value">{{ order.orderCode }}</span>
+    <div *ngIf="order && !loading" class="info-list">
+      <div class="row">
+        <span class="label">Mã đơn:</span>
+        <span class="value">{{ order.orderCode }}</span>
+      </div>
+      <div class="row">
+        <span class="label">Trạng thái:</span>
+        <span class="status-pill" [ngClass]="getStatusClass(order.status)">
+          {{ getStatusText(order.status) }}
+        </span>
+      </div>
     </div>
-    <div class="row">
-      <span class="label">Trạng thái:</span>
-      <span class="value">{{ order.status }}</span>
-    </div>
+
+    <div *ngIf="!loading && !order && !error" class="loading">Đang chờ cập nhật trạng thái...</div>
   </div>
 </div>
 
