@@ -159,6 +159,19 @@
   }
 }
 
+.lookup-error-message {
+  max-width: 600px;
+  margin: 10px auto 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #ffd0d4;
+  background: #fff3f4;
+  color: #b00020;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+}
+
 // Filter Section
 .filter-section {
   margin-bottom: 0;

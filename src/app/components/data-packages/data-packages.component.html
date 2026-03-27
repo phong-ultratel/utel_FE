@@ -120,6 +120,7 @@
             class="subscriber-input"
             placeholder="Nhập số thuê bao"
             [(ngModel)]="subscriberNumber"
+            (input)="onSubscriberInput()"
             (keyup.enter)="handleLogin()">
           <button class="login-btn" (click)="handleLogin()">TRA CỨU</button>
         </div>
@@ -133,7 +134,7 @@
         <a (click)="resetLookup()" class="lookup-result-change-link" href="javascript:void(0)">Đổi số khác</a>
       </div>
       <!-- Lỗi validate: hiển thị bên dưới toàn bộ phần tra cứu -->
-      <div *ngIf="lookupError" class="lookup-error-message" style="color: red; margin-top: 8px; text-align: center;">
+      <div *ngIf="lookupError && (lookupStatus$ | async) !== 'success'" class="lookup-error-message">
         {{ lookupError }}
       </div>
     </div>

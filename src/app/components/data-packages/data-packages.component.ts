@@ -816,6 +816,12 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   }
 
   registerFromModal(): void {
+    if (!this.lookupDone) {
+      this.showLookupRequiredMessage();
+      this.closeDetailModal();
+      return;
+    }
+
     if (this.selectedFamilyPackage) {
       // Lưu package đã chọn trước khi đóng modal (vì closeDetailModal sẽ set selectedFamilyPackage = null)
       const selectedPkg = this.selectedFamilyPackage;
@@ -1189,6 +1195,20 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
 
   onSearchBlur(): void {
     this.isSearchFocused = false;
+  }
+
+  onSubscriberInput(): void {
+    if (this.lookupError === 'Hãy nhập số điện thoại để tra cứu gói cước') {
+      this.lookupError = null;
+    }
+  }
+
+  private showLookupRequiredMessage(): void {
+    this.lookupError = 'Hãy nhập số điện thoại để tra cứu gói cước';
+    setTimeout(() => {
+      document.getElementById('lookup-section')?.scrollIntoView({behavior: 'smooth', block: 'center'});
+      setTimeout(() => (document.getElementById('lookup-input') as HTMLInputElement)?.focus(), 250);
+    }, 50);
   }
 
   ngOnDestroy(): void {
