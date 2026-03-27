@@ -181,7 +181,7 @@ export class PaymentMethodComponent implements OnInit {
       createdAt: new Date().toISOString()
     };
 
-    this.http.post<any>(`${environment.apiBaseUrl}/orders`, orderPayload).subscribe({
+    this.http.post<any>(`${environment.apiBaseUrl}/public/orders`, orderPayload).subscribe({
       next: (orderResp) => {
         const orderId = orderResp?.id;
         if (!orderId) {
