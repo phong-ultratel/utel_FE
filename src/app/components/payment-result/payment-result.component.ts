@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { LookupStateService } from '../../services/lookup-state.service';
 
 /** Phản hồi GET /public/orders/{id}/status */
 export interface PublicOrderStatus {
@@ -28,7 +29,11 @@ export class PaymentResultComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
-  constructor(private route: ActivatedRoute, private http: HttpClient) {}
+  constructor(
+    private route: ActivatedRoute,
+    private http: HttpClient,
+    private lookupState: LookupStateService
+  ) {}
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((params) => {
@@ -54,6 +59,9 @@ export class PaymentResultComponent implements OnInit {
       next: (resp: PublicOrderStatus) => {
         this.order = resp;
         this.loading = false;
+        if (this.isSuccessfulPaymentStatus(resp.status)) {
+          this.lookupState.reset();
+        }
       },
       error: (err) => {
         console.error('fetch order failed', err);
@@ -123,6 +131,11 @@ export class PaymentResultComponent implements OnInit {
       return '—';
     }
     return new Intl.NumberFormat('vi-VN').format(Number(value)) + ' ₫';
+  }
+
+  private isSuccessfulPaymentStatus(status?: string): boolean {
+    const s = (status || '').toUpperCase();
+    return s === 'PAID' || s === 'COMPLETED';
   }
 }
 
