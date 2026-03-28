@@ -2,3 +2,172 @@
   min-height: calc(100vh - 140px);
 }
 
+@keyframes zalo-fab-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 4px 14px rgba(0, 104, 255, 0.45),
+      0 2px 6px rgba(0, 0, 0, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 6px 24px rgba(0, 104, 255, 0.65),
+      0 4px 14px rgba(0, 104, 255, 0.35),
+      0 0 0 4px rgba(0, 104, 255, 0.12);
+  }
+}
+
+@keyframes zalo-fab-ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.65;
+  }
+  100% {
+    transform: scale(1.65);
+    opacity: 0;
+  }
+}
+
+@keyframes zalo-fab-ripple-mobile {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.75);
+    opacity: 0;
+  }
+}
+
+.zalo-chat-fab {
+  position: fixed;
+  right: calc(20px + env(safe-area-inset-right, 0px));
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  overflow: visible;
+  background: #0068ff;
+  color: #fff;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  box-shadow:
+    0 4px 14px rgba(0, 104, 255, 0.45),
+    0 2px 6px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  animation: zalo-fab-glow 2.2s ease-in-out infinite;
+}
+
+.zalo-chat-fab::before,
+.zalo-chat-fab::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  border: 2px solid rgba(0, 140, 255, 0.55);
+  animation: zalo-fab-ripple 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  will-change: transform, opacity;
+}
+
+.zalo-chat-fab::after {
+  animation-delay: 1.2s;
+}
+
+/* Chỉ tắt hiệu ứng khi hover bằng chuột — tránh chặn animation trên cảm ứng */
+@media (hover: hover) and (pointer: fine) {
+  .zalo-chat-fab:hover {
+    transform: translateY(-2px) scale(1.04);
+    animation: none;
+    box-shadow:
+      0 8px 22px rgba(0, 104, 255, 0.55),
+      0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .zalo-chat-fab:hover::before,
+  .zalo-chat-fab:hover::after {
+    animation-play-state: paused;
+    opacity: 0;
+  }
+}
+
+/* Phản hồi khi chạm (mobile / tablet) */
+.zalo-chat-fab:active {
+  transform: scale(0.94);
+}
+
+.zalo-chat-fab:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.zalo-chat-fab__icon {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.zalo-chat-fab__icon img {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
+/* Màn hình nhỏ + cảm ứng: giữ hiệu ứng rõ, vùng chạm đủ lớn */
+@media (max-width: 768px) {
+  .zalo-chat-fab {
+    right: calc(14px + env(safe-area-inset-right, 0px));
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    padding: 8px;
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  .zalo-chat-fab__icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .zalo-chat-fab__icon img {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Sóng hơi lớn hơn một chút để dễ thấy trên màn hình nhỏ */
+  .zalo-chat-fab::before,
+  .zalo-chat-fab::after {
+    animation-name: zalo-fab-ripple-mobile;
+    animation-duration: 2.2s;
+    border-width: 2.5px;
+  }
+
+  .zalo-chat-fab::after {
+    animation-delay: 1.1s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zalo-chat-fab {
+    animation: none;
+  }
+
+  .zalo-chat-fab::before,
+  .zalo-chat-fab::after {
+    animation: none !important;
+    opacity: 0;
+  }
+}
+
