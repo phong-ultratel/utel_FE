@@ -152,6 +152,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
 
     // Restore trạng thái tra cứu sau khi refresh
     const restored = this.lookupState.getRestoredPackages();
+    const restoredGroups = this.lookupState.getRestoredGroups();
     if (this.lookupState.currentStatus === 'success' && restored?.length) {
       const providerCode = this.lookupState.getRestoredProviderCode();
       if (providerCode) {
@@ -159,8 +160,20 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       }
       this.isProviderLocked = true;
       this.lookupDone = true;
-      // Note: Khi restore, không có thông tin về group, nên chỉ restore packages tổng hợp
-      this.packages = (restored as TelecomPackageDto[]).map((p, i) => this.convertTelecomPackageToDisplay(p, i));
+      if (restoredGroups) {
+        this.group1Packages = (restoredGroups.group1 as TelecomPackageDto[]).map((p, i) =>
+          this.convertTelecomPackageToDisplay(p, i));
+        this.group2Packages = (restoredGroups.group2 as TelecomPackageDto[]).map((p, i) =>
+          this.convertTelecomPackageToDisplay(p, i));
+        this.group3Packages = (restoredGroups.group3 as TelecomPackageDto[]).map((p, i) =>
+          this.convertTelecomPackageToDisplay(p, i));
+        this.group4Packages = (restoredGroups.group4 as TelecomPackageDto[]).map((p, i) =>
+          this.convertTelecomPackageToDisplay(p, i));
+        this.updatePackagesBySelectedTab();
+      } else {
+        // Dữ liệu localStorage cũ: chỉ có packages phẳng — tab "Tất cả" + bộ lọc ngày vẫn dùng được
+        this.packages = (restored as TelecomPackageDto[]).map((p, i) => this.convertTelecomPackageToDisplay(p, i));
+      }
       this.lookupState.clearRestoredData();
       this.applyFilters();
     } else {
@@ -1031,7 +1044,13 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
           this.formatPhoneForDisplay(msisdn),
           this.getProviderDisplayName(resp.providerCode),
           resp.providerCode,
-          allRawPackages
+          allRawPackages,
+          {
+            group1: group1Raw,
+            group2: group2Raw,
+            group3: group3Raw,
+            group4: group4Raw
+          }
         );
 
         if (resp.providerCode && resp.providerCode !== this.selectedProvider) {

@@ -6,12 +6,22 @@ export type LookupStatus = 'idle' | 'loading' | 'success' | 'error';
 const STORAGE_KEY = 'utel_lookup_state';
 const SESSION_ID_KEY = 'utel_session_id';
 
+/** Dữ liệu tra cứu trong localStorage chỉ có hiệu lực trong khoảng thời gian này */
+const LOOKUP_STORAGE_TTL_MS = 30 * 60 * 1000;
+
 export interface PersistedLookupState {
   status: LookupStatus;
   phoneDisplay: string;
   providerName: string;
   providerCode: string;
   packages: unknown[];
+  /** Phân nhóm từ API tra cứu — cần để đổi tab loại gói sau khi F5 / quay lại trang */
+  group1?: unknown[];
+  group2?: unknown[];
+  group3?: unknown[];
+  group4?: unknown[];
+  /** Unix timestamp (ms) lúc lưu — dùng để hết hạn sau LOOKUP_STORAGE_TTL_MS */
+  savedAt?: number;
 }
 
 @Injectable({
@@ -23,6 +33,10 @@ export class LookupStateService {
   private readonly lookedUpProviderName$ = new BehaviorSubject<string | null>(null);
   private restoredPackages: unknown[] | null = null;
   private restoredProviderCode: string | null = null;
+  private restoredGroup1: unknown[] | null = null;
+  private restoredGroup2: unknown[] | null = null;
+  private restoredGroup3: unknown[] | null = null;
+  private restoredGroup4: unknown[] | null = null;
 
   constructor() {
     this.loadFromStorage();
@@ -53,17 +67,40 @@ export class LookupStateService {
     }
   }
 
+  private isPersistedStateExpired(state: PersistedLookupState): boolean {
+    if (typeof state.savedAt !== 'number' || !Number.isFinite(state.savedAt)) {
+      return true;
+    }
+    return Date.now() - state.savedAt > LOOKUP_STORAGE_TTL_MS;
+  }
+
   private loadFromStorage(): void {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const state: PersistedLookupState = JSON.parse(raw);
       if (state.status !== 'success' || !state.phoneDisplay) return;
+      if (this.isPersistedStateExpired(state)) {
+        localStorage.removeItem(STORAGE_KEY);
+        return;
+      }
       this.status$.next('success');
       this.lookedUpPhoneDisplay$.next(state.phoneDisplay);
       this.lookedUpProviderName$.next(state.providerName ?? null);
       this.restoredPackages = Array.isArray(state.packages) ? state.packages : null;
       this.restoredProviderCode = state.providerCode ?? null;
+      const hasGroupFields = 'group1' in state;
+      if (hasGroupFields) {
+        this.restoredGroup1 = Array.isArray(state.group1) ? state.group1 : [];
+        this.restoredGroup2 = Array.isArray(state.group2) ? state.group2 : [];
+        this.restoredGroup3 = Array.isArray(state.group3) ? state.group3 : [];
+        this.restoredGroup4 = Array.isArray(state.group4) ? state.group4 : [];
+      } else {
+        this.restoredGroup1 = null;
+        this.restoredGroup2 = null;
+        this.restoredGroup3 = null;
+        this.restoredGroup4 = null;
+      }
     } catch {
       // ignore invalid stored data
     }
@@ -111,6 +148,33 @@ export class LookupStateService {
   clearRestoredData(): void {
     this.restoredPackages = null;
     this.restoredProviderCode = null;
+    this.restoredGroup1 = null;
+    this.restoredGroup2 = null;
+    this.restoredGroup3 = null;
+    this.restoredGroup4 = null;
+  }
+
+  /**
+   * Các nhóm gói đã lưu (sau F5). null nếu dữ liệu cũ trong localStorage chưa có group*.
+   * Khi null, component có thể chỉ khôi phục đúng tab "Tất cả" từ packages phẳng.
+   */
+  getRestoredGroups():
+    | { group1: unknown[]; group2: unknown[]; group3: unknown[]; group4: unknown[] }
+    | null {
+    if (
+      this.restoredGroup1 === null &&
+      this.restoredGroup2 === null &&
+      this.restoredGroup3 === null &&
+      this.restoredGroup4 === null
+    ) {
+      return null;
+    }
+    return {
+      group1: this.restoredGroup1 ?? [],
+      group2: this.restoredGroup2 ?? [],
+      group3: this.restoredGroup3 ?? [],
+      group4: this.restoredGroup4 ?? []
+    };
   }
 
   setLoading(): void {
@@ -121,19 +185,34 @@ export class LookupStateService {
     phoneDisplay: string,
     providerName: string,
     providerCode?: string,
-    packages?: unknown[]
+    packages?: unknown[],
+    groups?: {
+      group1?: unknown[];
+      group2?: unknown[];
+      group3?: unknown[];
+      group4?: unknown[];
+    }
   ): void {
     this.status$.next('success');
     this.lookedUpPhoneDisplay$.next(phoneDisplay);
     this.lookedUpProviderName$.next(providerName);
     this.restoredPackages = null;
     this.restoredProviderCode = null;
+    this.restoredGroup1 = null;
+    this.restoredGroup2 = null;
+    this.restoredGroup3 = null;
+    this.restoredGroup4 = null;
     this.saveToStorage({
       status: 'success',
       phoneDisplay,
       providerName,
       providerCode: providerCode ?? '',
-      packages: packages ?? []
+      packages: packages ?? [],
+      group1: groups?.group1 ?? [],
+      group2: groups?.group2 ?? [],
+      group3: groups?.group3 ?? [],
+      group4: groups?.group4 ?? [],
+      savedAt: Date.now()
     });
   }
 
@@ -147,6 +226,10 @@ export class LookupStateService {
     this.lookedUpProviderName$.next(null);
     this.restoredPackages = null;
     this.restoredProviderCode = null;
+    this.restoredGroup1 = null;
+    this.restoredGroup2 = null;
+    this.restoredGroup3 = null;
+    this.restoredGroup4 = null;
     this.saveToStorage(null);
   }
 }
