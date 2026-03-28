@@ -3,13 +3,24 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
+/** Phản hồi GET /public/orders/{id}/status */
+export interface PublicOrderStatus {
+  id: number;
+  orderCode?: string;
+  status?: string;
+  completedAt?: string;
+  phoneNumber?: string;
+  telecomPackageNameSnapshot?: string;
+  salePrice?: number;
+}
+
 @Component({
   selector: 'app-payment-result',
   templateUrl: './payment-result.component.html',
   styleUrls: ['./payment-result.component.scss']
 })
 export class PaymentResultComponent implements OnInit {
-  order: any = null;
+  order: PublicOrderStatus | null = null;
   orderId: number | null = null;
   paymentFlow: 'return' | 'cancel' | null = null;
   resultTitle = 'Kết quả giao dịch';
@@ -40,7 +51,7 @@ export class PaymentResultComponent implements OnInit {
     this.loading = true;
     // Không reset error ở đây để vẫn giữ thông báo hợp lệ nếu thiếu orderId
     this.http.get<any>(`${environment.apiBaseUrl}/public/orders/${id}/status`).subscribe({
-      next: (resp) => {
+      next: (resp: PublicOrderStatus) => {
         this.order = resp;
         this.loading = false;
       },
@@ -95,6 +106,23 @@ export class PaymentResultComponent implements OnInit {
       return 'status-danger';
     }
     return 'status-warning';
+  }
+
+  /** Hiển thị thuê bao dạng 0xx xxx xxx */
+  formatSubscriberPhone(phone?: string | null): string {
+    if (!phone || !String(phone).trim()) {
+      return '—';
+    }
+    const digits = String(phone).replace(/\D/g, '');
+    const nine = digits.slice(-9).padStart(9, '0');
+    return '0' + nine.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+  }
+
+  formatPaymentAmount(value?: number | null): string {
+    if (value == null || Number.isNaN(Number(value))) {
+      return '—';
+    }
+    return new Intl.NumberFormat('vi-VN').format(Number(value)) + ' ₫';
   }
 }
 

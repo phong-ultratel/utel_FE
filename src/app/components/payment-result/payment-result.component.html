@@ -12,6 +12,18 @@
         <span class="value">{{ order.orderCode }}</span>
       </div>
       <div class="row">
+        <span class="label">Thuê bao:</span>
+        <span class="value">{{ formatSubscriberPhone(order.phoneNumber) }}</span>
+      </div>
+      <div class="row">
+        <span class="label">Sản phẩm:</span>
+        <span class="value">{{ order.telecomPackageNameSnapshot || '—' }}</span>
+      </div>
+      <div class="row">
+        <span class="label">Số tiền thanh toán:</span>
+        <span class="value">{{ formatPaymentAmount(order.salePrice) }}</span>
+      </div>
+      <div class="row">
         <span class="label">Trạng thái:</span>
         <span class="status-pill" [ngClass]="getStatusClass(order.status)">
           {{ getStatusText(order.status) }}
