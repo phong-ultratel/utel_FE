@@ -6,7 +6,7 @@
       </a>
     </div>
 
-    <nav class="nav-menu" [class.menu-open]="isMenuOpen">
+    <nav id="main-nav" class="nav-menu" [class.menu-open]="isMenuOpen" [attr.aria-hidden]="!isMenuOpen">
       <ul class="nav-list">
         <li><a href="#" class="nav-link active">Di động</a></li>
         <li><a href="#" class="nav-link">Internet<span class="coming-soon-badge">Soon</span></a></li>
@@ -25,7 +25,13 @@
       <div *ngIf="(lookupStatus$ | async) === 'success'" class="header-subscriber-phone-only">
         {{ lookedUpPhoneDisplay$ | async }}
       </div>
-      <button class="btn-menu-toggle" (click)="toggleMenu()" aria-label="Toggle menu">
+      <button
+        type="button"
+        class="btn-menu-toggle"
+        (click)="toggleMenu()"
+        [attr.aria-expanded]="isMenuOpen"
+        aria-controls="main-nav"
+        aria-label="Mở menu điều hướng">
         <span></span>
         <span></span>
         <span></span>
