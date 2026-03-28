@@ -24,10 +24,14 @@ export class HeaderComponent implements OnInit {
   }
 
   scrollToLookup(): void {
-    const el = document.getElementById('lookup-section');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const section = document.getElementById('lookup-section');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+    setTimeout(() => {
+      const input = document.getElementById('lookup-input') as HTMLInputElement | null;
+      input?.focus();
+    }, 300);
   }
 
   scrollToFooter(): void {
