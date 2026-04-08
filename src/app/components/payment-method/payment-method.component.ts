@@ -28,6 +28,8 @@ export class PaymentMethodComponent implements OnInit {
   @Input() sessionId: string = '';
   @Input() telecomPackageCodeSnapshot: string = '';
   @Input() telecomPackageNameSnapshot: string = '';
+  // Giá nhà mạng snapshot tại thời điểm tạo đơn (ưu tiên netPrice từ tra cứu)
+  @Input() carrierPrice: number = 0;
   @Output() back = new EventEmitter<void>();
 
   selectedPaymentMethod: string = '';
@@ -171,6 +173,7 @@ export class PaymentMethodComponent implements OnInit {
 
     const originalPrice = this.totalAmount;
     const salePrice = this.calculateTotal();
+    const viettelPriceSnapshot = this.carrierPrice > 0 ? this.carrierPrice : originalPrice;
     const orderCode = `ORDER_${Date.now()}`;
     this.isProcessingPayment = true;
 
@@ -178,6 +181,7 @@ export class PaymentMethodComponent implements OnInit {
       orderCode,
       phoneNumber: this.phoneNumber,
       originalPrice,
+      viettelPriceSnapshot,
       salePrice,
       status: 'INIT',
       paymentMethod: 'CARD',

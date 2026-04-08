@@ -10,6 +10,7 @@
     [sessionId]="paymentSessionId"
     [telecomPackageCodeSnapshot]="selectedPackage.packageCode"
     [telecomPackageNameSnapshot]="selectedPackage.name"
+    [carrierPrice]="selectedPackage.originalPrice || getOriginalPrice(selectedPackage)"
     (back)="backToPackages()">
   </app-payment-method>
 

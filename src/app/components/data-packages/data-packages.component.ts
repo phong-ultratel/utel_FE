@@ -162,18 +162,34 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       this.isProviderLocked = true;
       this.lookupDone = true;
       if (restoredGroups) {
-        this.group1Packages = (restoredGroups.group1 as TelecomPackageDto[]).map((p, i) =>
-          this.convertTelecomPackageToDisplay(p, i));
-        this.group2Packages = (restoredGroups.group2 as TelecomPackageDto[]).map((p, i) =>
-          this.convertTelecomPackageToDisplay(p, i));
-        this.group3Packages = (restoredGroups.group3 as TelecomPackageDto[]).map((p, i) =>
-          this.convertTelecomPackageToDisplay(p, i));
-        this.group4Packages = (restoredGroups.group4 as TelecomPackageDto[]).map((p, i) =>
-          this.convertTelecomPackageToDisplay(p, i));
+        const sampleGroup = [restoredGroups.group1, restoredGroups.group2, restoredGroups.group3, restoredGroups.group4].find(
+          g => g.length > 0
+        );
+        const restoredHasFullDisplay =
+          !!sampleGroup && this.isRestoredDisplayShape(sampleGroup as unknown[]);
+        if (restoredHasFullDisplay) {
+          this.group1Packages = restoredGroups.group1 as DisplayPackage[];
+          this.group2Packages = restoredGroups.group2 as DisplayPackage[];
+          this.group3Packages = restoredGroups.group3 as DisplayPackage[];
+          this.group4Packages = restoredGroups.group4 as DisplayPackage[];
+        } else {
+          this.group1Packages = (restoredGroups.group1 as TelecomPackageDto[]).map((p, i) =>
+            this.convertTelecomPackageToDisplay(p, i));
+          this.group2Packages = (restoredGroups.group2 as TelecomPackageDto[]).map((p, i) =>
+            this.convertTelecomPackageToDisplay(p, i));
+          this.group3Packages = (restoredGroups.group3 as TelecomPackageDto[]).map((p, i) =>
+            this.convertTelecomPackageToDisplay(p, i));
+          this.group4Packages = (restoredGroups.group4 as TelecomPackageDto[]).map((p, i) =>
+            this.convertTelecomPackageToDisplay(p, i));
+        }
         this.updatePackagesBySelectedTab();
       } else {
         // Dữ liệu localStorage cũ: chỉ có packages phẳng — tab "Tất cả" + bộ lọc ngày vẫn dùng được
-        this.packages = (restored as TelecomPackageDto[]).map((p, i) => this.convertTelecomPackageToDisplay(p, i));
+        if (this.isRestoredDisplayShape(restored as unknown[])) {
+          this.packages = restored as DisplayPackage[];
+        } else {
+          this.packages = (restored as TelecomPackageDto[]).map((p, i) => this.convertTelecomPackageToDisplay(p, i));
+        }
       }
       this.lookupState.clearRestoredData();
       this.applyFilters();
@@ -1057,31 +1073,33 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         const group3Raw = filterByStatus(resp.group3 || []);
         const group4Raw = filterByStatus(resp.group4 || []);
 
-        this.lookupState.setSuccess(
-          msisdn,
-          this.formatPhoneForDisplay(msisdn),
-          this.getProviderDisplayName(resp.providerCode),
-          resp.providerCode,
-          allRawPackages,
-          {
-            group1: group1Raw,
-            group2: group2Raw,
-            group3: group3Raw,
-            group4: group4Raw
-          }
-        );
-
         if (resp.providerCode && resp.providerCode !== this.selectedProvider) {
           this.selectedProvider = resp.providerCode as TelecomProviderCode;
         }
         this.isProviderLocked = true;
         this.lookupDone = true;
 
-        // Convert và lưu packages theo từng group
+        // Convert (merge catalog) trước khi persist — khi restore sau F5/redirect, this.packages rỗng nên cần lưu đủ pricing/discount
         this.group1Packages = group1Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
         this.group2Packages = group2Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
         this.group3Packages = group3Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
         this.group4Packages = group4Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
+
+        const flatDisplayForStorage = allRawPackages.map((p, i) => this.convertTelecomPackageToDisplay(p, i));
+
+        this.lookupState.setSuccess(
+          msisdn,
+          this.formatPhoneForDisplay(msisdn),
+          this.getProviderDisplayName(resp.providerCode),
+          resp.providerCode,
+          flatDisplayForStorage,
+          {
+            group1: this.group1Packages,
+            group2: this.group2Packages,
+            group3: this.group3Packages,
+            group4: this.group4Packages
+          }
+        );
 
         // Set packages theo tab hiện tại
         this.updatePackagesBySelectedTab();
@@ -1155,6 +1173,19 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     if (!code) return 'Nhà mạng';
     const p = this.providers.find(pr => pr.code === code);
     return p?.name ?? code;
+  }
+
+  /** Dữ liệu tra cứu đã lưu dạng DisplayPackage (có name, price) sau khi merge catalog — khác payload TelecomPackageDto thuần. */
+  private isRestoredDisplayShape(items: unknown[]): boolean {
+    if (!items?.length) {
+      return false;
+    }
+    const x = items[0] as any;
+    return (
+      typeof x?.packageCode === 'string' &&
+      typeof x?.price === 'number' &&
+      typeof x?.name === 'string'
+    );
   }
 
   private convertTelecomPackageToDisplay(pkg: TelecomPackageDto, index: number): DisplayPackage {
