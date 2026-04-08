@@ -91,8 +91,9 @@ export class PaymentResultComponent implements OnInit {
       return 'Đang xử lý';
     }
     const statusMap: { [key: string]: string } = {
-      CREATED: 'Đã tạo đơn',
-      PENDING: 'Đang chờ thanh toán',
+      CREATED: 'Khởi tạo',
+      INIT: 'Khởi tạo',
+      PENDING: 'Đang xử lý',
       PROCESSING: 'Đang xử lý',
       PAID: 'Đã thanh toán',
       COMPLETED: 'Hoàn tất',
