@@ -12,6 +12,7 @@ const LOOKUP_STORAGE_TTL_MS = 30 * 60 * 1000;
 export interface PersistedLookupState {
   status: LookupStatus;
   phoneDisplay: string;
+  msisdn?: string;
   providerName: string;
   providerCode: string;
   packages: unknown[];
@@ -30,6 +31,7 @@ export interface PersistedLookupState {
 export class LookupStateService {
   private readonly status$ = new BehaviorSubject<LookupStatus>('idle');
   private readonly lookedUpPhoneDisplay$ = new BehaviorSubject<string | null>(null);
+  private readonly lookedUpMsisdn$ = new BehaviorSubject<string | null>(null);
   private readonly lookedUpProviderName$ = new BehaviorSubject<string | null>(null);
   private restoredPackages: unknown[] | null = null;
   private restoredProviderCode: string | null = null;
@@ -86,6 +88,7 @@ export class LookupStateService {
       }
       this.status$.next('success');
       this.lookedUpPhoneDisplay$.next(state.phoneDisplay);
+      this.lookedUpMsisdn$.next(state.msisdn ?? null);
       this.lookedUpProviderName$.next(state.providerName ?? null);
       this.restoredPackages = Array.isArray(state.packages) ? state.packages : null;
       this.restoredProviderCode = state.providerCode ?? null;
@@ -124,6 +127,14 @@ export class LookupStateService {
 
   getLookedUpPhoneDisplay(): Observable<string | null> {
     return this.lookedUpPhoneDisplay$.asObservable();
+  }
+
+  getLookedUpMsisdn(): Observable<string | null> {
+    return this.lookedUpMsisdn$.asObservable();
+  }
+
+  get currentLookedUpMsisdn(): string | null {
+    return this.lookedUpMsisdn$.value;
   }
 
   getLookedUpProviderName(): Observable<string | null> {
@@ -182,6 +193,7 @@ export class LookupStateService {
   }
 
   setSuccess(
+    msisdn: string,
     phoneDisplay: string,
     providerName: string,
     providerCode?: string,
@@ -195,6 +207,7 @@ export class LookupStateService {
   ): void {
     this.status$.next('success');
     this.lookedUpPhoneDisplay$.next(phoneDisplay);
+    this.lookedUpMsisdn$.next(msisdn);
     this.lookedUpProviderName$.next(providerName);
     this.restoredPackages = null;
     this.restoredProviderCode = null;
@@ -205,6 +218,7 @@ export class LookupStateService {
     this.saveToStorage({
       status: 'success',
       phoneDisplay,
+      msisdn,
       providerName,
       providerCode: providerCode ?? '',
       packages: packages ?? [],
@@ -223,6 +237,7 @@ export class LookupStateService {
   reset(): void {
     this.status$.next('idle');
     this.lookedUpPhoneDisplay$.next(null);
+    this.lookedUpMsisdn$.next(null);
     this.lookedUpProviderName$.next(null);
     this.restoredPackages = null;
     this.restoredProviderCode = null;
