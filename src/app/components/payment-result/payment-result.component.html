@@ -29,9 +29,18 @@
           {{ getStatusText(order.status) }}
         </span>
       </div>
+
+      <div class="complaint-row" *ngIf="canShowComplaint()">
+        <button type="button" class="btn-complaint" (click)="openComplaintModal()">Báo lỗi / Khiếu nại</button>
+      </div>
     </div>
 
     <div *ngIf="!loading && !order && !error" class="loading">Đang chờ cập nhật trạng thái...</div>
   </div>
+
+  <app-customer-complaint-modal
+    [(visible)]="complaintModalVisible"
+    [defaults]="complaintModalDefaults"
+  ></app-customer-complaint-modal>
 </div>
 

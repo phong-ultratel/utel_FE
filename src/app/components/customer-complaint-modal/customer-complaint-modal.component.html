@@ -1,0 +1,54 @@
+<div class="ccm-backdrop" *ngIf="visible" (click)="close()"></div>
+<div class="ccm-panel" *ngIf="visible" role="dialog" aria-modal="true" aria-labelledby="ccm-title">
+  <div class="ccm-header">
+    <h2 id="ccm-title">Báo lỗi / Khiếu nại</h2>
+    <button type="button" class="ccm-close" (click)="close()" aria-label="Đóng">×</button>
+  </div>
+
+  <div class="ccm-body" *ngIf="!success">
+    <p class="ccm-intro">
+      Vui lòng mô tả chi tiết vấn đề. Bộ phận chăm sóc khách hàng sẽ phản hồi theo thông tin bạn cung cấp.
+    </p>
+
+    <div class="ccm-readonly" *ngIf="entryPoint === 'PAYMENT_PAGE' && (orderCodeDisplay || packageNameDisplay)">
+      <div class="ccm-row" *ngIf="orderCodeDisplay">
+        <span>Mã đơn</span>
+        <strong>{{ orderCodeDisplay }}</strong>
+      </div>
+      <div class="ccm-row" *ngIf="packageNameDisplay">
+        <span>Gói cước</span>
+        <strong>{{ packageNameDisplay }}</strong>
+      </div>
+      <div class="ccm-row" *ngIf="paymentAmountDisplay">
+        <span>Số tiền</span>
+        <strong>{{ paymentAmountDisplay }}</strong>
+      </div>
+    </div>
+
+    <label class="ccm-label">Số thuê bao <span class="req">*</span></label>
+    <input type="tel" class="ccm-input" [(ngModel)]="phoneNumber" maxlength="20" autocomplete="tel" />
+
+    <label class="ccm-label">Tên khách hàng</label>
+    <input type="text" class="ccm-input" [(ngModel)]="customerName" maxlength="200" autocomplete="name" />
+
+    <label class="ccm-label">Email liên hệ</label>
+    <input type="email" class="ccm-input" [(ngModel)]="email" maxlength="255" autocomplete="email" />
+
+    <label class="ccm-label">Nội dung khiếu nại <span class="req">*</span></label>
+    <textarea class="ccm-textarea" rows="5" [(ngModel)]="content" maxlength="4000"></textarea>
+
+    <div class="ccm-error" *ngIf="error">{{ error }}</div>
+
+    <div class="ccm-actions">
+      <button type="button" class="ccm-btn ccm-btn--ghost" (click)="close()" [disabled]="submitting">Hủy</button>
+      <button type="button" class="ccm-btn ccm-btn--primary" (click)="submit()" [disabled]="submitting">
+        {{ submitting ? 'Đang gửi…' : 'Gửi' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="ccm-body ccm-success" *ngIf="success">
+    <p>Đã gửi khiếu nại thành công. Chúng tôi sẽ xử lý và liên hệ lại sớm nhất có thể.</p>
+    <button type="button" class="ccm-btn ccm-btn--primary" (click)="close()">Đóng</button>
+  </div>
+</div>

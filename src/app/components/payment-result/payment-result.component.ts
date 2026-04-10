@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { LookupStateService } from '../../services/lookup-state.service';
+import { CustomerComplaintDefaults } from '../customer-complaint-modal/customer-complaint-modal.component';
 
 /** Phản hồi GET /public/orders/{id}/status */
 export interface PublicOrderStatus {
@@ -28,6 +29,9 @@ export class PaymentResultComponent implements OnInit {
   resultMessage = 'Đang xử lý kết quả thanh toán.';
   loading = false;
   error: string | null = null;
+
+  complaintModalVisible = false;
+  complaintModalDefaults: CustomerComplaintDefaults | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -137,6 +141,43 @@ export class PaymentResultComponent implements OnInit {
   private isSuccessfulPaymentStatus(status?: string): boolean {
     const s = (status || '').toUpperCase();
     return s === 'PAID' || s === 'COMPLETED';
+  }
+
+  /**
+   * Hiển thị nút khiếu nại khi đơn đã thanh toán / hoàn tất hoặc đang xử lý sau thanh toán
+   * (PAID, COMPLETED, PENDING, PROCESSING — khớp nhãn "Đang xử lý" trên giao diện).
+   */
+  canShowComplaint(): boolean {
+    if (!this.order) {
+      return false;
+    }
+    const s = (this.order.status || '').toUpperCase();
+    if (!s) {
+      return false;
+    }
+    return (
+      s === 'PAID' ||
+      s === 'COMPLETED' ||
+      s === 'PENDING' ||
+      s === 'PROCESSING'
+    );
+  }
+
+  openComplaintModal(): void {
+    if (!this.order?.id) {
+      return;
+    }
+    this.complaintModalDefaults = {
+      entryPoint: 'PAYMENT_PAGE',
+      phoneNumber: this.order.phoneNumber,
+      customerName: '',
+      email: '',
+      relatedOrderId: this.order.id,
+      orderCode: this.order.orderCode,
+      packageName: this.order.telecomPackageNameSnapshot,
+      paymentAmount: this.order.salePrice != null ? Number(this.order.salePrice) : null
+    };
+    this.complaintModalVisible = true;
   }
 }
 

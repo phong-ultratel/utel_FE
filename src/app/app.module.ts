@@ -12,6 +12,7 @@ import { DataPackagesComponent } from './components/data-packages/data-packages.
 import { PaymentMethodComponent } from './components/payment-method/payment-method.component';
 import { TermsPoliciesComponent } from './components/terms-policies/terms-policies.component';
 import { PaymentResultComponent } from './components/payment-result/payment-result.component';
+import { CustomerComplaintModalComponent } from './components/customer-complaint-modal/customer-complaint-modal.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { PaymentResultComponent } from './components/payment-result/payment-resu
     DataPackagesComponent,
     PaymentMethodComponent,
     TermsPoliciesComponent,
-    PaymentResultComponent
+    PaymentResultComponent,
+    CustomerComplaintModalComponent
   ],
   imports: [
     BrowserModule,
