@@ -44,16 +44,39 @@
 
       <div class="modal-body">
         <div class="modal-price-info">
-          <!-- Giá gốc (nếu có discount) -->
-          <div class="original-price-wrapper" *ngIf="getModalPackage() && hasDiscount(getModalPackage()!)">
-            <span class="original-price-amount">{{ formatPrice(getOriginalPrice(getModalPackage()!)) }}</span>
-            <span class="original-price-unit">₫</span>
+          <div class="modal-promo-card" *ngIf="getModalPackage() && hasDiscount(getModalPackage()!); else modalNormalPrice">
+            <div class="modal-promo-top" *ngIf="getModalPackage() && hasDiscount(getModalPackage()!)">
+              <div class="modal-discount-badge">
+                <span class="modal-discount-text">🔥 {{ getDiscountDisplay(getModalPackage()!) }}</span>
+              </div>
+              <div class="modal-saving-text">
+                Tiết kiệm {{ formatPrice(getOriginalPrice(getModalPackage()!) - (selectedFamilyPackage?.price || 0)) }}₫
+              </div>
+            </div>
+
+            <div class="modal-final-price">
+              <span class="modal-final-price-label">Chỉ còn</span>
+              <div class="modal-final-price-value">
+                <span class="modal-final-price-amount">{{ formatPrice(selectedFamilyPackage?.price || 0) }}</span>
+                <span class="modal-final-price-unit">₫</span>
+                <span class="modal-final-price-duration">/{{ selectedFamilyPackage?.duration }}</span>
+              </div>
+            </div>
+
+            <div class="modal-original-price-row" *ngIf="getModalPackage() && hasDiscount(getModalPackage()!)">
+              <span class="modal-original-price-label">Giá gốc:</span>
+              <div class="modal-original-price">
+                <span class="modal-original-price-amount">{{ formatPrice(getOriginalPrice(getModalPackage()!)) }}</span>
+                <span class="modal-original-price-unit">₫</span>
+              </div>
+            </div>
           </div>
 
-          <!-- Giá sau khuyến mại -->
-          <div class="final-price-wrapper">
-            <p class="price-text">Giá cước: <strong>{{ formatPrice(selectedFamilyPackage?.price || 0) }}₫/{{ selectedFamilyPackage?.duration }}.</strong></p>
-          </div>
+          <ng-template #modalNormalPrice>
+            <p class="modal-normal-price-text">
+              Giá cước: <strong>{{ formatPrice(selectedFamilyPackage?.price || 0) }}₫/{{ selectedFamilyPackage?.duration }}</strong>
+            </p>
+          </ng-template>
         </div>
 
         <div class="modal-benefits-section">
@@ -297,15 +320,10 @@
           <span class="ticket-banner-text">{{ pkg.name }} - {{ pkg.duration }}</span>
         </div>
 
-        <!-- Discount và Original Price góc phải trên (chỉ mobile) -->
-        <div class="mobile-discount-info" *ngIf="hasDiscount(pkg)">
-          <div class="mobile-discount-badge">
-            <span class="mobile-discount-text">{{ getDiscountDisplay(pkg) }}</span>
-          </div>
-          <div class="mobile-original-price">
-            <span class="mobile-original-price-amount">{{ formatPrice(getOriginalPrice(pkg)) }}</span>
-            <span class="mobile-original-price-unit">₫</span>
-          </div>
+        <!-- Khối khuyến mại nổi bật trên mobile -->
+        <div class="mobile-promo-ribbon" *ngIf="hasDiscount(pkg)">
+          <span class="mobile-promo-highlight">🔥 {{ getDiscountDisplay(pkg) }}</span>
+          <span class="mobile-promo-saving">Tiết kiệm {{ formatPrice(getOriginalPrice(pkg) - pkg.price) }}₫</span>
         </div>
 
         <!-- Phần đầu: Tên gói cước - Thời hạn (desktop) -->
@@ -403,8 +421,13 @@
 
           <!-- Phần phải: Giá và nút Đăng ký -->
           <div class="ticket-right-section">
-            <div class="ticket-price">
+            <div class="ticket-price" [class.has-discount]="hasDiscount(pkg)">
+              <span class="ticket-price-label" *ngIf="hasDiscount(pkg)">Chỉ còn</span>
               <div class="ticket-price-amount">{{ formatPrice(pkg.price) }}₫</div>
+              <div class="ticket-original-price" *ngIf="hasDiscount(pkg)">
+                <span class="ticket-original-price-amount">{{ formatPrice(getOriginalPrice(pkg)) }}</span>
+                <span class="ticket-original-price-unit">₫</span>
+              </div>
             </div>
             <button
               class="ticket-btn-register"
@@ -479,7 +502,8 @@
 
         <!-- Phần cuối: Giá, nút Đăng ký và Xem chi tiết (desktop) -->
         <div class="package-footer-section">
-          <div class="package-price">
+          <div class="package-price" [class.has-discount]="hasDiscount(pkg)">
+            <div class="promo-highlight-text" *ngIf="hasDiscount(pkg)">Ưu đãi hôm nay</div>
             <!-- Hàng ngang: Badge khuyến mại và Giá gốc -->
             <div class="discount-row" *ngIf="hasDiscount(pkg)">
               <div class="discount-badge">
@@ -490,9 +514,13 @@
                 <span class="original-price-unit">₫</span>
               </div>
             </div>
+            <div class="promo-saving-text" *ngIf="hasDiscount(pkg)">
+              Tiết kiệm {{ formatPrice(getOriginalPrice(pkg) - pkg.price) }}₫
+            </div>
 
             <!-- Giá sau khuyến mại -->
             <div class="final-price-wrapper">
+              <span class="price-label" *ngIf="hasDiscount(pkg)">Chỉ còn</span>
               <span class="price-amount">{{ formatPrice(pkg.price) }}</span>
               <span class="price-unit">₫</span>
             </div>
@@ -541,15 +569,10 @@
           <span class="ticket-banner-text">{{ pkg.name }} - {{ pkg.duration }}</span>
         </div>
 
-        <!-- Discount và Original Price góc phải trên (chỉ mobile) -->
-        <div class="mobile-discount-info" *ngIf="hasDiscount(pkg)">
-          <div class="mobile-discount-badge">
-            <span class="mobile-discount-text">{{ getDiscountDisplay(pkg) }}</span>
-          </div>
-          <div class="mobile-original-price">
-            <span class="mobile-original-price-amount">{{ formatPrice(getOriginalPrice(pkg)) }}</span>
-            <span class="mobile-original-price-unit">₫</span>
-          </div>
+        <!-- Khối khuyến mại nổi bật trên mobile -->
+        <div class="mobile-promo-ribbon" *ngIf="hasDiscount(pkg)">
+          <span class="mobile-promo-highlight">🔥 {{ getDiscountDisplay(pkg) }}</span>
+          <span class="mobile-promo-saving">Tiết kiệm {{ formatPrice(getOriginalPrice(pkg) - pkg.price) }}₫</span>
         </div>
 
         <!-- Phần đầu: Tên gói cước - Thời hạn (desktop) -->
@@ -647,8 +670,13 @@
 
           <!-- Phần phải: Giá và nút Đăng ký -->
           <div class="ticket-right-section">
-            <div class="ticket-price">
+            <div class="ticket-price" [class.has-discount]="hasDiscount(pkg)">
+              <span class="ticket-price-label" *ngIf="hasDiscount(pkg)">Chỉ còn</span>
               <div class="ticket-price-amount">{{ formatPrice(pkg.price) }}₫</div>
+              <div class="ticket-original-price" *ngIf="hasDiscount(pkg)">
+                <span class="ticket-original-price-amount">{{ formatPrice(getOriginalPrice(pkg)) }}</span>
+                <span class="ticket-original-price-unit">₫</span>
+              </div>
             </div>
             <button
               class="ticket-btn-register"
@@ -723,7 +751,8 @@
 
         <!-- Phần cuối: Giá, nút Đăng ký và Xem chi tiết (desktop) -->
         <div class="package-footer-section">
-          <div class="package-price">
+          <div class="package-price" [class.has-discount]="hasDiscount(pkg)">
+            <div class="promo-highlight-text" *ngIf="hasDiscount(pkg)">Ưu đãi hôm nay</div>
             <!-- Hàng ngang: Badge khuyến mại và Giá gốc -->
             <div class="discount-row" *ngIf="hasDiscount(pkg)">
               <div class="discount-badge">
@@ -734,9 +763,13 @@
                 <span class="original-price-unit">₫</span>
               </div>
             </div>
+            <div class="promo-saving-text" *ngIf="hasDiscount(pkg)">
+              Tiết kiệm {{ formatPrice(getOriginalPrice(pkg) - pkg.price) }}₫
+            </div>
 
             <!-- Giá sau khuyến mại -->
             <div class="final-price-wrapper">
+              <span class="price-label" *ngIf="hasDiscount(pkg)">Chỉ còn</span>
               <span class="price-amount">{{ formatPrice(pkg.price) }}</span>
               <span class="price-unit">₫</span>
             </div>
