@@ -143,6 +143,21 @@ export class PaymentMethodComponent implements OnInit {
     this.back.emit();
   }
 
+  /**
+   * JSON lưu trên Order (backend) để khi đơn hoàn tất tạo Hóa đơn + Chủ thể hóa đơn.
+   */
+  private buildInvoiceRequestSnapshot(): string | null {
+    if (!this.requestInvoice || !this.invoiceSubmitted) {
+      return JSON.stringify({ requestInvoice: false, invoiceType: this.invoiceType });
+    }
+    return JSON.stringify({
+      requestInvoice: true,
+      invoiceType: this.invoiceType,
+      individual: { ...this.invoiceData.individual },
+      company: { ...this.invoiceData.company }
+    });
+  }
+
   continue(): void {
     if (this.isProcessingPayment) {
       return;
@@ -150,6 +165,11 @@ export class PaymentMethodComponent implements OnInit {
 
     if (!this.selectedPaymentMethod) {
       alert('Vui lòng chọn phương thức thanh toán');
+      return;
+    }
+
+    if (this.requestInvoice && !this.invoiceSubmitted) {
+      alert('Vui lòng hoàn tất thông tin xuất hóa đơn trong cửa sổ yêu cầu.');
       return;
     }
 
@@ -188,7 +208,8 @@ export class PaymentMethodComponent implements OnInit {
       telecomPackageCodeSnapshot: this.telecomPackageCodeSnapshot,
       telecomPackageNameSnapshot: this.telecomPackageNameSnapshot,
       sessionId: this.sessionId,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      invoiceRequestSnapshot: this.buildInvoiceRequestSnapshot()
     };
 
     this.http.post<any>(`${environment.apiBaseUrl}/public/orders`, orderPayload).subscribe({
