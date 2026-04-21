@@ -31,7 +31,7 @@
       </div>
 
       <div class="complaint-row" *ngIf="canShowComplaint()">
-        <button type="button" class="btn-complaint" (click)="openComplaintModal()">Báo lỗi / Khiếu nại</button>
+        <button type="button" class="btn-complaint" (click)="openComplaintModal()">{{ getComplaintButtonLabel() }}</button>
       </div>
     </div>
 

@@ -144,8 +144,8 @@ export class PaymentResultComponent implements OnInit {
   }
 
   /**
-   * Hiển thị nút khiếu nại khi đơn đã thanh toán / hoàn tất hoặc đang xử lý sau thanh toán
-   * (PAID, COMPLETED, PENDING, PROCESSING — khớp nhãn "Đang xử lý" trên giao diện).
+   * Hiển thị nút khiếu nại khi đơn đã thanh toán / hoàn tất, đang xử lý sau thanh toán,
+   * hoặc thanh toán thất bại (FAILED).
    */
   canShowComplaint(): boolean {
     if (!this.order) {
@@ -159,8 +159,15 @@ export class PaymentResultComponent implements OnInit {
       s === 'PAID' ||
       s === 'COMPLETED' ||
       s === 'PENDING' ||
-      s === 'PROCESSING'
+      s === 'PROCESSING' ||
+      s === 'FAILED'
     );
+  }
+
+  /** Nhãn nút: đơn thất bại dùng "Báo cáo/ Khiếu nại", các trường hợp khác giữ nguyên. */
+  getComplaintButtonLabel(): string {
+    const s = (this.order?.status || '').toUpperCase();
+    return s === 'FAILED' ? 'Báo cáo/ Khiếu nại' : 'Báo lỗi / Khiếu nại';
   }
 
   openComplaintModal(): void {
