@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { LookupStateService } from '../../services/lookup-state.service';
@@ -36,7 +36,8 @@ export class PaymentResultComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
-    private lookupState: LookupStateService
+    private lookupState: LookupStateService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -185,6 +186,10 @@ export class PaymentResultComponent implements OnInit {
       paymentAmount: this.order.salePrice != null ? Number(this.order.salePrice) : null
     };
     this.complaintModalVisible = true;
+  }
+
+  onComplaintSuccessClose(): void {
+    this.router.navigateByUrl('/');
   }
 }
 

@@ -41,6 +41,7 @@
   <app-customer-complaint-modal
     [(visible)]="complaintModalVisible"
     [defaults]="complaintModalDefaults"
+    (successClose)="onComplaintSuccessClose()"
   ></app-customer-complaint-modal>
 </div>
 

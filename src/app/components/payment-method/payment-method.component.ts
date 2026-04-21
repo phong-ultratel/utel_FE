@@ -144,18 +144,23 @@ export class PaymentMethodComponent implements OnInit {
   }
 
   /**
-   * JSON lưu trên Order (backend) để khi đơn hoàn tất tạo Hóa đơn + Chủ thể hóa đơn.
+   * Payload lưu trên Order (backend deserialize thành chuỗi JSON). Gửi object để tránh lỗi stringify kép.
    */
-  private buildInvoiceRequestSnapshot(): string | null {
+  private buildInvoiceRequestSnapshot(): Record<string, unknown> {
     if (!this.requestInvoice || !this.invoiceSubmitted) {
-      return JSON.stringify({ requestInvoice: false, invoiceType: this.invoiceType });
+      return { requestInvoice: false, invoiceType: this.invoiceType };
     }
-    return JSON.stringify({
+    const individualTaxId = this.invoiceData.individual.idCard?.trim() ?? '';
+    return {
       requestInvoice: true,
       invoiceType: this.invoiceType,
-      individual: { ...this.invoiceData.individual },
+      individual: {
+        ...this.invoiceData.individual,
+        // Quy ước nghiệp vụ: với cá nhân, số CCCD/CMND cũng là mã số thuế.
+        taxId: individualTaxId
+      },
       company: { ...this.invoiceData.company }
-    });
+    };
   }
 
   continue(): void {

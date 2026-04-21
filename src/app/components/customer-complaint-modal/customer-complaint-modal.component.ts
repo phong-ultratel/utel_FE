@@ -26,6 +26,7 @@ export class CustomerComplaintModalComponent implements OnChanges {
   @Input() defaults: CustomerComplaintDefaults | null = null;
 
   @Output() visibleChange = new EventEmitter<boolean>();
+  @Output() successClose = new EventEmitter<void>();
 
   phoneNumber = '';
   customerName = '';
@@ -98,6 +99,11 @@ export class CustomerComplaintModalComponent implements OnChanges {
   close(): void {
     this.visible = false;
     this.visibleChange.emit(false);
+  }
+
+  closeAfterSuccess(): void {
+    this.close();
+    this.successClose.emit();
   }
 
   submit(): void {
