@@ -91,6 +91,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   selectedPriceSort: string | null = 'asc';
 
   packages: DisplayPackage[] = [];
+  private catalogPackages: DisplayPackage[] = [];
   filteredPackages: DisplayPackage[] = [];
   packageCount: number = 0;
   groupedPackages: PackageGroup[] = [];
@@ -255,6 +256,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         }
 
         this.packages = response.packages.map((pkg, index) => this.convertToDisplayPackage(pkg, index));
+        this.catalogPackages = [...this.packages];
         console.log('Converted packages:', this.packages.length);
         this.applyFilters();
         this.loading = false;
@@ -770,7 +772,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         // Tìm package tương ứng trong danh sách đã load để lấy thông tin discount đầy đủ
         const familyPackagesList = this.suggestedPackages.map((sp, idx) => {
           // Tìm package tương ứng trong danh sách đã load để lấy discount info
-          const existingPackage = this.packages.find(p => p.packageCode === sp.packageCode);
+          const existingPackage = this.findCatalogPackageByCode(sp.packageCode);
           if (existingPackage) {
             // Nếu tìm thấy, dùng thông tin từ package đã load (có discount)
             return {
@@ -1191,33 +1193,43 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   private convertTelecomPackageToDisplay(pkg: TelecomPackageDto, index: number): DisplayPackage {
     const validityDays = pkg.validityDays || 1;
     const lookupPkg = pkg as any;
-    const matchedCatalogPkg = this.packages.find(p => p.packageCode === pkg.packageCode);
+    const matchedCatalogPkg = this.findCatalogPackageByCode(pkg.packageCode);
+
+    // Nếu gói đã có sẵn trong DB/catalog thì giữ nguyên cách hiển thị như trước tra cứu.
+    if (matchedCatalogPkg) {
+      const normalizedValidityDays = matchedCatalogPkg.validityDays || validityDays;
+      return {
+        ...matchedCatalogPkg,
+        packageCode: pkg.packageCode,
+        displayName: matchedCatalogPkg.displayName || pkg.displayName,
+        name: matchedCatalogPkg.name || pkg.displayName,
+        validityDays: normalizedValidityDays,
+        durationDays: normalizedValidityDays,
+        duration: `${normalizedValidityDays} ngày`,
+        familyId: pkg.family?.code || matchedCatalogPkg.familyId
+      };
+    }
 
     // Lookup payload thường chỉ có originalPrice; nếu có thêm salePrice/discount thì ưu tiên dùng.
     // Nếu thiếu, fallback sang dữ liệu catalog hiện có để không mất badge khuyến mại sau "Tra cứu".
     const salePrice =
       (typeof lookupPkg.salePrice === 'number' ? lookupPkg.salePrice : undefined) ??
-      matchedCatalogPkg?.price ??
       pkg.originalPrice ??
       0;
 
     const originalPrice =
       (typeof lookupPkg.originalPrice === 'number' ? lookupPkg.originalPrice : undefined) ??
-      matchedCatalogPkg?.originalPrice ??
       salePrice;
 
     const discountPercent =
-      (typeof lookupPkg.discountPercent === 'number' ? lookupPkg.discountPercent : undefined) ??
-      matchedCatalogPkg?.discountPercent;
+      (typeof lookupPkg.discountPercent === 'number' ? lookupPkg.discountPercent : undefined);
 
     const discountAmount =
       (typeof lookupPkg.discountAmount === 'number' ? lookupPkg.discountAmount : undefined) ??
-      (typeof lookupPkg.discountValue === 'number' ? lookupPkg.discountValue : undefined) ??
-      matchedCatalogPkg?.discountAmount;
+      (typeof lookupPkg.discountValue === 'number' ? lookupPkg.discountValue : undefined);
 
     const discountText =
-      (typeof lookupPkg.discountText === 'string' ? lookupPkg.discountText : undefined) ??
-      matchedCatalogPkg?.discountText;
+      (typeof lookupPkg.discountText === 'string' ? lookupPkg.discountText : undefined);
 
     // Ưu đãi/mô tả: ưu tiên specialInfo, benefitDetail; luôn có fallback để package-info-list có ít nhất một info-value
     const specialInfoText =
@@ -1254,6 +1266,13 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     display.familyId = pkg.family?.code || display.familyId;
 
     return display;
+  }
+
+  private findCatalogPackageByCode(packageCode: string): DisplayPackage | undefined {
+    if (!packageCode) {
+      return undefined;
+    }
+    return this.catalogPackages.find(p => p.packageCode === packageCode) || this.packages.find(p => p.packageCode === packageCode);
   }
 
   getUtilityIconUrl(utilityName: string): string | null {
