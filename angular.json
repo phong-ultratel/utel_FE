@@ -85,6 +85,20 @@
                 }
               ],
               "outputHashing": "all"
+            },
+            "be7979": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.be7979.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -103,6 +117,12 @@
             },
             "prod.local": {
               "browserTarget": "utel_FE:build:prod.local"
+            },
+            "be7979": {
+              "browserTarget": "utel_FE:build:be7979",
+              "proxyConfig": "proxy.conf.be7979.json",
+              "host": "0.0.0.0",
+              "disableHostCheck": true
             }
           },
           "defaultConfiguration": "development"
