@@ -55,6 +55,7 @@ interface PackageGroup {
   styleUrls: ['./data-packages.component.scss']
 })
 export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestroy {
+  private readonly defaultProvider: TelecomProviderCode = 'VIETTEL';
   providers: TelecomProvider[] = [
     {
       code: 'VIETTEL',
@@ -128,6 +129,13 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   lookupStatus$!: Observable<LookupStatus>;
   lookedUpPhoneDisplay$!: Observable<string | null>;
   lookedUpProviderName$!: Observable<string | null>;
+  private preLookupState: {
+    selectedProvider: TelecomProviderCode;
+    selectedPackageType: string;
+    selectedDuration: string;
+    selectedPriceSort: string | null;
+    searchQuery: string;
+  } | null = null;
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -1049,6 +1057,16 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     const msisdn = normalized;
     const sessionId = this.lookupState.getOrCreateSessionId();
 
+    if (!this.preLookupState && this.lookupState.currentStatus !== 'success') {
+      this.preLookupState = {
+        selectedProvider: this.selectedProvider,
+        selectedPackageType: this.selectedPackageType,
+        selectedDuration: this.selectedDuration,
+        selectedPriceSort: this.selectedPriceSort,
+        searchQuery: this.searchQuery
+      };
+    }
+
     this.loading = true;
     this.error = null;
     this.lookupError = null;
@@ -1150,17 +1168,24 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
 
   /** Reset lookup: về idle, xóa số, load lại catalog, scroll + focus input */
   resetLookup(): void {
+    const stateBeforeLookup = this.preLookupState;
     this.lookupState.reset();
     this.subscriberNumber = '';
+    this.searchService.clearSearch();
+    this.searchQuery = '';
     this.isProviderLocked = false;
     this.error = null;
     this.lookupError = null;
     this.lookupDone = false;
-    this.selectedPackageType = 'all'; // Reset về tab "Tất cả"
+    this.selectedProvider = stateBeforeLookup?.selectedProvider ?? this.defaultProvider;
+    this.selectedPackageType = stateBeforeLookup?.selectedPackageType ?? 'all';
+    this.selectedDuration = stateBeforeLookup?.selectedDuration ?? 'all';
+    this.selectedPriceSort = stateBeforeLookup?.selectedPriceSort ?? 'asc';
     this.group1Packages = [];
     this.group2Packages = [];
     this.group3Packages = [];
     this.group4Packages = [];
+    this.preLookupState = null;
     this.loadPackages();
   }
 
