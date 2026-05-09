@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:8080/api'
+  // In LAN, FE may be opened from another device. Use current host instead of fixed localhost.
+  apiBaseUrl: `http://${window.location.hostname || 'localhost'}:8080/api`
 };
 
 /*
