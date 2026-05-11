@@ -1328,6 +1328,15 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     }, 50);
   }
 
+  /** Cuộn tới form tra cứu từ banner khuyến mãi (CTA). */
+  scrollPromoToLookup(): void {
+    document.getElementById('lookup-section')?.scrollIntoView({behavior: 'smooth', block: 'start'});
+    setTimeout(() => {
+      const input = document.getElementById('lookup-input') as HTMLInputElement | null;
+      input?.focus({preventScroll: true});
+    }, 450);
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

@@ -111,10 +111,31 @@
 
   <!-- Packages List -->
   <div class="packages-container" *ngIf="!showPaymentMethod">
-    <div class="section-header">
-      <h2 class="section-title">Chọn Gói Data Phù Hợp</h2>
-      <p class="section-subtitle">Nhiều lựa chọn với giá cả hợp lý, đáp ứng mọi nhu cầu sử dụng</p>
-    </div>
+    <section class="promo-banner" role="region" aria-label="Khuyến mãi Ultratel">
+      <div class="promo-banner__card">
+        <div class="promo-banner__text">
+          <div class="promo-banner__tags">
+            <span class="promo-banner__badge" aria-hidden="true">-15%</span>
+            <span class="promo-banner__pill">Chỉ trên Ultratel</span>
+          </div>
+          <h2 class="promo-banner__title">Giảm đến 15% khi đăng ký gói cước qua Ultratel</h2>
+          <p class="promo-banner__sub">
+            Nhiều lựa chọn với giá hợp lý — đăng ký online, xử lý nhanh. Mức giảm tùy từng gói cước.
+          </p>
+          <button type="button" class="promo-banner__cta" (click)="scrollPromoToLookup()">
+            Tra cứu và chọn gói
+          </button>
+        </div>
+        <div class="promo-banner__visual" aria-hidden="true">
+          <span class="promo-banner__orb promo-banner__orb--1"></span>
+          <span class="promo-banner__orb promo-banner__orb--2"></span>
+          <span class="promo-banner__orb promo-banner__orb--3"></span>
+        </div>
+      </div>
+      <p class="promo-banner__footnote">
+        Điều kiện áp dụng theo từng nhà mạng và gói cước tại thời điểm đăng ký.
+      </p>
+    </section>
 
     <!-- Loading State -->
     <div *ngIf="loading" class="loading-container" style="text-align: center; padding: 40px;">

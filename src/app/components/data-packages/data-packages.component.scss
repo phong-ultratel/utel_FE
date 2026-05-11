@@ -28,6 +28,169 @@
   margin: 0 auto;
 }
 
+// Banner khuyến mãi (thay section-header)
+.promo-banner {
+  margin-bottom: 50px;
+}
+
+.promo-banner__card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 28px 36px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #9c000c 0%, #E60012 42%, #ff5a68 100%);
+  box-shadow: 0 12px 40px rgba(230, 0, 18, 0.28);
+  color: #ffffff;
+  overflow: hidden;
+  position: relative;
+}
+
+.promo-banner__text {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.promo-banner__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.promo-banner__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #ffc400;
+  color: #1a1a1a;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.promo-banner__pill {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.promo-banner__title {
+  margin: 0 0 12px 0;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.promo-banner__sub {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.92);
+  max-width: 560px;
+}
+
+.promo-banner__cta {
+  margin-top: 20px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #E60012;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    background: #fff5f5;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 3px;
+  }
+}
+
+.promo-banner__visual {
+  position: relative;
+  flex-shrink: 0;
+  width: 140px;
+  height: 120px;
+}
+
+.promo-banner__orb {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.28);
+}
+
+.promo-banner__orb--1 {
+  width: 100px;
+  height: 100px;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.promo-banner__orb--2 {
+  width: 56px;
+  height: 56px;
+  right: 72px;
+  top: 8px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.promo-banner__orb--3 {
+  width: 36px;
+  height: 36px;
+  right: 48px;
+  bottom: 4px;
+  background: rgba(255, 196, 0, 0.35);
+  border-color: rgba(255, 220, 120, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-banner__cta {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+.promo-banner__footnote {
+  margin: 12px 0 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #6b7280;
+  text-align: center;
+}
+
 // Login Form Section
 .login-form-section {
   display: flex;
@@ -1020,6 +1183,50 @@
     display: none; // Ẩn subtitle để tiết kiệm không gian
   }
 
+  .promo-banner {
+    margin-bottom: 24px;
+  }
+
+  .promo-banner__card {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 22px 20px;
+    gap: 16px;
+  }
+
+  .promo-banner__text {
+    text-align: center;
+  }
+
+  .promo-banner__tags {
+    justify-content: center;
+  }
+
+  .promo-banner__title {
+    font-size: 20px;
+  }
+
+  .promo-banner__sub {
+    font-size: 14px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .promo-banner__cta {
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px 20px;
+  }
+
+  .promo-banner__visual {
+    display: none;
+  }
+
+  .promo-banner__footnote {
+    font-size: 11px;
+    padding: 0 4px;
+  }
+
   .login-form-section {
     margin-bottom: 20px;
   }
@@ -1610,6 +1817,28 @@
 
   .section-subtitle {
     display: none;
+  }
+
+  .promo-banner {
+    margin-bottom: 18px;
+  }
+
+  .promo-banner__card {
+    padding: 18px 16px;
+  }
+
+  .promo-banner__badge {
+    font-size: 18px;
+    min-width: 56px;
+    padding: 7px 12px;
+  }
+
+  .promo-banner__title {
+    font-size: 18px;
+  }
+
+  .promo-banner__sub {
+    font-size: 13px;
   }
 
   .filter-section {
