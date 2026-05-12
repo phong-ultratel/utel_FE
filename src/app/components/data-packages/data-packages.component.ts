@@ -1315,13 +1315,13 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   }
 
   onSubscriberInput(): void {
-    if (this.lookupError === 'Hãy nhập số điện thoại để tra cứu gói cước phù hợp') {
+    if (this.lookupError === 'Hãy nhập số điện thoại để tra cứu gói cước') {
       this.lookupError = null;
     }
   }
 
   private showLookupRequiredMessage(): void {
-    this.lookupError = 'Hãy nhập số điện thoại để tra cứu gói cước';
+    this.lookupError = 'Hãy nhập số điện thoại để tra cứu gói cước phù hợp.';
     setTimeout(() => {
       document.getElementById('lookup-section')?.scrollIntoView({behavior: 'smooth', block: 'center'});
       setTimeout(() => (document.getElementById('lookup-input') as HTMLInputElement)?.focus(), 250);
