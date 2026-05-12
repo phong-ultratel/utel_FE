@@ -4,7 +4,7 @@ import {SearchService} from '../../services/search.service';
 import {LookupStateService, LookupStatus} from '../../services/lookup-state.service';
 import {PackageCardDto, TelecomProviderCode, CallRaw, PackageFamilyMode} from '../../models/package.model';
 import {PackageDetailResponse, SuggestedPackageDto} from '../../models/package-detail.model';
-import {Observable, Subject, takeUntil, pairwise, startWith} from 'rxjs';
+import {Observable, Subject, takeUntil} from 'rxjs';
 import {TelcoService, TelecomPackageDto} from '../../services/telco.service';
 
 // Interface tương thích với template hiện tại
@@ -198,23 +198,6 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       this.lookupDone = false;
       this.loadPackages();
     }
-
-    // Khi reset từ success -> idle: scroll về lookup và focus input
-    this.lookupState
-      .getStatus()
-      .pipe(
-        startWith(this.lookupState.currentStatus),
-        pairwise(),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(([prev, curr]) => {
-        if (prev === 'success' && curr === 'idle') {
-          setTimeout(() => {
-            document.getElementById('lookup-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            setTimeout(() => (document.getElementById('lookup-input') as HTMLInputElement)?.focus(), 300);
-          }, 50);
-        }
-      });
 
     this.searchService.searchQuery$
       .pipe(takeUntil(this.destroy$))
@@ -1162,6 +1145,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     this.group3Packages = [];
     this.group4Packages = [];
     this.loadPackages();
+    this.scrollToLookupInputAndFocus();
   }
 
   /** Format số điện thoại để hiển thị: 0xx xxx xxx */
@@ -1330,11 +1314,26 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
 
   /** Cuộn tới form tra cứu từ banner khuyến mãi (CTA). */
   scrollPromoToLookup(): void {
-    document.getElementById('lookup-section')?.scrollIntoView({behavior: 'smooth', block: 'start'});
-    setTimeout(() => {
-      const input = document.getElementById('lookup-input') as HTMLInputElement | null;
-      input?.focus({preventScroll: true});
-    }, 450);
+    this.scrollToLookupInputAndFocus();
+  }
+
+  /**
+   * Cuộn đến ô nhập số thuê bao và focus — gọi sau khi đảm bảo view đã render input
+   * (sau reset tra cứu hoặc từ CTA banner).
+   */
+  private scrollToLookupInputAndFocus(): void {
+    this.cdr.detectChanges();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const input = document.getElementById('lookup-input') as HTMLInputElement | null;
+        if (input) {
+          input.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});
+          setTimeout(() => input.focus({preventScroll: true}), 450);
+        } else {
+          document.getElementById('lookup-section')?.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+      });
+    });
   }
 
   ngOnDestroy(): void {
