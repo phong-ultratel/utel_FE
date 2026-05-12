@@ -1315,7 +1315,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   }
 
   onSubscriberInput(): void {
-    if (this.lookupError === 'Hãy nhập số điện thoại để tra cứu gói cước') {
+    if (this.lookupError === 'Hãy nhập số điện thoại để tra cứu gói cước phù hợp') {
       this.lookupError = null;
     }
   }
