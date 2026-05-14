@@ -106,6 +106,49 @@ export class CustomerComplaintModalComponent implements OnChanges {
     this.successClose.emit();
   }
 
+  /** Bản đồ khóa lỗi JHipster (error.*) từ API public/cskh-complaints → thông báo tiếng Việt. */
+  private static readonly CSKH_PUBLIC_ERROR_MESSAGES: Record<string, string> = {
+    'error.orderbadstatus':
+      'Đơn hàng không ở trạng thái cho phép gửi khiếu nại từ trang thanh toán (cần đã thanh toán, đang xử lý hoặc hoàn tất).',
+    'error.orderrequired': 'Thiếu mã đơn hàng liên quan.',
+    'error.ordernotfound': 'Không tìm thấy đơn hàng.',
+    'error.phonemismatch': 'Số thuê bao không khớp với đơn hàng.',
+    'error.badentry': 'Thông tin gửi không hợp lệ.'
+  };
+
+  private formatHttpError(err: unknown): string {
+    const fallback = 'Không gửi được khiếu nại. Vui lòng thử lại hoặc liên hệ hotline.';
+    const e = (err as { error?: unknown })?.error;
+    if (typeof e === 'string' && e.trim()) {
+      return e.trim();
+    }
+    if (!e || typeof e !== 'object') {
+      return fallback;
+    }
+    const body = e as Record<string, unknown>;
+    const detail = typeof body['detail'] === 'string' ? body['detail'].trim() : '';
+    const title = typeof body['title'] === 'string' ? body['title'].trim() : '';
+    const message = typeof body['message'] === 'string' ? body['message'].trim() : '';
+
+    if (detail) {
+      return detail;
+    }
+    const mapped = message ? CustomerComplaintModalComponent.CSKH_PUBLIC_ERROR_MESSAGES[message] : undefined;
+    if (mapped) {
+      return mapped;
+    }
+    if (title && title !== 'Bad Request') {
+      return title;
+    }
+    if (message) {
+      return message;
+    }
+    if (title) {
+      return title;
+    }
+    return fallback;
+  }
+
   submit(): void {
     this.error = null;
     const phone = this.phoneNumber.trim();
@@ -139,17 +182,7 @@ export class CustomerComplaintModalComponent implements OnChanges {
       },
       error: (err) => {
         this.submitting = false;
-        const e = err?.error;
-        let msg: string | undefined;
-        if (typeof e === 'string') {
-          msg = e;
-        } else if (e && typeof e === 'object') {
-          msg = (e.detail || e.message || e.title) as string;
-        }
-        this.error =
-          typeof msg === 'string' && msg.trim()
-            ? msg
-            : 'Không gửi được khiếu nại. Vui lòng thử lại hoặc liên hệ hotline.';
+        this.error = this.formatHttpError(err);
       }
     });
   }
