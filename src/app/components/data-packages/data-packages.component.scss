@@ -1070,16 +1070,25 @@
 
 .discount-badge {
   display: inline-block;
-  background: linear-gradient(135deg, #E60012 0%, #ff1a2e 100%);
+  background: linear-gradient(
+    120deg,
+    #c40010 0%,
+    #E60012 35%,
+    #ff4d5e 50%,
+    #E60012 65%,
+    #c40010 100%
+  );
+  background-size: 220% 100%;
   color: #fff;
   padding: 3px 9px;
   border-radius: 16px;
   font-size: 11px;
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(230, 0, 18, 0.3);
-  animation: none;
+  box-shadow: 0 2px 8px rgba(230, 0, 18, 0.35);
+  animation: discount-pulse-glow 2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
   flex-shrink: 0;
   line-height: 1.2;
+  will-change: transform, box-shadow, background-position;
 
   .discount-text {
     display: inline-block;
@@ -1087,39 +1096,53 @@
   }
 }
 
-.package-card:hover .discount-badge {
-  animation: pulse 0.6s ease-in-out 2;
-}
-
-@keyframes pulse {
+@keyframes discount-pulse-glow {
   0%, 100% {
+    background-position: 0% 50%;
     transform: scale(1);
+    box-shadow:
+      0 2px 8px rgba(230, 0, 18, 0.35),
+      0 0 0 0 rgba(230, 0, 18, 0);
   }
-  50% {
-    transform: scale(1.05);
+  45% {
+    background-position: 100% 50%;
+    transform: scale(1.07);
+    box-shadow:
+      0 4px 16px rgba(230, 0, 18, 0.55),
+      0 0 0 5px rgba(230, 0, 18, 0.12);
+  }
+  70% {
+    background-position: 60% 50%;
+    transform: scale(1.03);
+    box-shadow:
+      0 3px 12px rgba(230, 0, 18, 0.42),
+      0 0 0 2px rgba(230, 0, 18, 0.06);
   }
 }
 
 .original-price-wrapper {
-  opacity: 0.7;
+  opacity: 1;
   display: flex;
   align-items: baseline;
   gap: 2px;
   line-height: 1.1;
 
   .original-price-amount {
-    font-size: 14px;
-    font-weight: 500;
-    color: #999;
+    font-size: 17px;
+    font-weight: 600;
+    color: #666;
     text-decoration: line-through;
-    text-decoration-thickness: 1.5px;
-    text-decoration-color: #999;
+    text-decoration-thickness: 2px;
+    text-decoration-color: #888;
   }
 
   .original-price-unit {
-    font-size: 12px;
-    color: #999;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
     text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    text-decoration-color: #888;
   }
 }
 
@@ -1557,30 +1580,72 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: 10px;
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     z-index: 11;
-    padding: 6px 10px;
+    padding: 7px 10px;
     border-radius: 8px 8px 0 0;
-    background: linear-gradient(90deg, #fff1f2 0%, #ffe1e4 100%);
-    border-bottom: 1px solid #ffd4d8;
+    background: linear-gradient(90deg, #fff5f6 0%, #ffe8eb 45%, #fff0f2 100%);
+    background-size: 200% 100%;
+    animation: mobile-ribbon-shimmer 5s ease-in-out infinite;
+    border-bottom: 1px solid #ffc8ce;
+    box-shadow: 0 2px 8px rgba(230, 0, 18, 0.06);
   }
 
-  .mobile-promo-highlight {
-    font-size: 11px;
+  .mobile-promo-discount-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px 4px 7px;
+    border-radius: 20px;
+    background: linear-gradient(
+      120deg,
+      #c40010 0%,
+      #E60012 35%,
+      #ff4d5e 50%,
+      #E60012 65%,
+      #c40010 100%
+    );
+    background-size: 220% 100%;
+    color: #fff;
+    font-size: 12px;
     font-weight: 700;
-    color: #b80010;
+    line-height: 1.2;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(230, 0, 18, 0.35);
+    animation: mobile-discount-pulse 2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    will-change: transform, box-shadow, background-position;
+  }
+
+  .mobile-promo-icon {
+    display: inline-block;
+    font-size: 13px;
+    line-height: 1;
+    animation: mobile-fire-flicker 1.4s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .mobile-promo-percent {
+    letter-spacing: 0.3px;
     white-space: nowrap;
   }
 
   .mobile-promo-saving {
     font-size: 11px;
-    font-weight: 600;
-    color: #d32f2f;
+    font-weight: 500;
+    color: #8b1a1a;
     text-align: right;
+    line-height: 1.25;
+    flex: 1;
+    min-width: 0;
+
+    strong {
+      font-weight: 700;
+      color: #c62828;
+    }
   }
 
   // Layout ticket
@@ -1667,16 +1732,21 @@
   }
 
   .ticket-original-price-amount {
-    font-size: 11px;
-    color: #888;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
     text-decoration: line-through;
-    text-decoration-thickness: 1px;
+    text-decoration-thickness: 2px;
+    text-decoration-color: #888;
   }
 
   .ticket-original-price-unit {
-    font-size: 9px;
-    color: #888;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
     text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    text-decoration-color: #888;
   }
 
   .ticket-btn-register {
@@ -1856,11 +1926,11 @@
 
   .original-price-wrapper {
     .original-price-amount {
-      font-size: 13px;
+      font-size: 16px;
     }
 
     .original-price-unit {
-      font-size: 11px;
+      font-size: 13px;
     }
   }
 
@@ -2031,11 +2101,20 @@
   }
 
   .mobile-promo-ribbon {
-    padding: 5px 8px;
-    gap: 6px;
+    padding: 6px 8px;
+    gap: 8px;
   }
 
-  .mobile-promo-highlight,
+  .mobile-promo-discount-badge {
+    padding: 3px 8px 3px 6px;
+    font-size: 11px;
+    border-radius: 16px;
+  }
+
+  .mobile-promo-icon {
+    font-size: 12px;
+  }
+
   .mobile-promo-saving {
     font-size: 10px;
   }
@@ -2088,11 +2167,11 @@
   }
 
   .ticket-original-price-amount {
-    font-size: 10px;
+    font-size: 13px;
   }
 
   .ticket-original-price-unit {
-    font-size: 9px;
+    font-size: 11px;
   }
 
   .package-info-list {
@@ -2163,11 +2242,11 @@
 
   .original-price-wrapper {
     .original-price-amount {
-      font-size: 11px;
+      font-size: 15px;
     }
 
     .original-price-unit {
-      font-size: 10px;
+      font-size: 12px;
     }
   }
 
@@ -2355,15 +2434,73 @@
   }
 }
 
+@keyframes mobile-discount-pulse {
+  0%, 100% {
+    background-position: 0% 50%;
+    transform: scale(1);
+    box-shadow:
+      0 2px 8px rgba(230, 0, 18, 0.35),
+      0 0 0 0 rgba(230, 0, 18, 0);
+  }
+  45% {
+    background-position: 100% 50%;
+    transform: scale(1.08);
+    box-shadow:
+      0 4px 14px rgba(230, 0, 18, 0.5),
+      0 0 0 4px rgba(230, 0, 18, 0.14);
+  }
+  70% {
+    background-position: 60% 50%;
+    transform: scale(1.04);
+    box-shadow:
+      0 3px 10px rgba(230, 0, 18, 0.4),
+      0 0 0 2px rgba(230, 0, 18, 0.07);
+  }
+}
+
+@keyframes mobile-fire-flicker {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  30% {
+    transform: scale(1.18) rotate(-8deg);
+  }
+  60% {
+    transform: scale(1.12) rotate(8deg);
+  }
+  80% {
+    transform: scale(1.15) rotate(-4deg);
+  }
+}
+
+@keyframes mobile-ribbon-shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
 .family-tab-discount {
   display: inline-block;
-  background: linear-gradient(135deg, #E60012 0%, #ff1a2e 100%);
+  background: linear-gradient(
+    120deg,
+    #c40010 0%,
+    #E60012 35%,
+    #ff4d5e 50%,
+    #E60012 65%,
+    #c40010 100%
+  );
+  background-size: 220% 100%;
   color: #fff;
   padding: 3px 10px;
   border-radius: 16px;
   font-size: 12px;
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(230, 0, 18, 0.3);
+  box-shadow: 0 2px 8px rgba(230, 0, 18, 0.35);
+  animation: discount-pulse-glow 2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  will-change: transform, box-shadow, background-position;
   line-height: 1.2;
   letter-spacing: 0.3px;
   flex-shrink: 0;
@@ -2406,13 +2543,23 @@
 
 .modal-header-discount-badge {
   display: inline-block;
-  background: linear-gradient(135deg, #E60012 0%, #ff1a2e 100%);
+  background: linear-gradient(
+    120deg,
+    #c40010 0%,
+    #E60012 35%,
+    #ff4d5e 50%,
+    #E60012 65%,
+    #c40010 100%
+  );
+  background-size: 220% 100%;
   color: #fff;
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 13px;
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(230, 0, 18, 0.3);
+  box-shadow: 0 2px 8px rgba(230, 0, 18, 0.35);
+  animation: discount-pulse-glow 2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  will-change: transform, box-shadow, background-position;
   white-space: nowrap;
 }
 
@@ -2446,13 +2593,23 @@
 
 .modal-discount-badge {
   display: inline-block;
-  background: linear-gradient(135deg, #E60012 0%, #ff1a2e 100%);
+  background: linear-gradient(
+    120deg,
+    #c40010 0%,
+    #E60012 35%,
+    #ff4d5e 50%,
+    #E60012 65%,
+    #c40010 100%
+  );
+  background-size: 220% 100%;
   color: #fff;
   padding: 4px 12px;
   border-radius: 16px;
   font-size: 12px;
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(230, 0, 18, 0.3);
+  box-shadow: 0 2px 8px rgba(230, 0, 18, 0.35);
+  animation: discount-pulse-glow 2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  will-change: transform, box-shadow, background-position;
 }
 
 .modal-discount-text {
@@ -2537,21 +2694,24 @@
   display: flex;
   align-items: baseline;
   gap: 2px;
-  opacity: 0.7;
+  opacity: 1;
 
   .modal-original-price-amount {
-    font-size: 16px;
-    font-weight: 500;
-    color: #999;
+    font-size: 19px;
+    font-weight: 600;
+    color: #666;
     text-decoration: line-through;
-    text-decoration-thickness: 1.5px;
-    text-decoration-color: #999;
+    text-decoration-thickness: 2px;
+    text-decoration-color: #888;
   }
 
   .modal-original-price-unit {
-    font-size: 13px;
-    color: #999;
+    font-size: 15px;
+    font-weight: 600;
+    color: #666;
     text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    text-decoration-color: #888;
   }
 }
 
@@ -2762,11 +2922,11 @@
 
   .modal-original-price {
     .modal-original-price-amount {
-      font-size: 14px;
+      font-size: 17px;
     }
 
     .modal-original-price-unit {
-      font-size: 12px;
+      font-size: 14px;
     }
   }
 
@@ -2907,11 +3067,11 @@
 
   .modal-original-price {
     .modal-original-price-amount {
-      font-size: 12px;
+      font-size: 15px;
     }
 
     .modal-original-price-unit {
-      font-size: 11px;
+      font-size: 13px;
     }
   }
 
@@ -2945,6 +3105,18 @@
     width: 100%;
     padding: 8px 16px;
     font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .discount-badge,
+  .family-tab-discount,
+  .modal-header-discount-badge,
+  .modal-discount-badge,
+  .mobile-promo-ribbon,
+  .mobile-promo-discount-badge,
+  .mobile-promo-icon {
+    animation: none;
   }
 }
 

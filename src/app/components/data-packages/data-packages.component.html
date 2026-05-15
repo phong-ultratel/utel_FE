@@ -327,8 +327,13 @@
 
         <!-- Khối khuyến mại nổi bật trên mobile -->
         <div class="mobile-promo-ribbon" *ngIf="hasDiscount(pkg)">
-          <span class="mobile-promo-highlight">🔥 {{ getDiscountDisplay(pkg) }}</span>
-          <span class="mobile-promo-saving">Tiết kiệm {{ formatPrice(getOriginalPrice(pkg) - pkg.price) }}₫</span>
+          <div class="mobile-promo-discount-badge">
+            <span class="mobile-promo-icon" aria-hidden="true">🔥</span>
+            <span class="mobile-promo-percent">{{ getDiscountDisplay(pkg) }}</span>
+          </div>
+          <span class="mobile-promo-saving">
+            Tiết kiệm <strong>{{ formatPrice(getOriginalPrice(pkg) - pkg.price) }}₫</strong>
+          </span>
         </div>
 
         <!-- Phần đầu: Tên gói cước - Thời hạn (desktop) -->
@@ -630,8 +635,13 @@
 
         <!-- Khối khuyến mại nổi bật trên mobile -->
         <div class="mobile-promo-ribbon" *ngIf="hasDiscount(pkg)">
-          <span class="mobile-promo-highlight">🔥 {{ getDiscountDisplay(pkg) }}</span>
-          <span class="mobile-promo-saving">Tiết kiệm {{ formatPrice(getOriginalPrice(pkg) - pkg.price) }}₫</span>
+          <div class="mobile-promo-discount-badge">
+            <span class="mobile-promo-icon" aria-hidden="true">🔥</span>
+            <span class="mobile-promo-percent">{{ getDiscountDisplay(pkg) }}</span>
+          </div>
+          <span class="mobile-promo-saving">
+            Tiết kiệm <strong>{{ formatPrice(getOriginalPrice(pkg) - pkg.price) }}₫</strong>
+          </span>
         </div>
 
         <!-- Phần đầu: Tên gói cước - Thời hạn (desktop) -->
