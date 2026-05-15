@@ -104,6 +104,8 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   group2Packages: DisplayPackage[] = [];
   group3Packages: DisplayPackage[] = [];
   group4Packages: DisplayPackage[] = [];
+  /** Gói đề xuất sau tra cứu (tối đa 3), chỉ khi có trong API */
+  recommendedPackages: DisplayPackage[] = [];
   showPaymentMethod: boolean = false;
   selectedPackage: DisplayPackage | null = null;
   paymentSessionId: string = '';
@@ -158,7 +160,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     if (this.lookupState.currentStatus === 'success' && restored?.length) {
       const providerCode = this.lookupState.getRestoredProviderCode();
       if (providerCode) {
-        this.selectedProvider = providerCode as TelecomProviderCode;
+        this.selectedProvider = this.mapProviderCodeToTab(providerCode);
       }
       this.isProviderLocked = true;
       this.lookupDone = true;
@@ -191,6 +193,17 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         } else {
           this.packages = (restored as TelecomPackageDto[]).map((p, i) => this.convertTelecomPackageToDisplay(p, i));
         }
+      }
+      const restoredRec = this.lookupState.getRestoredRecommended();
+      if (restoredRec?.length) {
+        if (this.isRestoredDisplayShape(restoredRec as unknown[])) {
+          this.recommendedPackages = restoredRec as DisplayPackage[];
+        } else {
+          this.recommendedPackages = (restoredRec as TelecomPackageDto[]).map((p, i) =>
+            this.convertTelecomPackageToDisplay(p, 100000 + i));
+        }
+      } else {
+        this.recommendedPackages = [];
       }
       this.lookupState.clearRestoredData();
       this.applyFilters();
@@ -1035,6 +1048,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     this.loading = true;
     this.error = null;
     this.lookupError = null;
+    this.recommendedPackages = [];
     this.lookupState.setLoading();
 
     this.telcoService.lookup(msisdn, sessionId).pipe(takeUntil(this.destroy$)).subscribe({
@@ -1057,9 +1071,11 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         const group2Raw = filterByStatus(resp.group2 || []);
         const group3Raw = filterByStatus(resp.group3 || []);
         const group4Raw = filterByStatus(resp.group4 || []);
+        const recRaw = filterByStatus(resp.recommendedPackages || []);
 
-        if (resp.providerCode && resp.providerCode !== this.selectedProvider) {
-          this.selectedProvider = resp.providerCode as TelecomProviderCode;
+        const feProvider = this.mapProviderCodeToTab(resp.providerCode);
+        if (resp.providerCode && feProvider !== this.selectedProvider) {
+          this.selectedProvider = feProvider;
         }
         this.isProviderLocked = true;
         this.lookupDone = true;
@@ -1071,6 +1087,8 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         this.group4Packages = group4Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
 
         const flatDisplayForStorage = allRawPackages.map((p, i) => this.convertTelecomPackageToDisplay(p, i));
+        const recBase = allRawPackages.length + 1000;
+        this.recommendedPackages = recRaw.map((p, i) => this.convertTelecomPackageToDisplay(p, recBase + i));
 
         this.lookupState.setSuccess(
           msisdn,
@@ -1082,7 +1100,8 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
             group1: this.group1Packages,
             group2: this.group2Packages,
             group3: this.group3Packages,
-            group4: this.group4Packages
+            group4: this.group4Packages,
+            recommendedPackages: this.recommendedPackages
           }
         );
 
@@ -1144,6 +1163,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     this.group2Packages = [];
     this.group3Packages = [];
     this.group4Packages = [];
+    this.recommendedPackages = [];
     this.loadPackages();
     this.scrollToLookupInputAndFocus();
   }
@@ -1157,8 +1177,23 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
 
   private getProviderDisplayName(code: string | undefined): string {
     if (!code) return 'Nhà mạng';
-    const p = this.providers.find(pr => pr.code === code);
+    const tab = this.mapProviderCodeToTab(code);
+    const p = this.providers.find(pr => pr.code === tab);
     return p?.name ?? code;
+  }
+
+  /** Map mã enum backend (MOBIFONE/VINAPHONE) sang tab FE (MOBI/VINA). */
+  private mapProviderCodeToTab(code: string | undefined): TelecomProviderCode {
+    if (!code) {
+      return this.selectedProvider;
+    }
+    if (code === 'MOBIFONE') {
+      return 'MOBI';
+    }
+    if (code === 'VINAPHONE') {
+      return 'VINA';
+    }
+    return code as TelecomProviderCode;
   }
 
   /** Dữ liệu tra cứu đã lưu dạng DisplayPackage (có name, price) sau khi merge catalog — khác payload TelecomPackageDto thuần. */
@@ -1256,7 +1291,22 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     if (!packageCode) {
       return undefined;
     }
-    return this.catalogPackages.find(p => p.packageCode === packageCode) || this.packages.find(p => p.packageCode === packageCode);
+    const lists: DisplayPackage[][] = [
+      this.catalogPackages,
+      this.packages,
+      this.group1Packages,
+      this.group2Packages,
+      this.group3Packages,
+      this.group4Packages,
+      this.recommendedPackages
+    ];
+    for (const list of lists) {
+      const found = list?.find(p => p.packageCode === packageCode);
+      if (found) {
+        return found;
+      }
+    }
+    return undefined;
   }
 
   getUtilityIconUrl(utilityName: string): string | null {

@@ -313,23 +313,7 @@
       </div>
     </div>
 
-    <!-- Hiển thị theo nhóm khi selectedDuration === 'all' -->
-    <div *ngIf="!loading && !error && selectedDuration === 'all' && groupedPackages.length > 0" class="packages-groups-container">
-      <div *ngFor="let group of groupedPackages" class="package-group">
-        <div class="group-header">
-          <h3 class="group-title">{{ group.label }}</h3>
-          <a class="group-view-all" (click)="viewAllPackagesInGroup(group.durationKey)">
-            Xem tất cả <span class="chevron">></span>
-          </a>
-        </div>
-        <div class="packages-grid group-packages"
-             [class.has-1-item]="group.packages.length === 1"
-             [class.has-2-items]="group.packages.length === 2">
-          <div
-            *ngFor="let pkg of group.packages"
-            class="package-card"
-            [class.popular]="pkg.popular">
-
+    <ng-template #packageCardTpl let-pkg>
         <!-- Banner góc trên trái (chỉ hiển thị trên mobile) -->
         <div
           class="package-ticket-banner"
@@ -564,6 +548,60 @@
             </a>
           </div>
         </div>
+    </ng-template>
+
+    <!-- Đề xuất sau tra cứu -->
+    <div
+      *ngIf="!loading && !error && lookupDone && selectedDuration === 'all' && recommendedPackages.length > 0"
+      class="packages-groups-container mb-3">
+      <div class="package-group">
+        <div class="group-header group-header-recommended">
+          <div class="recommended-heading">
+            <span class="recommended-heading__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2L14.09 8.26L21 9.27L16 14.14L17.18 21.02L12 17.77L6.82 21.02L8 14.14L3 9.27L9.91 8.26L12 2Z"
+                  fill="currentColor" />
+              </svg>
+            </span>
+            <div class="recommended-heading__text">
+              <h3 class="group-title group-title-recommended">Đề xuất</h3>
+              <span class="recommended-heading__subtitle">Gợi ý phù hợp với thuê bao của bạn</span>
+            </div>
+          </div>
+        </div>
+        <div
+          class="packages-grid group-packages"
+          [class.has-1-item]="recommendedPackages.length === 1"
+          [class.has-2-items]="recommendedPackages.length === 2">
+          <div
+            *ngFor="let pkg of recommendedPackages"
+            class="package-card"
+            [class.popular]="pkg.popular">
+            <ng-container *ngTemplateOutlet="packageCardTpl; context: { $implicit: pkg }"></ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hiển thị theo nhóm khi selectedDuration === 'all' -->
+    <div *ngIf="!loading && !error && selectedDuration === 'all' && groupedPackages.length > 0" class="packages-groups-container">
+      <div *ngFor="let group of groupedPackages" class="package-group">
+        <div class="group-header">
+          <h3 class="group-title">{{ group.label }}</h3>
+          <a class="group-view-all" (click)="viewAllPackagesInGroup(group.durationKey)">
+            Xem tất cả <span class="chevron">></span>
+          </a>
+        </div>
+        <div class="packages-grid group-packages"
+             [class.has-1-item]="group.packages.length === 1"
+             [class.has-2-items]="group.packages.length === 2">
+          <div
+            *ngFor="let pkg of group.packages"
+            class="package-card"
+            [class.popular]="pkg.popular">
+
+            <ng-container *ngTemplateOutlet="packageCardTpl; context: { $implicit: pkg }"></ng-container>
           </div>
         </div>
       </div>

@@ -32,6 +32,8 @@ export interface TelcoLookupResponse {
   group2: TelecomPackageDto[];
   group3: TelecomPackageDto[];
   group4: TelecomPackageDto[];
+  /** Gói đề xuất (tối đa 3), đã lọc theo API tra cứu */
+  recommendedPackages?: TelecomPackageDto[];
 }
 
 @Injectable({

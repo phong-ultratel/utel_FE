@@ -21,6 +21,8 @@ export interface PersistedLookupState {
   group2?: unknown[];
   group3?: unknown[];
   group4?: unknown[];
+  /** Gói đề xuất sau tra cứu (đã merge hiển thị) */
+  recommendedPackages?: unknown[];
   /** Unix timestamp (ms) lúc lưu — dùng để hết hạn sau LOOKUP_STORAGE_TTL_MS */
   savedAt?: number;
 }
@@ -39,6 +41,7 @@ export class LookupStateService {
   private restoredGroup2: unknown[] | null = null;
   private restoredGroup3: unknown[] | null = null;
   private restoredGroup4: unknown[] | null = null;
+  private restoredRecommended: unknown[] | null = null;
 
   constructor() {
     this.loadFromStorage();
@@ -104,6 +107,7 @@ export class LookupStateService {
         this.restoredGroup3 = null;
         this.restoredGroup4 = null;
       }
+      this.restoredRecommended = Array.isArray(state.recommendedPackages) ? state.recommendedPackages : null;
     } catch {
       // ignore invalid stored data
     }
@@ -163,12 +167,18 @@ export class LookupStateService {
     this.restoredGroup2 = null;
     this.restoredGroup3 = null;
     this.restoredGroup4 = null;
+    this.restoredRecommended = null;
   }
 
   /**
    * Các nhóm gói đã lưu (sau F5). null nếu dữ liệu cũ trong localStorage chưa có group*.
    * Khi null, component có thể chỉ khôi phục đúng tab "Tất cả" từ packages phẳng.
    */
+  /** Gói đề xuất đã lưu (sau F5). */
+  getRestoredRecommended(): unknown[] | null {
+    return this.restoredRecommended;
+  }
+
   getRestoredGroups():
     | { group1: unknown[]; group2: unknown[]; group3: unknown[]; group4: unknown[] }
     | null {
@@ -203,6 +213,7 @@ export class LookupStateService {
       group2?: unknown[];
       group3?: unknown[];
       group4?: unknown[];
+      recommendedPackages?: unknown[];
     }
   ): void {
     this.status$.next('success');
@@ -215,6 +226,7 @@ export class LookupStateService {
     this.restoredGroup2 = null;
     this.restoredGroup3 = null;
     this.restoredGroup4 = null;
+    this.restoredRecommended = null;
     this.saveToStorage({
       status: 'success',
       phoneDisplay,
@@ -226,6 +238,7 @@ export class LookupStateService {
       group2: groups?.group2 ?? [],
       group3: groups?.group3 ?? [],
       group4: groups?.group4 ?? [],
+      recommendedPackages: groups?.recommendedPackages ?? [],
       savedAt: Date.now()
     });
   }
@@ -245,6 +258,7 @@ export class LookupStateService {
     this.restoredGroup2 = null;
     this.restoredGroup3 = null;
     this.restoredGroup4 = null;
+    this.restoredRecommended = null;
     this.saveToStorage(null);
   }
 }
