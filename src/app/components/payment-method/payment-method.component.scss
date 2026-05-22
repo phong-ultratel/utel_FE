@@ -21,145 +21,131 @@
   font-weight: 700;
   color: #1a1a1a;
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
-.payment-options {
+.order-confirm-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 30px;
-}
-
-.payment-option {
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 16px 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: #ffffff;
-
-  &:hover {
-    border-color: #E60012;
-    background: #fff5f5;
-  }
-
-  &.selected {
-    border-color: #E60012;
-    background: #fff5f5;
-  }
-}
-
-.payment-option-content {
-  display: flex;
-  align-items: center;
   gap: 16px;
+  margin-bottom: 24px;
 }
 
-.radio-wrapper {
-  position: relative;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-
-  input[type="radio"] {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-
-    &:checked + label {
-      &::before {
-        border-color: #E60012;
-        background: #E60012;
-      }
-
-      &::after {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-  }
-
-  label {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 20px;
-      height: 20px;
-      border: 2px solid #ccc;
-      border-radius: 50%;
-      background: #ffffff;
-      transition: all 0.3s ease;
-    }
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: 7.5px;
-      left: 7.5px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #ffffff;
-      opacity: 0;
-      transform: scale(0);
-      transition: all 0.3s ease;
-    }
-  }
+.order-detail-card {
+  background: #fafafa;
+  border: 1px solid #ececec;
+  border-radius: 10px;
+  padding: 18px 20px;
 }
 
-.option-icon {
-  font-size: 32px;
-  width: 40px;
-  height: 40px;
+.order-detail-row {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px dashed #e8e8e8;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+}
+
+.order-detail-label {
+  font-size: 14px;
+  color: #666;
   flex-shrink: 0;
-  color: #1a1a1a;
-
-  svg {
-    width: 32px;
-    height: 32px;
-    color: #1a1a1a;
-  }
-
-  .visa-icon {
-    width: auto;
-    height: 50px;
-    object-fit: contain;
-  }
+  min-width: 110px;
 }
 
-.option-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.option-name {
-  font-size: 16px;
+.order-detail-value {
+  font-size: 15px;
   font-weight: 600;
   color: #1a1a1a;
+  text-align: right;
+  line-height: 1.4;
+
+  &--highlight {
+    color: #E60012;
+    font-size: 16px;
+  }
 }
 
-.option-discount {
+.order-package-info {
+  padding-top: 14px;
+  margin-top: 4px;
+  border-top: 1px solid #e8e8e8;
+
+  &__title {
+    display: block;
+    margin-bottom: 10px;
+  }
+}
+
+.order-package-special {
   font-size: 14px;
-  color: #E60012;
-  font-weight: 500;
+  color: #333;
+  line-height: 1.6;
+  white-space: pre-line;
+  padding: 10px 12px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.order-package-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-package-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+  padding: 8px 10px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #eee;
+
+  &__icon {
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+
+  strong {
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+}
+
+.payment-gateway-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fff8f8;
+  border: 1px solid #ffd4d4;
+  border-radius: 10px;
+
+  &__icon {
+    flex-shrink: 0;
+    color: #E60012;
+    margin-top: 2px;
+  }
+
+  &__text {
+    margin: 0;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.6;
+  }
 }
 
 .payment-summary {
@@ -363,14 +349,17 @@
     font-size: 20px;
   }
 
-  .option-icon {
-    font-size: 28px;
-    width: 36px;
-    height: 36px;
+  .order-detail-row {
+    flex-direction: column;
+    gap: 4px;
   }
 
-  .option-name {
-    font-size: 15px;
+  .order-detail-label {
+    min-width: unset;
+  }
+
+  .order-detail-value {
+    text-align: left;
   }
 
   .action-buttons {

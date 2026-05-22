@@ -11,6 +11,7 @@
     [telecomPackageCodeSnapshot]="selectedPackage.packageCode"
     [telecomPackageNameSnapshot]="selectedPackage.name"
     [carrierPrice]="selectedPackage.originalPrice || getOriginalPrice(selectedPackage)"
+    [packageSnapshot]="selectedPackage"
     (back)="backToPackages()">
   </app-payment-method>
 

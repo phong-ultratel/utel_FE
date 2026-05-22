@@ -1,12 +1,17 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
-interface PaymentOption {
-  id: string;
-  name: string;
-  icon: string;
-  discount?: string;
+export interface OrderPackageSnapshot {
+  name?: string;
+  duration?: string;
+  dataInfo?: string;
+  callInfo?: string;
+  smsInfo?: string;
+  specialInfo?: string;
+  benefitDetail?: string;
+  familyMode?: string;
+  utilities?: Array<{ name: string; iconUrl?: string }>;
 }
 
 @Component({
@@ -14,25 +19,20 @@ interface PaymentOption {
   templateUrl: './payment-method.component.html',
   styleUrls: ['./payment-method.component.scss']
 })
-export class PaymentMethodComponent implements OnInit {
+export class PaymentMethodComponent {
   @Input() totalAmount: number = 0;
-  // Tỷ lệ chiết khấu (%), dùng cho rule giảm theo phần trăm
   @Input() discount: number = 0;
-  // Số tiền chiết khấu cố định (VND), dùng cho rule giảm theo số tiền
   @Input() discountAmount: number = 0;
-  // Text hiển thị chiết khấu (ví dụ "-20%" hoặc "(-20.000đ)"), ưu tiên dùng cho UI
   @Input() discountText: string | null = null;
 
-  // Thông tin cần để tạo Order cho luồng thanh toán
   @Input() phoneNumber: string = '';
   @Input() sessionId: string = '';
   @Input() telecomPackageCodeSnapshot: string = '';
   @Input() telecomPackageNameSnapshot: string = '';
-  // Giá nhà mạng snapshot tại thời điểm tạo đơn (ưu tiên netPrice từ tra cứu)
   @Input() carrierPrice: number = 0;
+  @Input() packageSnapshot: OrderPackageSnapshot | null = null;
   @Output() back = new EventEmitter<void>();
 
-  selectedPaymentMethod: string = '';
   isProcessingPayment: boolean = false;
   requestInvoice: boolean = false;
   showInvoiceModal: boolean = false;
@@ -71,59 +71,97 @@ export class PaymentMethodComponent implements OnInit {
     }
   };
 
-  paymentOptions: PaymentOption[] = [
-    {
-      id: 'qr-code',
-      name: 'Quét mã QR',
-      icon: 'qr-code',
-      discount: 'Chiết khấu 5%'
-    },
-    {
-      id: 'bank-transfer',
-      name: 'Chuyển khoản',
-      icon: '🏦',
-      discount: 'Chiết khấu 5%'
-    },
-    {
-      id: 'domestic-card',
-      name: 'Thẻ nội địa',
-      icon: '💳',
-      discount: 'Chiết khấu 5%'
-    },
-    {
-      id: 'international-card',
-      name: 'Thẻ quốc tế',
-      icon: 'visa',
-      discount: 'Chiết khấu 5%'
-    },
-    // {
-    //   id: 'viettel-money',
-    //   name: 'Viettel Money',
-    //   icon: 'Viettel',
-    //   discount: 'Chiết khấu 5%'
-    // }
-  ];
-
   constructor(private http: HttpClient) { }
 
-  ngOnInit(): void {
-    // Set default selected payment method
-    if (this.paymentOptions.length > 0) {
-      this.selectedPaymentMethod = this.paymentOptions[0].id;
+  getPackageDisplayName(): string {
+    const name = this.packageSnapshot?.name || this.telecomPackageNameSnapshot || '';
+    const duration = this.packageSnapshot?.duration?.trim();
+    if (name && duration) {
+      return `${name} - ${duration}`;
     }
+    return name || '—';
   }
 
-  selectPaymentMethod(methodId: string): void {
-    this.selectedPaymentMethod = methodId;
+  formatDisplayPhone(phone: string): string {
+    const raw = (phone || '').trim();
+    if (!raw) {
+      return '—';
+    }
+    if (raw.startsWith('84') && raw.length >= 11) {
+      return '0' + raw.substring(2);
+    }
+    return raw;
+  }
+
+  hasPackageInfo(): boolean {
+    const pkg = this.packageSnapshot;
+    if (!pkg) {
+      return false;
+    }
+    if (pkg.familyMode === 'SPECIAL' && pkg.specialInfo?.trim()) {
+      return true;
+    }
+    return !!(
+      pkg.dataInfo ||
+      pkg.callInfo ||
+      pkg.smsInfo ||
+      (pkg.utilities && pkg.utilities.length > 0) ||
+      pkg.benefitDetail
+    );
+  }
+
+  getSmsDisplayText(smsInfo?: string): string {
+    if (!smsInfo) {
+      return '';
+    }
+    if (smsInfo.includes('9999')) {
+      return 'Miễn phí SMS nội mạng';
+    }
+    return smsInfo;
+  }
+
+  getUtilitiesText(utilities?: Array<{ name: string; iconUrl?: string }>): string {
+    if (!utilities || utilities.length === 0) {
+      return '';
+    }
+    return utilities.map(u => u.name).join(', ');
+  }
+
+  formatCallInfo(callInfo?: string): string {
+    if (!callInfo) {
+      return '';
+    }
+    return callInfo.replace(/(\d+)p(\/| |$|\))/g, '$1 phút$2');
+  }
+
+  formatSpecialInfo(specialInfo?: string): string {
+    if (!specialInfo || !specialInfo.trim()) {
+      return specialInfo || '';
+    }
+
+    let text = specialInfo.trim();
+    let prefix = '';
+    let content = text;
+
+    if (text.startsWith('Ưu đãi:')) {
+      prefix = 'Ưu đãi:';
+      content = text.substring('Ưu đãi:'.length).trim();
+    }
+
+    const parts = content.split(/\s*-\s+/).filter(p => p.trim());
+    if (parts.length <= 1) {
+      return text;
+    }
+
+    const formatted = parts.map(p => `- ${p.trim()}`).join('\n');
+    return prefix ? `${prefix}\n${formatted}` : formatted;
   }
 
   calculateDiscount(): number {
-    // Nếu có cấu hình giảm theo số tiền cố định, ưu tiên dùng discountAmount
     if (this.discountAmount && this.discountAmount > 0) {
       return this.discountAmount;
     }
 
-    // Nếu giảm theo phần trăm
     if (this.discount > 0) {
       return Math.round(this.totalAmount * (this.discount / 100));
     }
@@ -143,9 +181,6 @@ export class PaymentMethodComponent implements OnInit {
     this.back.emit();
   }
 
-  /**
-   * Payload lưu trên Order (backend deserialize thành chuỗi JSON). Gửi object để tránh lỗi stringify kép.
-   */
   private buildInvoiceRequestSnapshot(): Record<string, unknown> {
     if (!this.requestInvoice || !this.invoiceSubmitted) {
       return { requestInvoice: false, invoiceType: this.invoiceType };
@@ -156,7 +191,6 @@ export class PaymentMethodComponent implements OnInit {
       invoiceType: this.invoiceType,
       individual: {
         ...this.invoiceData.individual,
-        // Quy ước nghiệp vụ: với cá nhân, số CCCD/CMND cũng là mã số thuế.
         taxId: individualTaxId
       },
       company: { ...this.invoiceData.company }
@@ -168,22 +202,12 @@ export class PaymentMethodComponent implements OnInit {
       return;
     }
 
-    if (!this.selectedPaymentMethod) {
-      alert('Vui lòng chọn phương thức thanh toán');
-      return;
-    }
-
     if (this.requestInvoice && !this.invoiceSubmitted) {
       alert('Vui lòng hoàn tất thông tin xuất hóa đơn trong cửa sổ yêu cầu.');
       return;
     }
 
-    if (this.selectedPaymentMethod === 'qr-code') {
-      this.startViettelMoneyFlow();
-      return;
-    }
-
-    alert('Chưa hỗ trợ phương thức thanh toán này ở luồng demo.');
+    this.startViettelMoneyFlow();
   }
 
   private startViettelMoneyFlow(): void {
@@ -256,7 +280,6 @@ export class PaymentMethodComponent implements OnInit {
     if (event.target.checked) {
       this.showInvoiceModal = true;
     } else {
-      // Nếu uncheck trực tiếp, đóng modal và reset data
       this.showInvoiceModal = false;
       this.resetInvoiceData();
       this.invoiceSubmitted = false;
@@ -265,7 +288,6 @@ export class PaymentMethodComponent implements OnInit {
 
   closeInvoiceModal(): void {
     this.showInvoiceModal = false;
-    // Nếu đóng modal mà chưa submit, uncheck checkbox và reset data
     if (!this.invoiceSubmitted) {
       this.requestInvoice = false;
       this.resetInvoiceData();
@@ -294,7 +316,6 @@ export class PaymentMethodComponent implements OnInit {
 
   setInvoiceType(type: 'individual' | 'company'): void {
     this.invoiceType = type;
-    // Reset errors when switching type
     this.clearErrors();
   }
 
@@ -318,7 +339,6 @@ export class PaymentMethodComponent implements OnInit {
       }
     }
 
-    // Validate email format
     if (fieldName === 'email' && value) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value)) {
@@ -386,23 +406,12 @@ export class PaymentMethodComponent implements OnInit {
   }
 
   submitInvoiceForm(): void {
-    // Validate all fields
     if (!this.validateAllFields()) {
       return;
     }
 
-    console.log('Invoice data:', {
-      type: this.invoiceType,
-      data: this.invoiceType === 'individual'
-        ? this.invoiceData.individual
-        : this.invoiceData.company
-    });
-
-    // Đóng modal sau khi submit thành công
     this.showInvoiceModal = false;
-    // Giữ checkbox được tick và đánh dấu đã submit
     this.requestInvoice = true;
     this.invoiceSubmitted = true;
   }
 }
-

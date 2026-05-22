@@ -1,70 +1,70 @@
 <div class="payment-method-container">
   <div class="payment-method-content">
-    <h2 class="payment-title">PHƯƠNG THỨC THANH TOÁN</h2>
+    <h2 class="payment-title">XÁC NHẬN ĐƠN HÀNG</h2>
 
-    <div class="payment-options">
-      <div
-        *ngFor="let option of paymentOptions"
-        class="payment-option"
-        [class.selected]="selectedPaymentMethod === option.id"
-        (click)="selectPaymentMethod(option.id)">
-        <div class="payment-option-content">
-          <div class="radio-wrapper">
-            <input
-              type="radio"
-              [id]="option.id"
-              [value]="option.id"
-              [checked]="selectedPaymentMethod === option.id"
-              (change)="selectPaymentMethod(option.id)">
-            <label [for]="option.id"></label>
+    <section class="order-confirm-section" aria-label="Thông tin đơn hàng">
+      <div class="order-detail-card">
+        <div class="order-detail-row">
+          <span class="order-detail-label">Số thuê bao</span>
+          <span class="order-detail-value order-detail-value--highlight">{{ formatDisplayPhone(phoneNumber) }}</span>
+        </div>
+
+        <div class="order-detail-row">
+          <span class="order-detail-label">Tên gói cước</span>
+          <span class="order-detail-value">{{ getPackageDisplayName() }}</span>
+        </div>
+
+        <div class="order-package-info" *ngIf="hasPackageInfo()">
+          <span class="order-detail-label order-package-info__title">Thông tin gói cước</span>
+
+          <div
+            *ngIf="packageSnapshot?.familyMode === 'SPECIAL' && packageSnapshot?.specialInfo"
+            class="order-package-special">
+            {{ formatSpecialInfo(packageSnapshot?.specialInfo) }}
           </div>
-          <div class="option-icon">
-            <svg *ngIf="option.icon === 'qr-code'" width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Top-left square -->
-              <rect x="3" y="3" width="7" height="7" fill="currentColor" rx="1"/>
-              <rect x="5" y="5" width="3" height="3" fill="white"/>
-              <!-- Top-right square -->
-              <rect x="14" y="3" width="7" height="7" fill="currentColor" rx="1"/>
-              <rect x="16" y="5" width="3" height="3" fill="white"/>
-              <!-- Bottom-left square -->
-              <rect x="3" y="14" width="7" height="7" fill="currentColor" rx="1"/>
-              <rect x="5" y="16" width="3" height="3" fill="white"/>
-              <!-- Data pattern -->
-              <rect x="11" y="3" width="2" height="2" fill="currentColor"/>
-              <rect x="11" y="6" width="2" height="2" fill="currentColor"/>
-              <rect x="11" y="9" width="2" height="2" fill="currentColor"/>
-              <rect x="14" y="11" width="1" height="1" fill="currentColor"/>
-              <rect x="16" y="11" width="1" height="1" fill="currentColor"/>
-              <rect x="18" y="11" width="1" height="1" fill="currentColor"/>
-              <rect x="20" y="11" width="1" height="1" fill="currentColor"/>
-              <rect x="3" y="11" width="2" height="2" fill="currentColor"/>
-              <rect x="6" y="11" width="2" height="2" fill="currentColor"/>
-              <rect x="11" y="12" width="2" height="2" fill="currentColor"/>
-              <rect x="14" y="12" width="2" height="2" fill="currentColor"/>
-              <rect x="17" y="12" width="2" height="2" fill="currentColor"/>
-              <rect x="20" y="12" width="2" height="2" fill="currentColor"/>
-              <rect x="11" y="15" width="2" height="2" fill="currentColor"/>
-              <rect x="14" y="15" width="2" height="2" fill="currentColor"/>
-              <rect x="17" y="15" width="2" height="2" fill="currentColor"/>
-              <rect x="20" y="15" width="2" height="2" fill="currentColor"/>
-              <rect x="11" y="18" width="2" height="2" fill="currentColor"/>
-              <rect x="14" y="18" width="2" height="2" fill="currentColor"/>
-              <rect x="17" y="18" width="2" height="2" fill="currentColor"/>
-              <rect x="20" y="18" width="2" height="2" fill="currentColor"/>
-              <rect x="11" y="21" width="2" height="2" fill="currentColor"/>
-              <rect x="14" y="21" width="2" height="2" fill="currentColor"/>
-              <rect x="17" y="21" width="2" height="2" fill="currentColor"/>
-              <rect x="20" y="21" width="2" height="2" fill="currentColor"/>
-            </svg>
-            <img *ngIf="option.icon === 'visa'" src="assets/images/icons/visa.png" alt="VISA" class="visa-icon">
-            <span *ngIf="option.icon !== 'qr-code' && option.icon !== 'visa'">{{ option.icon }}</span>
-          </div>
-          <div class="option-info">
-            <div class="option-name">{{ option.name }}</div>
-          </div>
+
+          <ul
+            class="order-package-list"
+            *ngIf="packageSnapshot?.familyMode !== 'SPECIAL'">
+            <li *ngIf="packageSnapshot?.dataInfo" class="order-package-item">
+              <span class="order-package-item__icon" aria-hidden="true">📶</span>
+              <span><strong>Data:</strong> {{ packageSnapshot?.dataInfo }}</span>
+            </li>
+            <li *ngIf="packageSnapshot?.callInfo" class="order-package-item">
+              <span class="order-package-item__icon" aria-hidden="true">📞</span>
+              <span><strong>Thoại:</strong> {{ formatCallInfo(packageSnapshot?.callInfo) }}</span>
+            </li>
+            <li *ngIf="packageSnapshot?.smsInfo" class="order-package-item">
+              <span class="order-package-item__icon" aria-hidden="true">💬</span>
+              <span><strong>SMS:</strong> {{ getSmsDisplayText(packageSnapshot?.smsInfo) }}</span>
+            </li>
+            <li *ngIf="packageSnapshot?.utilities?.length" class="order-package-item">
+              <span class="order-package-item__icon" aria-hidden="true">🎁</span>
+              <span><strong>Tiện ích:</strong> {{ getUtilitiesText(packageSnapshot?.utilities) }}</span>
+            </li>
+            <li *ngIf="packageSnapshot?.benefitDetail" class="order-package-item">
+              <span class="order-package-item__icon" aria-hidden="true">✨</span>
+              <span>{{ packageSnapshot?.benefitDetail }}</span>
+            </li>
+          </ul>
         </div>
       </div>
-    </div>
+
+      <div class="payment-gateway-note" role="note">
+        <span class="payment-gateway-note__icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="16" r="1" fill="currentColor"/>
+          </svg>
+        </span>
+        <p class="payment-gateway-note__text">
+          Bước tiếp theo, bạn sẽ thanh toán với các hình thức:
+          quét QR, chuyển khoản ngân hàng, thẻ ATM nội địa (Napas) và thẻ quốc tế
+          (Visa, Mastercard, JCB) tại các ngân hàng hoạt động tại Việt Nam.
+        </p>
+      </div>
+    </section>
 
     <div class="payment-summary">
       <div class="summary-row">
@@ -123,7 +123,7 @@
 <div class="invoice-modal-overlay" *ngIf="showInvoiceModal" (click)="closeInvoiceModal()">
   <div class="invoice-modal" (click)="$event.stopPropagation()">
     <button class="modal-close" (click)="closeInvoiceModal()">×</button>
-    
+
     <div class="modal-header">
       <h2 class="modal-title">Yêu cầu xuất hóa đơn</h2>
       <p class="modal-instruction">
@@ -136,14 +136,14 @@
 
     <div class="modal-content">
       <div class="invoice-type-tabs">
-        <button 
-          class="tab-button" 
+        <button
+          class="tab-button"
           [class.active]="invoiceType === 'individual'"
           (click)="setInvoiceType('individual')">
           Cá nhân
         </button>
-        <button 
-          class="tab-button" 
+        <button
+          class="tab-button"
           [class.active]="invoiceType === 'company'"
           (click)="setInvoiceType('company')">
           Công ty
@@ -156,9 +156,9 @@
           <form *ngIf="invoiceType === 'individual'" class="invoice-form">
             <div class="form-group">
               <label class="form-label">Người mua hàng <span class="required">*</span></label>
-              <input 
-                type="text" 
-                class="form-input" 
+              <input
+                type="text"
+                class="form-input"
                 [class.error]="errors.individual.buyerName"
                 placeholder="Họ tên người mua"
                 [(ngModel)]="invoiceData.individual.buyerName"
@@ -171,9 +171,9 @@
 
             <div class="form-group">
               <label class="form-label">Số Căn cước <span class="required">*</span></label>
-              <input 
-                type="text" 
-                class="form-input" 
+              <input
+                type="text"
+                class="form-input"
                 [class.error]="errors.individual.idCard"
                 placeholder="Nhập căn cước công dân"
                 [(ngModel)]="invoiceData.individual.idCard"
@@ -186,9 +186,9 @@
 
             <div class="form-group">
               <label class="form-label">Địa chỉ <span class="required">*</span></label>
-              <input 
-                type="text" 
-                class="form-input" 
+              <input
+                type="text"
+                class="form-input"
                 [class.error]="errors.individual.address"
                 placeholder="Nhập địa chỉ"
                 [(ngModel)]="invoiceData.individual.address"
@@ -201,9 +201,9 @@
 
             <div class="form-group">
               <label class="form-label">Email nhận hóa đơn <span class="required">*</span></label>
-              <input 
-                type="email" 
-                class="form-input" 
+              <input
+                type="email"
+                class="form-input"
                 [class.error]="errors.individual.email"
                 placeholder="Nhập email"
                 [(ngModel)]="invoiceData.individual.email"
@@ -219,9 +219,9 @@
           <form *ngIf="invoiceType === 'company'" class="invoice-form">
             <div class="form-group">
               <label class="form-label">Mã số thuế <span class="required">*</span></label>
-              <input 
-                type="text" 
-                class="form-input" 
+              <input
+                type="text"
+                class="form-input"
                 [class.error]="errors.company.taxId"
                 placeholder="Nhập mã số thuế"
                 [(ngModel)]="invoiceData.company.taxId"
@@ -234,9 +234,9 @@
 
             <div class="form-group">
               <label class="form-label">Tên công ty <span class="required">*</span></label>
-              <input 
-                type="text" 
-                class="form-input" 
+              <input
+                type="text"
+                class="form-input"
                 [class.error]="errors.company.companyName"
                 placeholder="Nhập tên công ty"
                 [(ngModel)]="invoiceData.company.companyName"
@@ -249,9 +249,9 @@
 
             <div class="form-group">
               <label class="form-label">Địa chỉ công ty <span class="required">*</span></label>
-              <input 
-                type="text" 
-                class="form-input" 
+              <input
+                type="text"
+                class="form-input"
                 [class.error]="errors.company.address"
                 placeholder="Nhập địa chỉ"
                 [(ngModel)]="invoiceData.company.address"
@@ -264,9 +264,9 @@
 
             <div class="form-group">
               <label class="form-label">Người mua hàng</label>
-              <input 
-                type="text" 
-                class="form-input" 
+              <input
+                type="text"
+                class="form-input"
                 placeholder="Họ tên người mua"
                 [(ngModel)]="invoiceData.company.buyerName"
                 name="companyBuyerName">
@@ -274,9 +274,9 @@
 
             <div class="form-group">
               <label class="form-label">Email nhận hóa đơn <span class="required">*</span></label>
-              <input 
-                type="email" 
-                class="form-input" 
+              <input
+                type="email"
+                class="form-input"
                 [class.error]="errors.company.email"
                 placeholder="Nhập email"
                 [(ngModel)]="invoiceData.company.email"
@@ -315,4 +315,3 @@
     </div>
   </div>
 </div>
-
