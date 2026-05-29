@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { AttributionService } from '../../services/attribution.service';
 
 export interface OrderPackageSnapshot {
   name?: string;
@@ -71,7 +72,7 @@ export class PaymentMethodComponent {
     }
   };
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private attribution: AttributionService) {}
 
   getPackageDisplayName(): string {
     const name = this.packageSnapshot?.name || this.telecomPackageNameSnapshot || '';
@@ -238,7 +239,8 @@ export class PaymentMethodComponent {
       telecomPackageNameSnapshot: this.telecomPackageNameSnapshot,
       sessionId: this.sessionId,
       createdAt: new Date().toISOString(),
-      invoiceRequestSnapshot: this.buildInvoiceRequestSnapshot()
+      invoiceRequestSnapshot: this.buildInvoiceRequestSnapshot(),
+      ...this.attribution.utmPayload()
     };
 
     this.http.post<any>(`${environment.apiBaseUrl}/public/orders`, orderPayload).subscribe({

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { AttributionService } from './attribution.service';
 
 export type PackageStatus = 'PENDING_CONFIG' | 'ACTIVE' | 'INACTIVE' | string;
 
@@ -42,12 +43,12 @@ export interface TelcoLookupResponse {
 export class TelcoService {
   private baseUrl = environment.apiBaseUrl + '/public/telco';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private attribution: AttributionService) {}
 
   lookup(phoneNumber: string, sessionId?: string): Observable<TelcoLookupResponse> {
-    const body: any = { phoneNumber };
+    const body: Record<string, string> = { phoneNumber, ...this.attribution.utmPayload() };
     if (sessionId) {
-      body.sessionId = sessionId;
+      body['sessionId'] = sessionId;
     }
     return this.http.post<TelcoLookupResponse>(`${this.baseUrl}/lookup`, body);
   }

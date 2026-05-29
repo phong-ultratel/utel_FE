@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { AttributionService } from './attribution.service';
 
 export type LookupStatus = 'idle' | 'loading' | 'success' | 'error';
 
 const STORAGE_KEY = 'utel_lookup_state';
-const SESSION_ID_KEY = 'utel_session_id';
 
 /** Dữ liệu tra cứu trong localStorage chỉ có hiệu lực trong khoảng thời gian này */
 const LOOKUP_STORAGE_TTL_MS = 30 * 60 * 1000;
@@ -43,33 +43,15 @@ export class LookupStateService {
   private restoredGroup4: unknown[] | null = null;
   private restoredRecommended: unknown[] | null = null;
 
-  constructor() {
+  constructor(private attributionService: AttributionService) {
     this.loadFromStorage();
   }
 
   /**
-   * Tạo/lấy sessionId cho phiên trình duyệt hiện tại.
-   * FE sẽ gửi sessionId này lên backend khi "Tra cứu" để backend lưu vào SubcriberLookup.
+   * Session thống nhất với visit tracking (AttributionService).
    */
   getOrCreateSessionId(): string {
-    try {
-      const existing = sessionStorage.getItem(SESSION_ID_KEY);
-      if (existing) {
-        return existing;
-      }
-
-      // Ưu tiên dùng UUID chuẩn nếu trình duyệt hỗ trợ
-      const id =
-        (typeof crypto !== 'undefined' && 'randomUUID' in crypto && typeof (crypto as any).randomUUID === 'function')
-          ? (crypto as any).randomUUID()
-          : `sid_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-
-      sessionStorage.setItem(SESSION_ID_KEY, id);
-      return id;
-    } catch {
-      // Fallback: vẫn trả về 1 id tạm để gửi lên backend
-      return `sid_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    }
+    return this.attributionService.getOrCreateVisitorSessionId();
   }
 
   private isPersistedStateExpired(state: PersistedLookupState): boolean {
