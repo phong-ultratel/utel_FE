@@ -679,10 +679,25 @@
   box-shadow: 0 4px 16px rgba(230, 0, 18, 0.06);
 
   @media (max-width: 768px) {
-    margin-bottom: 16px;
-    padding: 12px 14px;
+    margin-bottom: 0;
+    padding: 10px 12px;
     border-radius: 12px;
   }
+}
+
+.package-group--recommended {
+  @media (max-width: 768px) {
+    gap: 8px;
+  }
+}
+
+// Không tạo khoảng trống giữa block Đề xuất và nhóm gói (vd. GÓI 1 NGÀY) ngay bên dưới
+.packages-groups-container--recommended .package-group--recommended {
+  padding-bottom: 8px;
+}
+
+.packages-groups-container--recommended + .packages-groups-container > .package-group:first-child {
+  padding-top: 8px;
 }
 
 .recommended-heading {
@@ -752,6 +767,17 @@
   @media (max-width: 768px) {
     font-size: 12px;
   }
+}
+
+.recommended-packages-scroll-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.recommended-scroll-hint {
+  display: none;
 }
 
 .group-view-all {
@@ -1360,7 +1386,29 @@
   }
 
   .lookup-section-wrapper {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+  }
+
+  .lookup-result-block {
+    padding: 10px 14px;
+    border-radius: 8px;
+    max-width: 100%;
+  }
+
+  .lookup-result-title {
+    margin: 0 0 2px;
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  .lookup-result-subtitle {
+    margin: 0 0 6px;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .lookup-result-change-link {
+    font-size: 13px;
   }
 
   .input-field-group {
@@ -1562,6 +1610,106 @@
     &.has-1-item,
     &.has-2-items {
       max-width: 100%;
+    }
+  }
+
+  // Đề xuất: carousel 2 cột trên mobile (chưa / sau tra cứu)
+  .recommended-packages-scroll-wrap {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    container-type: inline-size;
+    container-name: recommended-carousel;
+
+    &.has-scroll-more {
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      touch-action: pan-x pan-y;
+      scroll-behavior: auto;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    &.has-scroll-more::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 24px;
+      height: calc(100% - 18px);
+      pointer-events: none;
+      background: linear-gradient(90deg, rgba(245, 245, 245, 0) 0%, #f5f5f5 85%);
+      z-index: 2;
+    }
+  }
+
+  .package-group--recommended:nth-child(odd) .recommended-packages-scroll-wrap.has-scroll-more::after {
+    background: linear-gradient(90deg, rgba(245, 245, 245, 0) 0%, #f5f5f5 85%);
+  }
+
+  .package-group--recommended:nth-child(even) .recommended-packages-scroll-wrap.has-scroll-more::after {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #ffffff 85%);
+  }
+
+  .recommended-scroll-hint {
+    display: block;
+    margin: 4px 0 0;
+    padding: 0;
+    font-size: 11px;
+    font-weight: 500;
+    color: #888;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .recommended-packages-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+
+    &.has-1-item {
+      width: 100%;
+    }
+
+    &.has-3-items {
+      // Track rộng hơn viewport — scroll wrap giữ cố định 100%
+      width: max-content;
+      min-width: 100%;
+    }
+
+    &.has-1-item .package-card {
+      flex: 0 0 100%;
+      width: 100%;
+      min-width: 100%;
+      max-width: 100%;
+    }
+
+    &:not(.has-1-item) .package-card {
+      flex: 0 0 var(--recommended-slide-size, calc((100cqw - 10px) / 2));
+      width: var(--recommended-slide-size, calc((100cqw - 10px) / 2));
+      min-width: var(--recommended-slide-size, calc((100cqw - 10px) / 2));
+      max-width: var(--recommended-slide-size, calc((100cqw - 10px) / 2));
+    }
+
+    .package-card {
+      flex-shrink: 0;
+      margin: 0;
+      box-sizing: border-box;
+
+      &:only-child {
+        max-width: 100%;
+      }
     }
   }
 
@@ -2022,6 +2170,117 @@
   .btn-details {
     font-size: 12px;
   }
+
+  // Đề xuất: thẻ compact (ghi đè sau rule mobile chung)
+  .recommended-packages-grid {
+    .mobile-promo-ribbon {
+      padding: 5px 6px;
+      gap: 4px;
+    }
+
+    .mobile-promo-discount-badge {
+      font-size: 10px;
+      padding: 3px 6px 3px 5px;
+    }
+
+    .mobile-promo-saving {
+      display: none;
+    }
+
+    .package-ticket-banner {
+      top: 28px;
+      min-width: 0;
+      max-width: 92%;
+      padding: 4px 8px;
+
+      .ticket-banner-text {
+        font-size: 11px;
+      }
+    }
+
+    .package-ticket-layout {
+      min-height: 96px;
+      padding-top: 56px;
+    }
+
+    .package-ticket-layout--recommended {
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .ticket-btn-register {
+      position: relative;
+      z-index: 3;
+      touch-action: manipulation;
+    }
+
+    .ticket-left-section {
+      padding: 6px 4px 14px 6px;
+    }
+
+    .ticket-right-section {
+      flex: 0 0 78px;
+      padding: 6px 4px;
+      gap: 6px;
+    }
+
+    .ticket-price-label {
+      font-size: 9px;
+    }
+
+    .ticket-price-amount {
+      font-size: 12px;
+    }
+
+    .ticket-price.has-discount .ticket-price-amount {
+      font-size: 14px;
+    }
+
+    .ticket-original-price-amount,
+    .ticket-original-price-unit {
+      font-size: 10px;
+    }
+
+    .ticket-btn-register {
+      font-size: 10px;
+      padding: 5px 4px;
+    }
+
+    .package-info-list {
+      max-height: 48px;
+    }
+
+    .info-item {
+      font-size: 10px;
+      gap: 3px;
+
+      .info-icon svg {
+        width: 12px;
+        height: 12px;
+      }
+
+      .info-label {
+        font-size: 10px;
+      }
+
+      .info-value {
+        font-size: 10px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+    }
+
+    .expand-toggle-btn {
+      height: 18px;
+
+      svg {
+        width: 10px;
+        height: 10px;
+      }
+    }
+  }
 }
 
 @media (max-width: 480px) {
@@ -2069,7 +2328,24 @@
   }
 
   .lookup-section-wrapper {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
+  }
+
+  .lookup-result-block {
+    padding: 8px 12px;
+  }
+
+  .lookup-result-title {
+    font-size: 14px;
+  }
+
+  .lookup-result-subtitle {
+    margin-bottom: 5px;
+    font-size: 11px;
+  }
+
+  .lookup-result-change-link {
+    font-size: 12px;
   }
 
   .input-field-label {

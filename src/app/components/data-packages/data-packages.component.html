@@ -314,7 +314,7 @@
       </div>
     </div>
 
-    <ng-template #packageCardTpl let-pkg>
+    <ng-template #packageCardTpl let-pkg let-recommended="recommended">
         <!-- Banner góc trên trái (chỉ hiển thị trên mobile) -->
         <div
           class="package-ticket-banner"
@@ -351,7 +351,10 @@
         </div>
 
         <!-- Layout ticket cho mobile -->
-        <div class="package-ticket-layout">
+        <div
+          class="package-ticket-layout"
+          [class.package-ticket-layout--recommended]="recommended"
+          (click)="onRecommendedTicketLayoutClick($event, pkg, recommended)">
           <!-- Phần trái: Thông tin gói -->
           <div class="ticket-left-section">
             <div class="package-info-list"
@@ -441,6 +444,7 @@
               </div>
             </div>
             <button
+              type="button"
               class="ticket-btn-register"
               (click)="selectPackage(pkg)">
               Đăng ký
@@ -559,8 +563,8 @@
     <!-- Đề xuất: dự phòng (chưa tra cứu) hoặc sau tra cứu; ẩn khi đang tìm kiếm -->
     <div
       *ngIf="!loading && !error && !hasActiveSearch && selectedDuration === 'all' && displayRecommendedPackages.length > 0"
-      class="packages-groups-container mb-3">
-      <div class="package-group">
+      class="packages-groups-container packages-groups-container--recommended">
+      <div class="package-group package-group--recommended">
         <div class="group-header group-header-recommended">
           <div class="recommended-heading">
             <span class="recommended-heading__icon" aria-hidden="true">
@@ -577,15 +581,28 @@
           </div>
         </div>
         <div
-          class="packages-grid group-packages"
-          [class.has-1-item]="displayRecommendedPackages.length === 1"
-          [class.has-2-items]="displayRecommendedPackages.length === 2">
+          #recommendedScrollWrap
+          class="recommended-packages-scroll-wrap"
+          [class.has-scroll-more]="displayRecommendedPackages.length > 2">
           <div
-            *ngFor="let pkg of displayRecommendedPackages"
-            class="package-card"
-            [class.popular]="pkg.popular">
-            <ng-container *ngTemplateOutlet="packageCardTpl; context: { $implicit: pkg }"></ng-container>
+            class="packages-grid group-packages recommended-packages-grid"
+            [class.has-1-item]="displayRecommendedPackages.length === 1"
+            [class.has-2-items]="displayRecommendedPackages.length === 2"
+            [class.has-3-items]="displayRecommendedPackages.length > 2">
+            <div
+              *ngFor="let pkg of displayRecommendedPackages"
+              class="package-card"
+              [class.popular]="pkg.popular">
+              <ng-container
+                *ngTemplateOutlet="packageCardTpl; context: { $implicit: pkg, recommended: true }"></ng-container>
+            </div>
           </div>
+          <p
+            *ngIf="displayRecommendedPackages.length > 2"
+            class="recommended-scroll-hint"
+            aria-hidden="true">
+            Kéo sang ngang để xem thêm
+          </p>
         </div>
       </div>
     </div>
@@ -613,7 +630,7 @@
       </div>
     </div>
 
-    <!-- Hiển thị bình thường khi selectedDuration !== 'all' -->
+    <!-- Hiển thị bình thường khi selectedDuration !== 'all' (card inline, không dùng packageCardTpl) -->
     <div *ngIf="!loading && !error && selectedDuration !== 'all'" class="packages-grid-wrapper">
       <div class="packages-grid"
            [class.has-1-item]="packageCount === 1"
@@ -749,6 +766,7 @@
               </div>
             </div>
             <button
+              type="button"
               class="ticket-btn-register"
               (click)="selectPackage(pkg)">
               Đăng ký

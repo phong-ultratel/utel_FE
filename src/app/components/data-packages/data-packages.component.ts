@@ -1,4 +1,13 @@
-import {Component, OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef} from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  AfterViewChecked,
+  OnDestroy,
+  ChangeDetectorRef,
+  ViewChild,
+  ElementRef
+} from '@angular/core';
 import {CatalogService} from '../../services/catalog.service';
 import {SearchService} from '../../services/search.service';
 import {LookupStateService, LookupStatus} from '../../services/lookup-state.service';
@@ -54,7 +63,8 @@ interface PackageGroup {
   templateUrl: './data-packages.component.html',
   styleUrls: ['./data-packages.component.scss']
 })
-export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestroy {
+export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewChecked, OnDestroy {
+  @ViewChild('recommendedScrollWrap') recommendedScrollWrap?: ElementRef<HTMLElement>;
   providers: TelecomProvider[] = [
     {
       code: 'VIETTEL',
@@ -117,6 +127,8 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   private hasOverflow: { [key: number]: boolean } = {};
   private checkExpandIcons: boolean = true;
   private resizeListener?: () => void;
+  private recommendedCarouselObserver?: ResizeObserver;
+  private resetRecommendedCarouselScroll = false;
   showDetailModal: boolean = false;
   detailPackage: DisplayPackage | null = null;
   familyPackages: DisplayPackage[] = [];
@@ -146,6 +158,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         setTimeout(() => {
           this.updateExpandIcons();
         }, 100);
+        this.scheduleRecommendedCarouselLayout();
       }
     };
     window.addEventListener('resize', this.resizeListener);
@@ -209,6 +222,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       }
       this.lookupState.clearRestoredData();
       this.applyFilters();
+      this.scheduleRecommendedCarouselLayout(true);
     } else {
       this.lookupDone = false;
       this.loadPackages();
@@ -220,6 +234,11 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         this.searchQuery = query;
         this.applyFilters();
       });
+  }
+
+  ngAfterViewInit(): void {
+    this.initRecommendedCarouselObserver();
+    this.scheduleRecommendedCarouselLayout(true);
   }
 
   onProviderChange(provider: TelecomProviderCode): void {
@@ -260,6 +279,8 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         this.loading = false;
         if (!this.lookupDone) {
           this.loadDefaultRecommendedPackages();
+        } else {
+          this.scheduleRecommendedCarouselLayout(true);
         }
       },
       error: (err) => {
@@ -282,11 +303,87 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         this.defaultRecommendedPackages = pkgs.map((pkg, index) =>
           this.convertToDisplayPackage(pkg, 9000 + index)
         );
+        this.scheduleRecommendedCarouselLayout(true);
       },
       error: () => {
         this.defaultRecommendedPackages = [];
       }
     });
+  }
+
+  /** Căn kích thước slide + bật cuộn ngang khi có 3 gói (mobile). */
+  private initRecommendedCarouselObserver(): void {
+    if (typeof ResizeObserver === 'undefined') {
+      return;
+    }
+    this.recommendedCarouselObserver = new ResizeObserver(() => {
+      this.updateRecommendedCarouselLayout();
+    });
+  }
+
+  private scheduleRecommendedCarouselLayout(resetScroll = false): void {
+    if (resetScroll) {
+      this.resetRecommendedCarouselScroll = true;
+    }
+    setTimeout(() => {
+      this.bindRecommendedCarouselObserver();
+      this.updateRecommendedCarouselLayout();
+    }, 0);
+    setTimeout(() => this.updateRecommendedCarouselLayout(), 200);
+  }
+
+  private bindRecommendedCarouselObserver(): void {
+    const el = this.recommendedScrollWrap?.nativeElement;
+    if (!el || !this.recommendedCarouselObserver) {
+      return;
+    }
+    this.recommendedCarouselObserver.disconnect();
+    this.recommendedCarouselObserver.observe(el);
+  }
+
+  private updateRecommendedCarouselLayout(): void {
+    if (window.innerWidth > 768) {
+      return;
+    }
+    const el = this.recommendedScrollWrap?.nativeElement;
+    if (!el) {
+      return;
+    }
+
+    const count = this.displayRecommendedPackages.length;
+    const track = el.querySelector('.recommended-packages-grid') as HTMLElement | null;
+    const viewportW = el.clientWidth;
+
+    if (count === 0 || viewportW <= 0) {
+      if (track) {
+        track.style.width = '';
+        track.style.minWidth = '';
+      }
+      return;
+    }
+
+    const slidePx = Math.max(120, Math.floor((viewportW - 10) / 2));
+    el.style.setProperty('--recommended-slide-size', `${slidePx}px`);
+
+    if (count > 2 && track) {
+      const trackWidth = count * slidePx + (count - 1) * 10;
+      track.style.width = `${trackWidth}px`;
+      track.style.minWidth = '100%';
+
+      if (this.resetRecommendedCarouselScroll) {
+        el.scrollLeft = 0;
+        this.resetRecommendedCarouselScroll = false;
+      }
+      const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth);
+      if (el.scrollLeft > maxScroll) {
+        el.scrollLeft = maxScroll;
+      }
+    } else if (track) {
+      track.style.width = '';
+      track.style.minWidth = '';
+      el.scrollLeft = 0;
+      this.resetRecommendedCarouselScroll = false;
+    }
   }
 
   get hasActiveSearch(): boolean {
@@ -746,6 +843,21 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     });
   }
 
+  /**
+   * Mobile: bấm vùng ticket trong nhóm Đề xuất → mở modal chi tiết gói.
+   */
+  onRecommendedTicketLayoutClick(event: Event, pkg: DisplayPackage, fromRecommended?: boolean): void {
+    if (!fromRecommended || window.innerWidth > 768) {
+      return;
+    }
+    const target = event.target as HTMLElement;
+    if (target.closest('.ticket-btn-register, .expand-toggle-btn')) {
+      return;
+    }
+    event.stopPropagation();
+    this.selectPackage(pkg);
+  }
+
   backToPackages(): void {
     this.showPaymentMethod = false;
     this.selectedPackage = null;
@@ -1139,6 +1251,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         // Set packages theo tab hiện tại
         this.updatePackagesBySelectedTab();
         this.applyFilters();
+        this.scheduleRecommendedCarouselLayout(true);
       },
       error: err => {
         console.error('Error lookup telco packages:', err);
@@ -1417,6 +1530,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.recommendedCarouselObserver?.disconnect();
     if (this.resizeListener) {
       window.removeEventListener('resize', this.resizeListener);
     }
