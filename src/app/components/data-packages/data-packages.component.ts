@@ -1362,14 +1362,9 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     }, 50);
   }
 
-  /** Cuộn tới form tra cứu từ banner khuyến mãi (CTA). */
-  scrollPromoToLookup(): void {
-    this.scrollToLookupInputAndFocus();
-  }
-
   /**
    * Cuộn đến ô nhập số thuê bao và focus — gọi sau khi đảm bảo view đã render input
-   * (sau reset tra cứu hoặc từ CTA banner).
+   * (sau reset tra cứu).
    */
   private scrollToLookupInputAndFocus(): void {
     this.cdr.detectChanges();
