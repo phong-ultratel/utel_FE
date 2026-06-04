@@ -556,9 +556,9 @@
         </div>
     </ng-template>
 
-    <!-- Đề xuất sau tra cứu -->
+    <!-- Đề xuất: dự phòng (chưa tra cứu) hoặc sau tra cứu; ẩn khi đang tìm kiếm -->
     <div
-      *ngIf="!loading && !error && lookupDone && selectedDuration === 'all' && recommendedPackages.length > 0"
+      *ngIf="!loading && !error && !hasActiveSearch && selectedDuration === 'all' && displayRecommendedPackages.length > 0"
       class="packages-groups-container mb-3">
       <div class="package-group">
         <div class="group-header group-header-recommended">
@@ -578,10 +578,10 @@
         </div>
         <div
           class="packages-grid group-packages"
-          [class.has-1-item]="recommendedPackages.length === 1"
-          [class.has-2-items]="recommendedPackages.length === 2">
+          [class.has-1-item]="displayRecommendedPackages.length === 1"
+          [class.has-2-items]="displayRecommendedPackages.length === 2">
           <div
-            *ngFor="let pkg of recommendedPackages"
+            *ngFor="let pkg of displayRecommendedPackages"
             class="package-card"
             [class.popular]="pkg.popular">
             <ng-container *ngTemplateOutlet="packageCardTpl; context: { $implicit: pkg }"></ng-container>

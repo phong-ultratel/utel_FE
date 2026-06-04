@@ -106,6 +106,8 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
   group4Packages: DisplayPackage[] = [];
   /** Gói đề xuất sau tra cứu (tối đa 3), chỉ khi có trong API */
   recommendedPackages: DisplayPackage[] = [];
+  /** Gói đề xuất dự phòng (Ưu tiên 1–3) khi chưa tra cứu */
+  defaultRecommendedPackages: DisplayPackage[] = [];
   showPaymentMethod: boolean = false;
   selectedPackage: DisplayPackage | null = null;
   paymentSessionId: string = '';
@@ -256,6 +258,9 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         console.log('Converted packages:', this.packages.length);
         this.applyFilters();
         this.loading = false;
+        if (!this.lookupDone) {
+          this.loadDefaultRecommendedPackages();
+        }
       },
       error: (err) => {
         console.error('Error loading packages:', err);
@@ -263,9 +268,34 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         this.packages = [];
         this.filteredPackages = [];
         this.packageCount = 0;
+        this.defaultRecommendedPackages = [];
         this.loading = false;
       }
     });
+  }
+
+  /** Tải gói Ưu tiên 1–3 (cấu hình Import SĐT - Gói KM) cho màn hình chưa tra cứu. */
+  private loadDefaultRecommendedPackages(): void {
+    this.catalogService.getRecommendedFallback(this.selectedProvider).pipe(takeUntil(this.destroy$)).subscribe({
+      next: response => {
+        const pkgs = response.packages || [];
+        this.defaultRecommendedPackages = pkgs.map((pkg, index) =>
+          this.convertToDisplayPackage(pkg, 9000 + index)
+        );
+      },
+      error: () => {
+        this.defaultRecommendedPackages = [];
+      }
+    });
+  }
+
+  get hasActiveSearch(): boolean {
+    return !!(this.searchQuery && this.searchQuery.trim());
+  }
+
+  /** Gói hiển thị trong mục "Đề xuất" (trước / sau tra cứu). */
+  get displayRecommendedPackages(): DisplayPackage[] {
+    return this.lookupDone ? this.recommendedPackages : this.defaultRecommendedPackages;
   }
 
   /**
@@ -1079,6 +1109,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
         }
         this.isProviderLocked = true;
         this.lookupDone = true;
+        this.defaultRecommendedPackages = [];
 
         // Convert (merge catalog) trước khi persist — khi restore sau F5/redirect, this.packages rỗng nên cần lưu đủ pricing/discount
         this.group1Packages = group1Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
@@ -1164,6 +1195,7 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
     this.group3Packages = [];
     this.group4Packages = [];
     this.recommendedPackages = [];
+    this.defaultRecommendedPackages = [];
     this.loadPackages();
     this.scrollToLookupInputAndFocus();
   }
@@ -1298,7 +1330,8 @@ export class DataPackagesComponent implements OnInit, AfterViewChecked, OnDestro
       this.group2Packages,
       this.group3Packages,
       this.group4Packages,
-      this.recommendedPackages
+      this.recommendedPackages,
+      this.defaultRecommendedPackages
     ];
     for (const list of lists) {
       const found = list?.find(p => p.packageCode === packageCode);

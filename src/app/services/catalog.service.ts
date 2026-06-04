@@ -42,6 +42,12 @@ export class CatalogService {
     return this.http.get<CatalogResponse>(`${this.baseUrl}/packages`, { params: httpParams });
   }
 
+  /** Gói đề xuất dự phòng (Ưu tiên 1–3) khi chưa tra cứu SĐT. */
+  getRecommendedFallback(provider: TelecomProviderCode): Observable<CatalogResponse> {
+    const httpParams = new HttpParams().set('provider', provider);
+    return this.http.get<CatalogResponse>(`${this.baseUrl}/recommended-fallback`, { params: httpParams });
+  }
+
   getPackageDetail(packageCode: string): Observable<PackageDetailResponse> {
     return this.http.get<PackageDetailResponse>(`${this.baseUrl}/packages/${packageCode}`);
   }
