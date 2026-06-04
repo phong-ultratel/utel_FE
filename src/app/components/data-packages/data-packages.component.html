@@ -141,16 +141,26 @@
     <div id="lookup-section" class="lookup-section-wrapper">
       <!-- Trước / đang / lỗi: hiển thị input + nút Tra cứu -->
       <div *ngIf="(lookupStatus$ | async) !== 'success'" class="login-form-section lookup-form" [class.lookup-fade]="true">
-        <div class="login-form-container">
-          <input
-            id="lookup-input"
-            type="text"
-            class="subscriber-input"
-            placeholder="Nhập số thuê bao"
-            [(ngModel)]="subscriberNumber"
-            (input)="onSubscriberInput()"
-            (keyup.enter)="handleLogin()">
-          <button class="login-btn" (click)="handleLogin()">TRA CỨU</button>
+        <div class="input-field-group input-field-group--lookup">
+          <label for="lookup-input" class="input-field-label">Số điện thoại cần đăng ký gói</label>
+          <div class="lookup-combined">
+            <span class="input-field-icon input-field-icon--lookup" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="6.5" y="2.5" width="11" height="19" rx="2.25" stroke="currentColor" stroke-width="1.75"/>
+                <line x1="10" y1="18.5" x2="14" y2="18.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <input
+              id="lookup-input"
+              type="tel"
+              inputmode="numeric"
+              class="subscriber-input"
+              placeholder="VD: 0912345678"
+              [(ngModel)]="subscriberNumber"
+              (input)="onSubscriberInput()"
+              (keyup.enter)="handleLogin()">
+            <button type="button" class="lookup-submit-btn" (click)="handleLogin()">Tra cứu</button>
+          </div>
         </div>
       </div>
       <!-- Sau khi tra cứu thành công: block xác nhận, không còn input -->
@@ -215,11 +225,19 @@
 
       <!-- Search Section -->
       <div class="search-section">
-        <div class="search-box">
+<!--        <label for="package-search-input" class="input-field-label input-field-label&#45;&#45;search">Lọc theo tên hoặc mã gói</label>-->
+        <div class="search-box search-box--compact">
+          <span class="input-field-icon input-field-icon--search" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="11" cy="11" r="6.75" stroke="currentColor" stroke-width="1.75"/>
+              <path d="M16.5 16.5L20.5 20.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+            </svg>
+          </span>
           <input
+            id="package-search-input"
             type="text"
             class="search-input"
-            placeholder="Tìm kiếm gói cước..."
+            placeholder="VD: ST70, 1 ngày, 5GB"
             [(ngModel)]="searchQuery"
             (input)="onSearchInput()"
             (keyup.enter)="onSearch()"
@@ -227,7 +245,7 @@
             (blur)="onSearchBlur()"
           />
           <button class="search-btn" (click)="onSearch()" aria-label="Tìm kiếm">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
