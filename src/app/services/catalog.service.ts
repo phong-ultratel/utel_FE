@@ -5,8 +5,22 @@ import { environment } from '../../environments/environment';
 import { PackageCardDto, TelecomProviderCode } from '../models/package.model';
 import { PackageDetailResponse } from '../models/package-detail.model';
 
+export type ProviderStatus = 'ACTIVE' | 'INACTIVE';
+
+export interface CatalogFilterOption {
+  code: string;
+  name: string;
+  status?: ProviderStatus;
+}
+
+export interface CatalogFilters {
+  providers?: CatalogFilterOption[];
+  packageTypes?: CatalogFilterOption[];
+  validityDays?: CatalogFilterOption[];
+}
+
 export interface CatalogResponse {
-  filters?: any;
+  filters?: CatalogFilters;
   packages: PackageCardDto[];
 }
 

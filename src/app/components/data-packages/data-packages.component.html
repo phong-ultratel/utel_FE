@@ -192,7 +192,7 @@
             type="button"
             class="provider-pill"
             [class.active]="p.code === selectedProvider"
-            [disabled]="isProviderLocked"
+            [disabled]="isProviderLocked || isProviderDisabled(p.code)"
             (click)="onProviderChange(p.code)"
             [attr.aria-pressed]="p.code === selectedProvider"
             [attr.aria-label]="'Chọn nhà mạng ' + p.name"

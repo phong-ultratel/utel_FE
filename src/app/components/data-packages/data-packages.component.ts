@@ -8,12 +8,12 @@ import {
   ViewChild,
   ElementRef
 } from '@angular/core';
-import {CatalogService} from '../../services/catalog.service';
+import {CatalogFilters, CatalogService} from '../../services/catalog.service';
 import {SearchService} from '../../services/search.service';
 import {LookupStateService, LookupStatus} from '../../services/lookup-state.service';
 import {PackageCardDto, TelecomProviderCode, CallRaw, PackageFamilyMode} from '../../models/package.model';
 import {PackageDetailResponse, SuggestedPackageDto} from '../../models/package-detail.model';
-import {Observable, Subject, takeUntil} from 'rxjs';
+import {Observable, Subject, take, takeUntil} from 'rxjs';
 import {TelcoService, TelecomPackageDto} from '../../services/telco.service';
 
 // Interface tương thích với template hiện tại
@@ -95,6 +95,8 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
   selectedProvider: TelecomProviderCode = 'VIETTEL';
   // Chuẩn bị sẵn cấu trúc để khóa nhà mạng sau khi tra cứu thuê bao (logic sẽ bổ sung sau)
   isProviderLocked: boolean = false;
+  /** Nhà mạng có trạng thái INACTIVE (Dừng) trên admin — disable nút chọn tương ứng. */
+  private disabledProviderCodes = new Set<TelecomProviderCode>();
 
   selectedPackageType: string = 'all'; // Mặc định là 'all'
   selectedDuration: string = 'all'; // Mặc định hiển thị tất cả
@@ -223,6 +225,7 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
       this.lookupState.clearRestoredData();
       this.applyFilters();
       this.scheduleRecommendedCarouselLayout(true);
+      this.fetchProviderStatuses();
     } else {
       this.lookupDone = false;
       this.loadPackages();
@@ -241,14 +244,64 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
     this.scheduleRecommendedCarouselLayout(true);
   }
 
+  isProviderDisabled(code: TelecomProviderCode): boolean {
+    return this.disabledProviderCodes.has(code);
+  }
+
   onProviderChange(provider: TelecomProviderCode): void {
-    if (this.selectedProvider === provider || this.isProviderLocked) {
+    if (
+      this.selectedProvider === provider ||
+      this.isProviderLocked ||
+      this.isProviderDisabled(provider)
+    ) {
       return;
     }
     this.selectedProvider = provider;
     // Clear search khi đổi nhà mạng để hiển thị tất cả gói của nhà mạng mới
     this.searchService.clearSearch();
     this.loadPackages();
+  }
+
+  private fetchProviderStatuses(): void {
+    this.catalogService
+      .getPackages({provider: this.selectedProvider})
+      .pipe(take(1))
+      .subscribe({
+        next: (response) => this.syncProviderStatuses(response.filters),
+        error: () => {}
+      });
+  }
+
+  private syncProviderStatuses(filters?: CatalogFilters): void {
+    if (!filters?.providers?.length) {
+      return;
+    }
+    const disabled = new Set<TelecomProviderCode>();
+    for (const opt of filters.providers) {
+      const code = opt.code?.toUpperCase() as TelecomProviderCode;
+      if (opt.status === 'INACTIVE' && this.providers.some(p => p.code === code)) {
+        disabled.add(code);
+      }
+    }
+    this.disabledProviderCodes = disabled;
+    this.ensureSelectedProviderEnabled();
+  }
+
+  private ensureSelectedProviderEnabled(): void {
+    if (!this.isProviderDisabled(this.selectedProvider)) {
+      return;
+    }
+    const enabled = this.providers.find(p => !this.isProviderDisabled(p.code));
+    if (!enabled) {
+      return;
+    }
+    if (enabled.code === this.selectedProvider) {
+      return;
+    }
+    this.selectedProvider = enabled.code;
+    if (!this.lookupDone && !this.isProviderLocked) {
+      this.loadPackages();
+    }
   }
 
   loadPackages(): void {
@@ -260,6 +313,7 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
       // Không filter familyMode để lấy cả STANDARD và SPECIAL
     }).subscribe({
       next: (response) => {
+        this.syncProviderStatuses(response.filters);
         console.log('API Response:', response);
         console.log('Packages count:', response.packages?.length || 0);
 
