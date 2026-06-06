@@ -366,8 +366,13 @@
     flex-direction: column;
   }
 
-  .btn-back,
   .btn-continue {
+    order: 1;
+    width: 100%;
+  }
+
+  .btn-back {
+    order: 2;
     width: 100%;
   }
 }
