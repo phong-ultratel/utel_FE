@@ -3,7 +3,15 @@
     <h2 class="title">{{ resultTitle }}</h2>
     <p class="result-message">{{ resultMessage }}</p>
 
-    <div *ngIf="loading" class="loading">Đang kiểm tra kết quả thanh toán...</div>
+    <div *ngIf="isPollingStatus()" class="poll-banner">
+      <span class="poll-spinner" aria-hidden="true"></span>
+      <span>Đang cập nhật trạng thái đơn hàng...</span>
+    </div>
+
+    <div *ngIf="loading" class="loading">
+      <span class="poll-spinner" aria-hidden="true"></span>
+      <span>Đang kiểm tra kết quả thanh toán...</span>
+    </div>
     <div *ngIf="error" class="error">{{ error }}</div>
 
     <div *ngIf="order && !loading" class="info-list">
@@ -23,19 +31,29 @@
         <span class="label">Số tiền thanh toán:</span>
         <span class="value">{{ formatPaymentAmount(order.salePrice) }}</span>
       </div>
-      <div class="row">
+      <div class="row status-row">
         <span class="label">Trạng thái:</span>
-        <span class="status-pill" [ngClass]="getStatusClass(order.status)">
-          {{ getStatusText(order.status) }}
-        </span>
+        <div class="status-value">
+          <span class="status-pill" [ngClass]="getStatusClass(order.status)">
+            <span *ngIf="isPollingStatus()" class="poll-spinner poll-spinner--sm poll-spinner--in-pill" aria-hidden="true"></span>
+            {{ getStatusText(order.status) }}
+          </span>
+        </div>
       </div>
+
+      <p *ngIf="pollTimedOut" class="poll-timeout">
+        Hệ thống chưa cập nhật trạng thái cuối. Vui lòng tải lại trang hoặc liên hệ bộ phận hỗ trợ.
+      </p>
 
       <div class="complaint-row" *ngIf="canShowComplaint()">
         <button type="button" class="btn-complaint" (click)="openComplaintModal()">{{ getComplaintButtonLabel() }}</button>
       </div>
     </div>
 
-    <div *ngIf="!loading && !order && !error" class="loading">Đang chờ cập nhật trạng thái...</div>
+    <div *ngIf="polling && !loading && !order && !error" class="loading">
+      <span class="poll-spinner" aria-hidden="true"></span>
+      <span>Đang chờ cập nhật trạng thái...</span>
+    </div>
   </div>
 
   <app-customer-complaint-modal

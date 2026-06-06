@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { Subscription, timer, of } from 'rxjs';
+import { switchMap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { LookupStateService } from '../../services/lookup-state.service';
 import { CustomerComplaintDefaults } from '../customer-complaint-modal/customer-complaint-modal.component';
@@ -21,7 +23,19 @@ export interface PublicOrderStatus {
   templateUrl: './payment-result.component.html',
   styleUrls: ['./payment-result.component.scss']
 })
-export class PaymentResultComponent implements OnInit {
+export class PaymentResultComponent implements OnInit, OnDestroy {
+  private static readonly POLL_INTERVAL_MS = 3000;
+  private static readonly POLL_TIMEOUT_MS = 180_000;
+  private static readonly TERMINAL_STATUSES = new Set([
+    'COMPLETED',
+    'FAILED',
+    'CANCELLED',
+    'CANCELED',
+    'REFUNDED',
+    'EXPIRED',
+    'MANUALLY_HANDLED'
+  ]);
+
   order: PublicOrderStatus | null = null;
   orderId: number | null = null;
   paymentFlow: 'return' | 'cancel' | null = null;
@@ -29,9 +43,14 @@ export class PaymentResultComponent implements OnInit {
   resultMessage = 'Đang xử lý kết quả thanh toán.';
   loading = false;
   error: string | null = null;
+  polling = false;
+  pollTimedOut = false;
 
   complaintModalVisible = false;
   complaintModalDefaults: CustomerComplaintDefaults | null = null;
+
+  private pollSub?: Subscription;
+  private pollTimeoutId?: ReturnType<typeof setTimeout>;
 
   constructor(
     private route: ActivatedRoute,
@@ -50,30 +69,92 @@ export class PaymentResultComponent implements OnInit {
       this.updateResultMessage();
 
       if (this.orderId && !Number.isNaN(this.orderId)) {
-        this.fetchOrder(this.orderId);
+        this.startPolling(this.orderId);
       } else {
+        this.stopPolling();
         this.error = 'Không tìm thấy mã đơn hàng trong URL trả về.';
       }
     });
   }
 
-  private fetchOrder(id: number): void {
+  ngOnDestroy(): void {
+    this.stopPolling();
+  }
+
+  private startPolling(id: number): void {
+    this.stopPolling();
     this.loading = true;
-    // Không reset error ở đây để vẫn giữ thông báo hợp lệ nếu thiếu orderId
-    this.http.get<any>(`${environment.apiBaseUrl}/public/orders/${id}/status`).subscribe({
-      next: (resp: PublicOrderStatus) => {
-        this.order = resp;
-        this.loading = false;
-        if (this.isSuccessfulPaymentStatus(resp.status)) {
-          this.lookupState.reset();
+    this.pollTimedOut = false;
+    this.polling = true;
+
+    this.pollSub = timer(0, PaymentResultComponent.POLL_INTERVAL_MS)
+      .pipe(
+        switchMap(() =>
+          this.http
+            .get<PublicOrderStatus>(`${environment.apiBaseUrl}/public/orders/${id}/status`)
+            .pipe(
+              catchError((err) => {
+                this.handleOrderFetchError(err);
+                return of(null);
+              })
+            )
+        )
+      )
+      .subscribe({
+        next: (resp) => {
+          if (resp) {
+            this.handleOrderResponse(resp);
+          }
         }
-      },
-      error: (err) => {
-        console.error('fetch order failed', err);
-        this.error = 'Không thể tải chi tiết trạng thái đơn hàng.';
-        this.loading = false;
+      });
+
+    this.pollTimeoutId = setTimeout(() => {
+      if (this.polling && !this.isTerminalStatus(this.order?.status)) {
+        this.pollTimedOut = true;
+        this.stopPolling();
       }
-    });
+    }, PaymentResultComponent.POLL_TIMEOUT_MS);
+  }
+
+  private stopPolling(): void {
+    this.polling = false;
+    this.pollSub?.unsubscribe();
+    this.pollSub = undefined;
+    if (this.pollTimeoutId != null) {
+      clearTimeout(this.pollTimeoutId);
+      this.pollTimeoutId = undefined;
+    }
+  }
+
+  private handleOrderResponse(resp: PublicOrderStatus): void {
+    this.order = resp;
+    this.loading = false;
+
+    if (this.isSuccessfulPaymentStatus(resp.status)) {
+      this.lookupState.reset();
+    }
+
+    if (this.isTerminalStatus(resp.status)) {
+      this.stopPolling();
+    }
+  }
+
+  private handleOrderFetchError(err: unknown): void {
+    console.error('fetch order failed', err);
+    this.loading = false;
+
+    if (!this.order) {
+      this.error = 'Không thể tải chi tiết trạng thái đơn hàng.';
+      this.stopPolling();
+    }
+  }
+
+  isPollingStatus(): boolean {
+    return this.polling && !!this.order && !this.isTerminalStatus(this.order.status);
+  }
+
+  private isTerminalStatus(status?: string): boolean {
+    return PaymentResultComponent.TERMINAL_STATUSES.has((status || '').toUpperCase());
   }
 
   private updateResultMessage(): void {
