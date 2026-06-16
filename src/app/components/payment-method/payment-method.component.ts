@@ -252,7 +252,7 @@ export class PaymentMethodComponent {
           return;
         }
 
-        const paymentReq = { orderId };
+        const paymentReq = { orderId, sessionId: this.sessionId };
         this.http.post<any>(`${environment.apiBaseUrl}/payment/viettel-money/create`, paymentReq).subscribe({
           next: (payResp) => {
             const paymentUrl = payResp?.paymentUrl || payResp?.url || payResp?.redirectUrl;
@@ -266,6 +266,11 @@ export class PaymentMethodComponent {
           error: (err) => {
             this.isProcessingPayment = false;
             console.error('create payment failed', err);
+            const status = err?.status;
+            if (status === 429) {
+              alert('Hệ thống đang xử lý nhiều yêu cầu. Vui lòng thử lại sau vài phút.');
+              return;
+            }
             alert('Tạo thanh toán Viettel Money thất bại. Vui lòng thử lại.');
           }
         });
