@@ -13,8 +13,8 @@ import {SearchService} from '../../services/search.service';
 import {LookupStateService, LookupStatus} from '../../services/lookup-state.service';
 import {PackageCardDto, TelecomProviderCode, CallRaw, PackageFamilyMode} from '../../models/package.model';
 import {PackageDetailResponse, SuggestedPackageDto} from '../../models/package-detail.model';
-import {Observable, Subject, take, takeUntil} from 'rxjs';
-import {TelcoService, TelecomPackageDto} from '../../services/telco.service';
+import {Observable, Subject, exhaustMap, finalize, map, take, takeUntil} from 'rxjs';
+import {TelcoService, TelcoLookupResponse, TelecomPackageDto} from '../../services/telco.service';
 
 // Interface tương thích với template hiện tại
 interface DisplayPackage extends PackageCardDto {
@@ -56,6 +56,11 @@ interface PackageGroup {
   durationKey: string;
   packages: DisplayPackage[];
   totalCount: number;
+}
+
+interface TelcoLookupRequest {
+  msisdn: string;
+  sessionId: string;
 }
 
 @Component({
@@ -142,6 +147,8 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
   searchQuery: string = '';
   isSearchFocused: boolean = false;
   private destroy$ = new Subject<void>();
+  /** Chỉ cho phép 1 request tra cứu đang chạy; request trùng bị exhaustMap bỏ qua. */
+  private readonly lookupRequest$ = new Subject<TelcoLookupRequest>();
 
   lookupStatus$!: Observable<LookupStatus>;
   lookedUpPhoneDisplay$!: Observable<string | null>;
@@ -236,6 +243,31 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
       .subscribe(query => {
         this.searchQuery = query;
         this.applyFilters();
+      });
+
+    this.setupTelcoLookupPipeline();
+  }
+
+  /** Một request tra cứu tại một thời điểm — chặn double-click / spam song song. */
+  private setupTelcoLookupPipeline(): void {
+    this.lookupRequest$
+      .pipe(
+        exhaustMap(({ msisdn, sessionId }) => {
+          this.error = null;
+          this.lookupError = null;
+          this.recommendedPackages = [];
+          return this.telcoService.lookup(msisdn, sessionId).pipe(
+            map(resp => ({ resp, msisdn })),
+            finalize(() => {
+              this.loading = false;
+            })
+          );
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: ({ resp, msisdn }) => this.onLookupResponse(resp, msisdn),
+        error: err => this.onLookupError(err)
       });
   }
 
@@ -1238,79 +1270,70 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
     const sessionId = this.lookupState.getOrCreateSessionId();
 
     this.loading = true;
-    this.error = null;
-    this.lookupError = null;
-    this.recommendedPackages = [];
     this.lookupState.setLoading();
+    this.lookupRequest$.next({ msisdn, sessionId });
+  }
 
-    this.telcoService.lookup(msisdn, sessionId).pipe(takeUntil(this.destroy$)).subscribe({
-      next: resp => {
-        this.loading = false;
+  private onLookupResponse(resp: TelcoLookupResponse, msisdn: string): void {
+    if (!resp?.success) {
+      this.error = resp?.message || 'Không thể tra cứu thuê bao. Vui lòng thử lại sau.';
+      this.lookupState.setError();
+      this.lookupDone = false;
+      return;
+    }
 
-        if (!resp?.success) {
-          this.error = resp?.message || 'Không thể tra cứu thuê bao. Vui lòng thử lại sau.';
-          this.lookupState.setError();
-          this.lookupDone = false;
-          return;
-        }
+    const filterByStatus = (pkgs: TelecomPackageDto[]) =>
+      (pkgs || []).filter(p => p.status === 'ACTIVE' || p.status === 'PENDING_CONFIG');
 
-        // Lọc packages theo status
-        const filterByStatus = (pkgs: TelecomPackageDto[]) =>
-          (pkgs || []).filter(p => p.status === 'ACTIVE' || p.status === 'PENDING_CONFIG');
+    const allRawPackages = filterByStatus(resp.packages || []);
+    const group1Raw = filterByStatus(resp.group1 || []);
+    const group2Raw = filterByStatus(resp.group2 || []);
+    const group3Raw = filterByStatus(resp.group3 || []);
+    const group4Raw = filterByStatus(resp.group4 || []);
+    const recRaw = filterByStatus(resp.recommendedPackages || []);
 
-        const allRawPackages = filterByStatus(resp.packages || []);
-        const group1Raw = filterByStatus(resp.group1 || []);
-        const group2Raw = filterByStatus(resp.group2 || []);
-        const group3Raw = filterByStatus(resp.group3 || []);
-        const group4Raw = filterByStatus(resp.group4 || []);
-        const recRaw = filterByStatus(resp.recommendedPackages || []);
+    const feProvider = this.mapProviderCodeToTab(resp.providerCode);
+    if (resp.providerCode && feProvider !== this.selectedProvider) {
+      this.selectedProvider = feProvider;
+    }
+    this.isProviderLocked = true;
+    this.lookupDone = true;
+    this.defaultRecommendedPackages = [];
 
-        const feProvider = this.mapProviderCodeToTab(resp.providerCode);
-        if (resp.providerCode && feProvider !== this.selectedProvider) {
-          this.selectedProvider = feProvider;
-        }
-        this.isProviderLocked = true;
-        this.lookupDone = true;
-        this.defaultRecommendedPackages = [];
+    this.group1Packages = group1Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
+    this.group2Packages = group2Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
+    this.group3Packages = group3Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
+    this.group4Packages = group4Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
 
-        // Convert (merge catalog) trước khi persist — khi restore sau F5/redirect, this.packages rỗng nên cần lưu đủ pricing/discount
-        this.group1Packages = group1Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
-        this.group2Packages = group2Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
-        this.group3Packages = group3Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
-        this.group4Packages = group4Raw.map((p, index) => this.convertTelecomPackageToDisplay(p, index));
+    const flatDisplayForStorage = allRawPackages.map((p, i) => this.convertTelecomPackageToDisplay(p, i));
+    const recBase = allRawPackages.length + 1000;
+    this.recommendedPackages = recRaw.map((p, i) => this.convertTelecomPackageToDisplay(p, recBase + i));
 
-        const flatDisplayForStorage = allRawPackages.map((p, i) => this.convertTelecomPackageToDisplay(p, i));
-        const recBase = allRawPackages.length + 1000;
-        this.recommendedPackages = recRaw.map((p, i) => this.convertTelecomPackageToDisplay(p, recBase + i));
-
-        this.lookupState.setSuccess(
-          msisdn,
-          this.formatPhoneForDisplay(msisdn),
-          this.getProviderDisplayName(resp.providerCode),
-          resp.providerCode,
-          flatDisplayForStorage,
-          {
-            group1: this.group1Packages,
-            group2: this.group2Packages,
-            group3: this.group3Packages,
-            group4: this.group4Packages,
-            recommendedPackages: this.recommendedPackages
-          }
-        );
-
-        // Set packages theo tab hiện tại
-        this.updatePackagesBySelectedTab();
-        this.applyFilters();
-        this.scheduleRecommendedCarouselLayout(true);
-      },
-      error: err => {
-        console.error('Error lookup telco packages:', err);
-        this.loading = false;
-        this.error = 'Không thể tra cứu thuê bao. Vui lòng thử lại sau.';
-        this.lookupState.setError();
-        this.lookupDone = false;
+    this.lookupState.setSuccess(
+      msisdn,
+      this.formatPhoneForDisplay(msisdn),
+      this.getProviderDisplayName(resp.providerCode),
+      resp.providerCode,
+      flatDisplayForStorage,
+      {
+        group1: this.group1Packages,
+        group2: this.group2Packages,
+        group3: this.group3Packages,
+        group4: this.group4Packages,
+        recommendedPackages: this.recommendedPackages
       }
-    });
+    );
+
+    this.updatePackagesBySelectedTab();
+    this.applyFilters();
+    this.scheduleRecommendedCarouselLayout(true);
+  }
+
+  private onLookupError(err: unknown): void {
+    console.error('Error lookup telco packages:', err);
+    this.error = 'Không thể tra cứu thuê bao. Vui lòng thử lại sau.';
+    this.lookupState.setError();
+    this.lookupDone = false;
   }
 
   /**
