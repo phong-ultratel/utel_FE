@@ -314,8 +314,6 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
     }).subscribe({
       next: (response) => {
         this.syncProviderStatuses(response.filters);
-        console.log('API Response:', response);
-        console.log('Packages count:', response.packages?.length || 0);
 
         if (!response.packages || response.packages.length === 0) {
           this.error = 'Không có gói cước nào.';
@@ -328,7 +326,6 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
 
         this.packages = response.packages.map((pkg, index) => this.convertToDisplayPackage(pkg, index));
         this.catalogPackages = [...this.packages];
-        console.log('Converted packages:', this.packages.length);
         this.applyFilters();
         this.loading = false;
         if (!this.lookupDone) {
@@ -660,11 +657,6 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
   applyFilters(): void {
     let filtered = [...this.packages];
 
-    console.log('Applying filters. Total packages:', filtered.length);
-    console.log('Selected package type:', this.selectedPackageType);
-    console.log('Selected duration:', this.selectedDuration);
-    console.log('Search query:', this.searchQuery);
-
     // Filter by search query - chỉ tìm trong packages của nhà mạng đang chọn
     if (this.searchQuery && this.searchQuery.trim()) {
       const query = this.searchQuery.trim().toLowerCase();
@@ -728,8 +720,6 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
           : b.price - a.price;
       });
     }
-
-    console.log('Filtered packages count:', filtered.length);
 
     // Nếu selectedDuration === 'all', nhóm packages theo duration
     if (this.selectedDuration === 'all') {
@@ -889,7 +879,6 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
   }
 
   selectPackage(pkg: DisplayPackage): void {
-    console.log('Selected package:', pkg);
     // Thay vì mở payment method, mở modal detail
     // Sử dụng requestAnimationFrame để tránh chớp nháy
     requestAnimationFrame(() => {
@@ -920,7 +909,6 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
   }
 
   viewDetails(pkg: DisplayPackage): void {
-    console.log('View details for package:', pkg);
     this.detailPackage = pkg;
 
     // Hiển thị modal ngay với dữ liệu local để tránh chớp nháy
