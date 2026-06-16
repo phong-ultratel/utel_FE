@@ -1,13 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subscription, timer, of } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { LookupStateService } from '../../services/lookup-state.service';
 import { CustomerComplaintDefaults } from '../customer-complaint-modal/customer-complaint-modal.component';
 
-/** Phản hồi GET /public/orders/{id}/status */
+/** Phản hồi GET /public/orders/{token}/status */
 export interface PublicOrderStatus {
   id: number;
   orderCode?: string;
@@ -37,7 +37,7 @@ export class PaymentResultComponent implements OnInit, OnDestroy {
   ]);
 
   order: PublicOrderStatus | null = null;
-  orderId: number | null = null;
+  accessToken: string | null = null;
   paymentFlow: 'return' | 'cancel' | null = null;
   resultTitle = 'Kết quả giao dịch';
   resultMessage = 'Đang xử lý kết quả thanh toán.';
@@ -61,18 +61,17 @@ export class PaymentResultComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((params) => {
-      const raw = params.get('orderId');
-      this.orderId = raw ? Number(raw) : null;
+      this.accessToken = (params.get('token') || '').trim() || null;
       const flow = params.get('paymentFlow');
       this.paymentFlow = flow === 'return' || flow === 'cancel' ? flow : null;
 
       this.updateResultMessage();
 
-      if (this.orderId && !Number.isNaN(this.orderId)) {
-        this.startPolling(this.orderId);
+      if (this.accessToken) {
+        this.startPolling(this.accessToken);
       } else {
         this.stopPolling();
-        this.error = 'Không tìm thấy mã đơn hàng trong URL trả về.';
+        this.error = 'Không tìm thấy mã truy cập đơn hàng trong URL trả về.';
       }
     });
   }
@@ -81,17 +80,20 @@ export class PaymentResultComponent implements OnInit, OnDestroy {
     this.stopPolling();
   }
 
-  private startPolling(id: number): void {
+  private startPolling(token: string): void {
     this.stopPolling();
     this.loading = true;
     this.pollTimedOut = false;
     this.polling = true;
 
+    const sessionId = this.lookupState.getOrCreateSessionId();
+    const params = new HttpParams().set('sessionId', sessionId);
+
     this.pollSub = timer(0, PaymentResultComponent.POLL_INTERVAL_MS)
       .pipe(
         switchMap(() =>
           this.http
-            .get<PublicOrderStatus>(`${environment.apiBaseUrl}/public/orders/${id}/status`)
+            .get<PublicOrderStatus>(`${environment.apiBaseUrl}/public/orders/${encodeURIComponent(token)}/status`, { params })
             .pipe(
               catchError((err) => {
                 this.handleOrderFetchError(err);
@@ -142,6 +144,17 @@ export class PaymentResultComponent implements OnInit, OnDestroy {
   private handleOrderFetchError(err: unknown): void {
     console.error('fetch order failed', err);
     this.loading = false;
+
+    const status = (err as { status?: number })?.status;
+    if (status === 403) {
+      this.error = 'Liên kết tra cứu đơn hàng đã hết hạn. Vui lòng kiểm tra lịch sử giao dịch hoặc liên hệ hỗ trợ.';
+      this.stopPolling();
+      return;
+    }
+    if (status === 429) {
+      this.error = 'Hệ thống đang xử lý nhiều yêu cầu. Vui lòng thử lại sau vài phút.';
+      return;
+    }
 
     if (!this.order) {
       this.error = 'Không thể tải chi tiết trạng thái đơn hàng.';
@@ -273,4 +286,3 @@ export class PaymentResultComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('/');
   }
 }
-
