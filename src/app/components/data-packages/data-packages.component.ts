@@ -1219,7 +1219,15 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
     return digits;
   }
 
+  isLookupInProgress(): boolean {
+    return this.loading || this.lookupState.currentStatus === 'loading';
+  }
+
   handleLogin(): void {
+    if (this.isLookupInProgress()) {
+      return;
+    }
+
     const normalized = this.normalizeVietnamPhone(this.subscriberNumber.trim());
     if (!normalized) {
       this.lookupError = 'Số thuê bao không hợp lệ. Vui lòng nhập đúng định dạng';

@@ -153,6 +153,7 @@ export class PaymentResultComponent implements OnInit, OnDestroy {
     }
     if (status === 429) {
       this.error = 'Hệ thống đang xử lý nhiều yêu cầu. Vui lòng thử lại sau vài phút.';
+      this.stopPolling();
       return;
     }
 

@@ -158,8 +158,12 @@
               placeholder="VD: 0912345678"
               [(ngModel)]="subscriberNumber"
               (input)="onSubscriberInput()"
-              (keyup.enter)="handleLogin()">
-            <button type="button" class="lookup-submit-btn" (click)="handleLogin()">Tra cứu</button>
+              (keyup.enter)="!isLookupInProgress() && handleLogin()">
+            <button
+              type="button"
+              class="lookup-submit-btn"
+              [disabled]="isLookupInProgress()"
+              (click)="handleLogin()">Tra cứu</button>
           </div>
         </div>
       </div>
