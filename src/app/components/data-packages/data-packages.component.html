@@ -12,7 +12,8 @@
     [telecomPackageNameSnapshot]="selectedPackage.name"
     [carrierPrice]="selectedPackage.originalPrice || getOriginalPrice(selectedPackage)"
     [packageSnapshot]="selectedPackage"
-    (back)="backToPackages()">
+    (back)="backToPackages()"
+    (lookupExpired)="handleLookupExpired()">
   </app-payment-method>
 
   <!-- Detail Modal -->

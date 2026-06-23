@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { AttributionService } from '../../services/attribution.service';
+import { isLookupExpiredHttpError, LookupStateService } from '../../services/lookup-state.service';
 
 export interface OrderPackageSnapshot {
   name?: string;
@@ -33,6 +34,7 @@ export class PaymentMethodComponent {
   @Input() carrierPrice: number = 0;
   @Input() packageSnapshot: OrderPackageSnapshot | null = null;
   @Output() back = new EventEmitter<void>();
+  @Output() lookupExpired = new EventEmitter<void>();
 
   isProcessingPayment: boolean = false;
   requestInvoice: boolean = false;
@@ -72,7 +74,11 @@ export class PaymentMethodComponent {
     }
   };
 
-  constructor(private http: HttpClient, private attribution: AttributionService) {}
+  constructor(
+    private http: HttpClient,
+    private attribution: AttributionService,
+    private lookupState: LookupStateService
+  ) {}
 
   getPackageDisplayName(): string {
     const name = this.packageSnapshot?.name || this.telecomPackageNameSnapshot || '';
@@ -212,6 +218,11 @@ export class PaymentMethodComponent {
   }
 
   private startViettelMoneyFlow(): void {
+    if (this.lookupState.isSessionExpired()) {
+      this.lookupExpired.emit();
+      return;
+    }
+
     if (!this.phoneNumber || !this.sessionId) {
       alert('Thiếu thông tin số thuê bao / session. Vui lòng thử lại.');
       return;
@@ -278,7 +289,12 @@ export class PaymentMethodComponent {
       error: (err) => {
         this.isProcessingPayment = false;
         console.error('create order failed', err);
-        alert('Tạo đơn hàng thất bại. Vui lòng thử lại.');
+        if (isLookupExpiredHttpError(err)) {
+          this.lookupExpired.emit();
+          return;
+        }
+        const title = (err as { error?: { title?: string } })?.error?.title;
+        alert(title || 'Tạo đơn hàng thất bại. Vui lòng thử lại.');
       }
     });
   }

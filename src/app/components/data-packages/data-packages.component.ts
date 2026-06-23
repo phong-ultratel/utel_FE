@@ -940,6 +940,12 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
     this.paymentPhoneNumber = '';
   }
 
+  handleLookupExpired(): void {
+    this.backToPackages();
+    this.resetLookup();
+    this.lookupError = 'Phiên tra cứu đã hết hạn. Vui lòng tra cứu lại.';
+  }
+
   viewDetails(pkg: DisplayPackage): void {
     this.detailPackage = pkg;
 
@@ -1064,6 +1070,12 @@ export class DataPackagesComponent implements OnInit, AfterViewInit, AfterViewCh
     if (!this.lookupDone) {
       this.showLookupRequiredMessage();
       this.closeDetailModal();
+      return;
+    }
+
+    if (this.lookupState.isSessionExpired()) {
+      this.closeDetailModal();
+      this.handleLookupExpired();
       return;
     }
 

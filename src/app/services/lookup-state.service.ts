@@ -6,8 +6,8 @@ export type LookupStatus = 'idle' | 'loading' | 'success' | 'error';
 
 const STORAGE_KEY = 'utel_lookup_state';
 
-/** Dữ liệu tra cứu trong localStorage chỉ có hiệu lực trong khoảng thời gian này */
-const LOOKUP_STORAGE_TTL_MS = 30 * 60 * 1000;
+/** Phiên tra cứu hợp lệ 30 phút — khớp LOOKUP_MAX_AGE trên backend */
+export const LOOKUP_SESSION_TTL_MS = 30 * 60 * 1000;
 
 export interface PersistedLookupState {
   status: LookupStatus;
@@ -23,8 +23,19 @@ export interface PersistedLookupState {
   group4?: unknown[];
   /** Gói đề xuất sau tra cứu (đã merge hiển thị) */
   recommendedPackages?: unknown[];
-  /** Unix timestamp (ms) lúc lưu — dùng để hết hạn sau LOOKUP_STORAGE_TTL_MS */
+  /** Unix timestamp (ms) lúc lưu — dùng để hết hạn sau LOOKUP_SESSION_TTL_MS */
   savedAt?: number;
+}
+
+export function isLookupExpiredHttpError(err: unknown): boolean {
+  const body = (err as { error?: Record<string, unknown> })?.error;
+  if (!body) {
+    return false;
+  }
+  if (body['errorKey'] === 'lookupexpired') {
+    return true;
+  }
+  return body['message'] === 'error.lookupexpired';
 }
 
 @Injectable({
@@ -42,6 +53,7 @@ export class LookupStateService {
   private restoredGroup3: unknown[] | null = null;
   private restoredGroup4: unknown[] | null = null;
   private restoredRecommended: unknown[] | null = null;
+  private lookupSavedAt: number | null = null;
 
   constructor(private attributionService: AttributionService) {
     this.loadFromStorage();
@@ -58,7 +70,18 @@ export class LookupStateService {
     if (typeof state.savedAt !== 'number' || !Number.isFinite(state.savedAt)) {
       return true;
     }
-    return Date.now() - state.savedAt > LOOKUP_STORAGE_TTL_MS;
+    return Date.now() - state.savedAt > LOOKUP_SESSION_TTL_MS;
+  }
+
+  /** true khi đang ở trạng thái tra cứu thành công nhưng đã quá LOOKUP_SESSION_TTL_MS */
+  isSessionExpired(): boolean {
+    if (this.status$.value !== 'success') {
+      return false;
+    }
+    if (this.lookupSavedAt == null || !Number.isFinite(this.lookupSavedAt)) {
+      return true;
+    }
+    return Date.now() - this.lookupSavedAt > LOOKUP_SESSION_TTL_MS;
   }
 
   private loadFromStorage(): void {
@@ -90,6 +113,7 @@ export class LookupStateService {
         this.restoredGroup4 = null;
       }
       this.restoredRecommended = Array.isArray(state.recommendedPackages) ? state.recommendedPackages : null;
+      this.lookupSavedAt = typeof state.savedAt === 'number' ? state.savedAt : null;
     } catch {
       // ignore invalid stored data
     }
@@ -209,6 +233,7 @@ export class LookupStateService {
     this.restoredGroup3 = null;
     this.restoredGroup4 = null;
     this.restoredRecommended = null;
+    this.lookupSavedAt = Date.now();
     this.saveToStorage({
       status: 'success',
       phoneDisplay,
@@ -241,6 +266,7 @@ export class LookupStateService {
     this.restoredGroup3 = null;
     this.restoredGroup4 = null;
     this.restoredRecommended = null;
+    this.lookupSavedAt = null;
     this.saveToStorage(null);
   }
 }
