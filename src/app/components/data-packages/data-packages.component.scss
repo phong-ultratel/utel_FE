@@ -1038,7 +1038,7 @@
   }
 
   .info-label {
-    font-size: 18px;
+    font-size: 13px;
     font-weight: 500;
     color: #666;
     white-space: nowrap;
@@ -1046,7 +1046,7 @@
   }
 
   .info-value {
-    font-size: 18px;
+    font-size: 13px;
     color: #333;
     flex: 1;
     min-width: 0; /* Cho phép flex item co lại để nội dung hiển thị đúng */
@@ -1130,7 +1130,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
   flex-wrap: wrap;
   line-height: 1.15;
 }
@@ -1147,14 +1147,14 @@
   );
   background-size: 220% 100%;
   color: #fff;
-  padding: 5px 12px;
-  border-radius: 18px;
-  font-size: 15px;
+  padding: 6px 16px;
+  border-radius: 22px;
+  font-size: 22px;
   font-weight: 800;
-  box-shadow: 0 3px 10px rgba(230, 0, 18, 0.4);
+  box-shadow: 0 3px 12px rgba(230, 0, 18, 0.42);
   animation: discount-pulse-glow 2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
   flex-shrink: 0;
-  line-height: 1.2;
+  line-height: 1.15;
   will-change: transform, box-shadow, background-position;
 
   .discount-text {
@@ -1168,21 +1168,21 @@
     background-position: 0% 50%;
     transform: scale(1);
     box-shadow:
-      0 2px 8px rgba(230, 0, 18, 0.35),
+      0 3px 12px rgba(230, 0, 18, 0.42),
       0 0 0 0 rgba(230, 0, 18, 0);
   }
   45% {
     background-position: 100% 50%;
-    transform: scale(1.07);
+    transform: scale(1.05);
     box-shadow:
-      0 4px 16px rgba(230, 0, 18, 0.55),
-      0 0 0 5px rgba(230, 0, 18, 0.12);
+      0 5px 18px rgba(230, 0, 18, 0.55),
+      0 0 0 4px rgba(230, 0, 18, 0.12);
   }
   70% {
     background-position: 60% 50%;
-    transform: scale(1.03);
+    transform: scale(1.02);
     box-shadow:
-      0 3px 12px rgba(230, 0, 18, 0.42),
+      0 4px 14px rgba(230, 0, 18, 0.45),
       0 0 0 2px rgba(230, 0, 18, 0.06);
   }
 }
@@ -1195,20 +1195,20 @@
   line-height: 1.1;
 
   .original-price-amount {
-    font-size: 17px;
+    font-size: 23px;
     font-weight: 600;
-    color: #666;
+    color: #1a1a1a;
     text-decoration: line-through;
-    text-decoration-thickness: 2px;
+    text-decoration-thickness: 2.5px;
     text-decoration-color: #888;
   }
 
   .original-price-unit {
-    font-size: 14px;
+    font-size: 19px;
     font-weight: 600;
-    color: #666;
+    color: #1a1a1a;
     text-decoration: line-through;
-    text-decoration-thickness: 2px;
+    text-decoration-thickness: 2.5px;
     text-decoration-color: #888;
   }
 }
@@ -1217,26 +1217,32 @@
   display: flex;
   align-items: baseline;
   justify-content: center;
-  gap: 3px;
+  gap: 6px;
   line-height: 1;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .price-label {
-  flex-basis: 100%;
-  font-size: 12px;
+  font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
   font-weight: 700;
   color: #b80010;
-  margin-bottom: 2px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .promo-saving-text {
-  font-size: 12px;
-  color: #d32f2f;
-  font-weight: 600;
-  margin-bottom: 6px;
+  display: inline-block;
+  font-size: 15px;
+  color: #c40010;
+  font-weight: 800;
+  margin-top: 2px;
+  margin-bottom: 8px;
+  letter-spacing: 0.2px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(230, 0, 18, 0.08);
 }
 
 .price-amount {
